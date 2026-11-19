@@ -1604,8 +1604,8 @@ document.addEventListener('click',function(e){
 
 (function(){
 'use strict';
-var STORAGE_KEY='students_grades_master_db_v9';
-var LEGACY_KEYS=['students_grades_master_db','students_grades_stats_v1','students_grades_stats_v2','students_grades_stats_v3_secure'];
+var STORAGE_KEY='platform2_master_db_v1';
+var LEGACY_KEYS=[];
 var state={
   studentAccounts:{},
   teacherPhone:'',schoolName:'',schoolLogo:'',changeLog:[],groupTargets:{},appPin:'',guestMode:false,themeColor:'#1e40af',autoBackupEnabled:true,lastAutoBackup:0,quizMaxAttempts:1,riskThreshold:50,activityLog:[],termSnapshots:[],sensitivePin:'',payments:{},payMonths:[],payFee:0,
@@ -1683,7 +1683,7 @@ function normalizeState(raw){
 }
 
 /* ===== IndexedDB تخزين موسّع ===== */
-var IDB_NAME='grades_platform_idb_v9';
+var IDB_NAME='platform2_idb_v1';
 var IDB_STORE='kv';
 var IDB_MAIN_KEY='main_state';
 var _idbPromise=null;
@@ -1777,17 +1777,17 @@ function updateStorageStatusUI(){
 
 
 /* ===== التخزين السحابي (Supabase) ===== */
-var SB_URL='https://nmcmhlqstkfhsvnyeeod.supabase.co';
-var SB_KEY='sb_publishable_n_zipcibBGa0RbW6xMloFw_S5Zt0qqH';
+var SB_URL='https://vsiewjrdzrahyhyxhgtm.supabase.co/rest/v1/';
+var SB_KEY='sb_publishable_BgYjzslIj-SmDnhzWV6ssA_gyPacwTW';
 var SB_ROW='main_state';
 var _cloudOK=false;
 window.SB_URL=SB_URL;window.SB_KEY=SB_KEY;window.sbHeaders=sbHeaders;
 var SB_TOKEN=null,_sess=null;
-function sbSave(s){_sess=s;SB_TOKEN=s?s.access_token:null;try{if(s)localStorage.setItem('sb_sess',JSON.stringify(s));else localStorage.removeItem('sb_sess');}catch(e){}}
+function sbSave(s){_sess=s;SB_TOKEN=s?s.access_token:null;try{if(s)localStorage.setItem('sb_sess_p2',JSON.stringify(s));else localStorage.removeItem('sb_sess_p2');}catch(e){}}
 function sbAuth(body,grant){return fetch(SB_URL+'/auth/v1/token?grant_type='+grant,{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().then(function(j){
   if(!r.ok||!j.access_token)throw new Error(j.error_description||j.msg||'بيانات الدخول غير صحيحة');
   sbSave({access_token:j.access_token,refresh_token:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000});return true;});});}
-function sbReady(){var s=null;try{s=JSON.parse(localStorage.getItem('sb_sess')||'null');}catch(e){}
+function sbReady(){var s=null;try{s=JSON.parse(localStorage.getItem('sb_sess_p2')||'null');}catch(e){}
   if(!s)return Promise.resolve(false);
   if(s.exp-Date.now()>120000){sbSave(s);return Promise.resolve(true);}
   return sbAuth({refresh_token:s.refresh_token},'refresh_token').catch(function(){sbSave(null);return false;});}
@@ -2007,7 +2007,7 @@ window.toggleCompactTable=function(){
 };
 window.restoreAutoBackup=function(){
   try{
-    var raw=localStorage.getItem('students_grades_autobackup_v9');
+    var raw=localStorage.getItem('platform2_autobackup_v1');
     if(!raw)return alert('لا توجد نسخة احتياطية داخل المتصفح');
     var obj=JSON.parse(raw);
     var st=obj.state||obj;
@@ -2393,7 +2393,7 @@ window.saveQuizMaxAttempts=function(){
 
 window.runAutoBackup=function(force){
   try{
-    var key='students_grades_autobackup_v9';
+    var key='platform2_autobackup_v1';
     var payload=JSON.stringify({t:Date.now(),state:state});
     localStorage.setItem(key, payload);
     state.lastAutoBackup=Date.now();
@@ -5316,7 +5316,7 @@ window.clearAllData=function(){
   if(!confirm('تأكيد أخير؟'))return;
   try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
   LEGACY_KEYS.forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
-  ['students_grades_autobackup_v9','students_grades_emergency_v9'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
+  ['platform2_autobackup_v1','platform2_autobackup_v1'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
   var done=function(){location.reload();};
   try{
     openIDB().then(function(db){
@@ -6631,7 +6631,7 @@ function saveEmergencySnapshot(){
 function tryEmergencyRestoreHint(){
   try{
     if(state.students&&state.students.length)return;
-    var raw=localStorage.getItem('students_grades_emergency_v9')||localStorage.getItem('students_grades_autobackup_v9');
+    var raw=localStorage.getItem('students_grades_emergency_v9')||localStorage.getItem('platform2_autobackup_v1');
     if(!raw)return;
     var obj=JSON.parse(raw),st=obj.state||obj;
     if(!st||!st.students||!st.students.length)return;
