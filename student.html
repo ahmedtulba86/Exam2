@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>بوابة اختبارات الطلاب</title>
+<title>بوابة الطالب</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #1e40af;
-    --primary-dark: #1e3a8a;
+    --primary: #1e3a8a;
+    --primary-bright: #1d4ed8;
     --primary-light: #eff6ff;
     --success: #16a34a;
     --danger: #dc2626;
     --warning: #d97706;
-    --bg: #f1f5f9;
+    --bg: #eef2f6;
     --card: #ffffff;
     --text: #0f172a;
     --muted: #64748b;
-    --border: #cbd5e1;
+    --border: #d1d9e6;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body {
@@ -30,126 +30,246 @@
     line-height: 1.7;
   }
   .container {
-    max-width: 820px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 16px;
+    padding: 14px;
   }
   .card {
     background: var(--card);
     border-radius: 16px;
-    padding: 22px;
-    box-shadow: 0 6px 24px rgba(15, 23, 42, .07);
+    padding: 18px 20px;
+    box-shadow: 0 4px 18px rgba(15, 23, 42, .06);
     border: 1px solid #e2e8f0;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
-  h1, h2, h3 { margin-top: 0; }
+  h1, h2, h3, h4 { margin-top: 0; }
   .center { text-align: center; }
-  .muted { color: var(--muted); font-size: 14px; }
+  .muted { color: var(--muted); font-size: 13.5px; }
+  .hidden { display: none !important; }
 
   /* Login */
-  .login-wrap {
-    max-width: 440px;
-    margin: 36px auto;
-  }
+  .login-wrap { max-width: 440px; margin: 40px auto; }
   .logo-badge {
-    width: 64px; height: 64px;
-    margin: 0 auto 12px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #1e40af, #3b82f6);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px;
-    box-shadow: 0 8px 20px rgba(30, 64, 175, .25);
+    width: 68px; height: 68px; margin: 0 auto 12px; border-radius: 18px;
+    background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 32px;
+    box-shadow: 0 8px 22px rgba(30, 58, 138, .25);
   }
   .field { margin-bottom: 14px; text-align: right; }
   .field label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #334155; }
   .field input {
-    width: 100%;
-    padding: 12px 14px;
-    border: 2px solid var(--border);
-    border-radius: 11px;
-    font-family: inherit;
-    font-size: 16px;
-    outline: none;
-    transition: border-color .2s;
+    width: 100%; padding: 12px 14px; border: 2px solid var(--border); border-radius: 12px;
+    font-family: inherit; font-size: 16px; outline: none; transition: border-color .2s;
   }
-  .field input:focus { border-color: var(--primary); }
+  .field input:focus { border-color: var(--primary-bright); }
 
+  /* Buttons */
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-    border: none; border-radius: 11px;
-    padding: 12px 20px;
-    font-family: inherit; font-size: 15px; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    border: none; border-radius: 11px; padding: 10px 18px;
+    font-family: inherit; font-size: 14.5px; font-weight: 800;
     cursor: pointer; transition: transform .1s, opacity .2s, background .2s;
   }
   .btn:active { transform: scale(.98); }
   .btn:disabled { opacity: .55; cursor: not-allowed; }
   .btn-primary { background: var(--primary); color: #fff; }
-  .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+  .btn-primary:hover:not(:disabled) { background: #172554; }
   .btn-success { background: var(--success); color: #fff; }
+  .btn-success:hover:not(:disabled) { background: #15803d; }
   .btn-danger { background: var(--danger); color: #fff; }
-  .btn-outline { background: #fff; color: var(--text); border: 2px solid var(--border); }
+  .btn-soft { background: #e2e8f0; color: #1e293b; }
+  .btn-soft:hover:not(:disabled) { background: #cbd5e1; }
+  .btn-outline { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
   .btn-block { width: 100%; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 9px; }
 
   .alert {
-    padding: 11px 14px;
-    border-radius: 11px;
-    font-size: 14px;
-    font-weight: 700;
-    margin-bottom: 14px;
-    display: none;
+    padding: 11px 14px; border-radius: 11px; font-size: 14px; font-weight: 700;
+    margin-bottom: 12px; display: none;
   }
   .alert-err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
   .alert-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
   .alert-ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
-  /* Exams List */
-  .topbar-simple {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-    gap: 10px; margin-bottom: 16px;
+  /* Portal Header (Matches Old Platform Style) */
+  .portal-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
   }
+  .portal-greeting h2 { margin: 0; font-size: 21px; color: #0f172a; }
+  .portal-greeting .sub { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  /* 4 Main Portal Tabs */
+  .portal-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 640px) {
+    .portal-tabs { grid-template-columns: repeat(2, 1fr); }
+  }
+  .ptab {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1.5px solid transparent;
+    border-radius: 13px;
+    padding: 12px 10px;
+    font-family: inherit;
+    font-size: 14.5px;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    transition: all .18s;
+  }
+  .ptab:hover { background: #d5dee9; }
+  .ptab.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 6px 16px rgba(30, 58, 138, .25);
+  }
+  .tab-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; padding: 0 6px;
+    border-radius: 999px; font-size: 12px; font-weight: 800;
+    background: #dc2626; color: #fff;
+  }
+  .ptab.active .tab-count { background: #ef4444; color: #fff; }
+
+  /* Exam Cards */
   .exam-item {
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
-    gap: 12px;
-    padding: 16px;
     border: 1.5px solid #e2e8f0;
     border-radius: 14px;
+    padding: 16px;
     margin-bottom: 12px;
     background: #f8fafc;
   }
-  .exam-item h3 { margin: 0 0 4px; color: var(--primary-dark); font-size: 17px; }
-  .exam-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #475569; }
+  .exam-item-top {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .exam-item h3 { margin: 0 0 4px; color: var(--primary); font-size: 17px; }
+  .exam-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #475569; align-items: center; }
   .badge {
-    display: inline-block; padding: 2px 9px; border-radius: 999px;
-    font-size: 12px; font-weight: 700; background: #e0e7ff; color: #1e40af;
+    display: inline-block; padding: 2px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 800; background: #e0e7ff; color: #1e40af;
   }
   .badge-done { background: #dcfce7; color: #166534; }
+  .badge-warn { background: #fef3c7; color: #92400e; }
+  .badge-err { background: #fee2e2; color: #b91c1c; }
 
-  /* Exam Header Sticky */
-  .exam-header {
-    position: sticky; top: 0; z-index: 50;
+  /* Ranking Stats Strip under Old Exams */
+  .rank-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed #cbd5e1;
+  }
+  @media (max-width: 680px) {
+    .rank-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .rank-box {
     background: #ffffff;
-    border-bottom: 2px solid #e2e8f0;
-    padding: 10px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 11px;
+    padding: 9px 10px;
+    text-align: center;
+  }
+  .rank-box .rlbl { font-size: 11.5px; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+  .rank-box .rval { font-size: 15px; font-weight: 800; color: #0f172a; }
+  .rank-box.r-exam { border-right: 4px solid #2563eb; }
+  .rank-box.r-group { border-right: 4px solid #0d9488; }
+  .rank-box.r-batch { border-right: 4px solid #7c3aed; }
+  .rank-box.r-level { border-right: 4px solid #d97706; }
+
+  /* Mistakes Tab (Matches Screenshot) */
+  .mistakes-head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .sub-toggle {
+    display: inline-flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 10px;
+  }
+  .sub-toggle button {
+    border: none; border-radius: 8px; padding: 7px 14px; font-family: inherit;
+    font-size: 13px; font-weight: 800; cursor: pointer; background: transparent; color: #475569;
+  }
+  .sub-toggle button.active { background: var(--primary); color: #fff; }
+
+  .weak-row { margin-bottom: 12px; }
+  .weak-row-top {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; font-weight: 700; margin-bottom: 5px;
+  }
+  .progress-track {
+    width: 100%; height: 10px; background: #e2e8f0; border-radius: 999px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, #dc2626, #ef4444); border-radius: 999px;
+  }
+
+  .mistake-group-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 14px; background: #f1f5f9; border-radius: 11px; margin: 14px 0 10px;
+  }
+  .mistake-card {
+    border: 1.5px solid #fecaca; background: #fff; border-radius: 13px;
+    padding: 14px; margin-bottom: 10px;
+  }
+  .ans-compare {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 13.5px; font-weight: 800;
+  }
+  .ans-wrong { background: #fee2e2; color: #b91c1c; padding: 4px 12px; border-radius: 8px; }
+  .ans-right { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 8px; }
+
+  /* Videos Tab */
+  .video-card {
+    border: 1.5px solid #e2e8f0; border-radius: 14px; overflow: hidden;
+    background: #fff; margin-bottom: 14px;
+  }
+  .video-embed {
+    position: relative; width: 100%; padding-top: 56.25%; background: #0f172a;
+  }
+  .video-embed iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
+  }
+  .video-body { padding: 14px 16px; }
+
+  /* Question Content (Word HTML + Images) */
+  .q-img {
+    max-width: 100%; height: auto; display: block; margin: 8px auto;
+    border-radius: 10px; border: 1px solid #e2e8f0;
+  }
+  .word-q-render {
+    background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px;
+    padding: 14px 16px; margin: 8px 0; color: #0f172a;
+    font-size: 16.5px; line-height: 1.9; text-align: right; direction: rtl; overflow-x: auto;
+  }
+  .word-q-render img { max-width: 100%; height: auto; border-radius: 8px; margin: 6px 0; display: block; }
+  .word-q-render table { border-collapse: collapse; margin: 8px 0; max-width: 100%; }
+  .word-q-render td, .word-q-render th { border: 1px solid #94a3b8; padding: 6px 10px; }
+  .word-q-render sup { font-size: .75em; vertical-align: super; }
+  .word-q-render sub { font-size: .75em; vertical-align: sub; }
+  .word-q-render math { direction: ltr; unicode-bidi: isolate; font-size: 1.15em; margin: 0 3px; }
+
+  /* Exam / Practice Mode */
+  .exam-header {
+    position: sticky; top: 0; z-index: 50; background: #fff;
+    border-bottom: 2px solid #e2e8f0; padding: 10px 14px;
     box-shadow: 0 4px 14px rgba(15,23,42,.06);
   }
   .exam-header-inner {
-    max-width: 820px; margin: 0 auto;
+    max-width: 900px; margin: 0 auto;
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
   }
   .timer-pill {
     background: #eff6ff; color: #1e40af; border: 2px solid #93c5fd;
-    padding: 5px 14px; border-radius: 999px;
-    font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums;
-    direction: ltr;
+    padding: 4px 14px; border-radius: 999px; font-weight: 800; font-size: 17px;
+    font-variant-numeric: tabular-nums; direction: ltr;
   }
   .timer-pill.low { background: #fef2f2; color: #dc2626; border-color: #fca5a5; animation: pulse 1s infinite; }
   @keyframes pulse { 50% { opacity: .6; } }
 
-  /* Question Navigator */
-  .q-nav {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
-  }
+  .q-nav { display: flex; flex-wrap: wrap; gap: 6px; }
   .q-pill {
     min-width: 36px; height: 36px; border-radius: 9px;
     border: 1.5px solid var(--border); background: #fff; color: #334155;
@@ -158,95 +278,51 @@
   .q-pill.answered { background: #dcfce7; border-color: #16a34a; color: #166534; }
   .q-pill.current { background: var(--primary); border-color: var(--primary); color: #fff; }
 
-  /* Question Content */
-  .q-card-head {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;
-  }
-  .q-img {
-    max-width: 100%; height: auto; display: block; margin: 10px auto;
-    border-radius: 10px; border: 1px solid #e2e8f0;
-  }
-  .word-q-render {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px;
-    margin: 10px 0 16px;
-    color: #0f172a;
-    font-size: 17px;
-    line-height: 1.9;
-    text-align: right;
-    direction: rtl;
-    overflow-x: auto;
-  }
-  .word-q-render img { max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0; display: block; }
-  .word-q-render table { border-collapse: collapse; margin: 10px 0; max-width: 100%; }
-  .word-q-render td, .word-q-render th { border: 1px solid #94a3b8; padding: 6px 10px; }
-  .word-q-render sup { font-size: .75em; vertical-align: super; }
-  .word-q-render sub { font-size: .75em; vertical-align: sub; }
-  .word-q-render math { direction: ltr; unicode-bidi: isolate; font-size: 1.15em; margin: 0 3px; }
-
-  /* Options */
   .options-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-    margin: 18px 0;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0;
   }
-  @media (max-width: 480px) {
-    .options-grid { grid-template-columns: repeat(2, 1fr); }
-  }
+  @media (max-width: 480px) { .options-grid { grid-template-columns: repeat(2, 1fr); } }
   .opt-btn {
-    padding: 15px 10px;
-    border-radius: 12px;
-    border: 2px solid var(--border);
-    background: #f8fafc;
-    color: var(--text);
-    font-family: inherit;
-    font-size: 20px;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all .15s;
+    padding: 14px 10px; border-radius: 12px; border: 2px solid var(--border);
+    background: #f8fafc; color: var(--text); font-family: inherit;
+    font-size: 20px; font-weight: 800; cursor: pointer; transition: all .15s;
   }
-  .opt-btn:hover { border-color: var(--primary); background: var(--primary-light); }
-  .opt-btn.selected {
-    background: var(--primary);
-    border-color: var(--primary-dark);
-    color: #fff;
-    box-shadow: 0 4px 14px rgba(30, 64, 175, .28);
-  }
+  .opt-btn:hover { border-color: var(--primary-bright); background: var(--primary-light); }
+  .opt-btn.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
+  .opt-btn.prac-ok { background: #16a34a; border-color: #15803d; color: #fff; }
+  .opt-btn.prac-bad { background: #dc2626; border-color: #b91c1c; color: #fff; }
 
   .nav-actions {
     display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
     margin-top: 14px; padding-top: 14px; border-top: 1px solid #e2e8f0;
   }
 
-  /* Result */
+  /* Modal for Reviewing Old Exam */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 1000; background: rgba(15, 23, 42, .68);
+    display: none; align-items: flex-start; justify-content: center; padding: 14px; overflow-y: auto;
+  }
+  .modal-box {
+    background: #fff; width: 100%; max-width: 820px; border-radius: 16px;
+    padding: 18px; margin: 16px auto; box-shadow: 0 20px 50px rgba(0,0,0,.3);
+  }
   .score-circle {
-    width: 150px; height: 150px;
-    margin: 14px auto;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #16a34a, #22c55e);
-    color: #fff;
+    width: 145px; height: 145px; margin: 14px auto; border-radius: 50%;
+    background: linear-gradient(135deg, #16a34a, #22c55e); color: #fff;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     box-shadow: 0 10px 26px rgba(22, 163, 74, .28);
   }
-  .score-circle .big { font-size: 34px; font-weight: 800; line-height: 1.1; }
-  .score-circle .pct { font-size: 15px; opacity: .95; }
-
-  .hidden { display: none !important; }
-  .save-dot { font-size: 12px; color: var(--success); font-weight: 700; }
+  .score-circle .big { font-size: 32px; font-weight: 800; line-height: 1.1; }
 </style>
 </head>
 <body>
 
-<!-- 1. شاشة تسجيل دخول الطالب -->
+<!-- 1. شاشة تسجيل الدخول -->
 <div id="viewLogin" class="container login-wrap">
   <div class="card center">
-    <div class="logo-badge">📝</div>
-    <h2 style="color:var(--primary-dark);margin-bottom:4px;">بوابة اختبارات الطلاب</h2>
-    <p class="muted" style="margin-top:0;margin-bottom:18px;">أدخل رقم الهاتف وكود الطالب للدخول إلى الاختبارات</p>
+    <div class="logo-badge">🎓</div>
+    <h2 style="color:var(--primary);margin-bottom:4px;">بوابة الطالب</h2>
+    <p class="muted" style="margin-top:0;margin-bottom:18px;">أدخل رقم الهاتف وكود الطالب للدخول إلى اختباراتك وأخطائك</p>
 
     <div id="loginErr" class="alert alert-err"></div>
 
@@ -259,43 +335,136 @@
         <label for="inpCode">كود الطالب</label>
         <input type="text" id="inpCode" placeholder="أدخل الكود الخاص بك" required autocomplete="off">
       </div>
-      <button type="submit" id="btnLogin" class="btn btn-primary btn-block">دخول إلى الاختبارات</button>
+      <button type="submit" id="btnLogin" class="btn btn-primary btn-block">دخول إلى البوابة</button>
     </form>
   </div>
 </div>
 
-<!-- 2. شاشة قائمة الاختبارات المتاحة -->
-<div id="viewList" class="container hidden">
+<!-- 2. شاشة البوابة الرئيسية (4 تبويبات) -->
+<div id="viewPortal" class="container hidden">
+  <!-- رأس البوابة -->
   <div class="card">
-    <div class="topbar-simple">
-      <div>
-        <h2 style="margin:0;color:var(--primary-dark);">مرحباً، <span id="stNameList"></span> 👋</h2>
-        <div class="muted">اختر الاختبار الذي تريد البدء فيه من القائمة التالية</div>
+    <div class="portal-header">
+      <div class="portal-greeting">
+        <h2>أهلاً <span id="stNameHeader"></span> 👋</h2>
+        <div class="sub">
+          بوابة الطالب
+          <span id="stGroupBadge" class="badge hidden" style="margin-right:6px;"></span>
+        </div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button type="button" id="btnRefreshList" class="btn btn-outline" style="padding:8px 14px;font-size:13px;">تحديث</button>
-        <button type="button" id="btnLogout" class="btn btn-danger" style="padding:8px 14px;font-size:13px;">خروج</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button type="button" id="btnRefreshPortal" class="btn btn-outline btn-sm">تحديث ↻</button>
+        <button type="button" id="btnLogout" class="btn btn-soft btn-sm">خروج</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- شريط التبويبات الأربعة (من اليمين لليسار) -->
+  <div class="portal-tabs">
+    <button type="button" class="ptab active" data-ptab="new">
+      <span>📝 الاختبارات الجديدة</span>
+      <span id="cntNew" class="tab-count hidden">0</span>
+    </button>
+    <button type="button" class="ptab" data-ptab="old">
+      <span>📊 اختباراتي القديمة</span>
+    </button>
+    <button type="button" class="ptab" data-ptab="mistakes">
+      <span>❌ أخطائي</span>
+      <span id="cntMistakes" class="tab-count hidden">0</span>
+    </button>
+    <button type="button" class="ptab" data-ptab="videos">
+      <span>🎬 الفيديوهات</span>
+    </button>
+  </div>
+
+  <div id="portalErr" class="alert alert-err"></div>
+
+  <!-- تبويب 1: الاختبارات الجديدة -->
+  <div id="paneNew">
+    <div class="card">
+      <h3 style="color:var(--primary);margin-bottom:12px;">الاختبارات المتاحة الآن</h3>
+      <div id="newExamsBox"></div>
+    </div>
+  </div>
+
+  <!-- تبويب 2: اختباراتي القديمة -->
+  <div id="paneOld" class="hidden">
+    <div id="overallSummaryCard" class="card hidden" style="background:linear-gradient(135deg,#eff6ff,#f5f3ff);border-color:#c7d2fe;">
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">🏆 ملخص مستواك العام في الدفعة</div>
+      <div class="rank-grid" style="margin-top:0;padding-top:0;border-top:none;">
+        <div class="rank-box r-batch">
+          <div class="rlbl">ترتيبك العام في الدفعة</div>
+          <div class="rval" id="ovBatchRank">-</div>
+        </div>
+        <div class="rank-box r-level">
+          <div class="rlbl">مستواك بالنسبة للدفعة</div>
+          <div class="rval" id="ovLevel">-</div>
+        </div>
+        <div class="rank-box r-exam">
+          <div class="rlbl">متوسط درجاتك</div>
+          <div class="rval" id="ovAvg">-</div>
+        </div>
+        <div class="rank-box r-group">
+          <div class="rlbl">عدد الاختبارات المكتملة</div>
+          <div class="rval" id="ovCount">-</div>
+        </div>
       </div>
     </div>
 
-    <div id="listErr" class="alert alert-err"></div>
-    <div id="examsContainer"></div>
+    <div class="card">
+      <h3 style="color:var(--primary);margin-bottom:12px;">سجل اختباراتك السابقة وترتيبك</h3>
+      <div id="oldExamsBox"></div>
+    </div>
+  </div>
+
+  <!-- تبويب 3: أخطائي -->
+  <div id="paneMistakes" class="hidden">
+    <div class="card">
+      <div class="mistakes-head">
+        <div>
+          <h3 style="margin:0 0 8px;color:#0f172a;">إجمالي أخطائك: <span id="totalMistakesNum">0</span> سؤال</h3>
+          <div class="sub-toggle">
+            <button type="button" id="btnGroupByTopic" class="active">حسب الباب</button>
+            <button type="button" id="btnGroupByExam">حسب الاختبار</button>
+          </div>
+        </div>
+        <button type="button" id="btnPracticeAll" class="btn btn-success hidden">🎯 تدرّب على أخطائك (<span id="pracAllCount">0</span>)</button>
+      </div>
+    </div>
+
+    <div id="weakTopicsCard" class="card hidden">
+      <h3 style="margin-bottom:12px;color:#0f172a;">أضعف الأبواب عندك</h3>
+      <div id="weakTopicsBox"></div>
+    </div>
+
+    <div class="card">
+      <div id="mistakesListBox"></div>
+    </div>
+  </div>
+
+  <!-- تبويب 4: الفيديوهات -->
+  <div id="paneVideos" class="hidden">
+    <div class="card">
+      <h3 style="color:var(--primary);margin-bottom:12px;">🎬 فيديوهات الشرح والمراجعة</h3>
+      <div id="videosBox"></div>
+    </div>
   </div>
 </div>
 
-<!-- 3. شاشة أداء الاختبار -->
+<!-- 3. شاشة أداء الاختبار (أو التدريب على الأخطاء) -->
 <div id="viewExam" class="hidden">
   <div class="exam-header">
     <div class="exam-header-inner">
       <div>
-        <div style="font-weight:800;color:var(--primary-dark);font-size:16px;" id="exTitle"></div>
+        <div style="font-weight:800;color:var(--primary);font-size:16px;" id="exTitle"></div>
         <div style="font-size:12px;color:var(--muted);">
-          الطالب: <span id="exStudent"></span> • <span id="saveState" class="save-dot">✓ محفوظ تلقائياً</span>
+          الطالب: <span id="exStudent"></span> • <span id="saveState" style="color:var(--success);font-weight:700;">✓ محفوظ تلقائياً</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div id="timerPill" class="timer-pill">00:00</div>
-        <button type="button" id="btnSubmitTop" class="btn btn-success" style="padding:8px 14px;font-size:14px;">تسليم الاختبار</button>
+        <button type="button" id="btnSubmitTop" class="btn btn-success btn-sm">تسليم الاختبار</button>
+        <button type="button" id="btnExitPractice" class="btn btn-soft btn-sm hidden">إنهاء التدريب</button>
       </div>
     </div>
   </div>
@@ -306,18 +475,19 @@
 
     <div class="card" style="padding:14px;">
       <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px;">
-        الأسئلة (<span id="answeredCount">0</span> / <span id="totalCount">0</span> مُجاب):
+        الأسئلة (<span id="answeredCount">0</span> / <span id="totalCount">0</span>):
       </div>
       <div id="qNav" class="q-nav"></div>
     </div>
 
     <div class="card">
-      <div class="q-card-head">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #e2e8f0;">
         <strong style="color:var(--primary);font-size:17px;">السؤال <span id="qIndexNum">1</span> من <span id="qTotalNum">1</span></strong>
         <span id="qStatusBadge" class="badge">لم يُجب بعد</span>
       </div>
 
       <div id="qBody"></div>
+      <div id="pracFeedback" class="alert" style="margin-top:10px;"></div>
 
       <div style="font-weight:700;font-size:14px;color:#334155;margin-top:8px;">اختر الإجابة الصحيحة:</div>
       <div class="options-grid" id="optionsGrid">
@@ -338,22 +508,30 @@
 <!-- 4. شاشة النتيجة -->
 <div id="viewResult" class="container login-wrap hidden">
   <div class="card center">
-    <h2 style="color:var(--primary-dark);">تم تسليم الاختبار بنجاح 🎉</h2>
+    <h2 style="color:var(--primary);">تم تسليم الاختبار بنجاح 🎉</h2>
     <p class="muted" id="resExamTitle"></p>
-
     <div id="resScoreWrap">
       <div class="score-circle">
         <div class="big" id="resScoreText">0 / 0</div>
-        <div class="pct" id="resPctText">0%</div>
+        <div id="resPctText" style="font-size:15px;">0%</div>
       </div>
-      <p id="resMsg" style="font-weight:800;font-size:17px;color:#166534;"></p>
+      <p id="resMsg" style="font-weight:800;font-size:16px;color:#166534;"></p>
     </div>
-
     <div id="resHiddenWrap" class="alert alert-ok" style="display:none;">
       تم استلام إجاباتك وحفظها بنجاح. سيقوم المعلم بإعلان النتيجة لاحقاً.
     </div>
+    <button type="button" id="btnBackToPortal" class="btn btn-primary btn-block" style="margin-top:14px;">العودة إلى بوابة الطالب</button>
+  </div>
+</div>
 
-    <button type="button" id="btnBackToList" class="btn btn-primary btn-block" style="margin-top:14px;">العودة إلى قائمة الاختبارات</button>
+<!-- نافذة مراجعة اختبار قديم -->
+<div id="reviewModal" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">
+      <h3 id="revTitle" style="margin:0;color:var(--primary);">مراجعة الاختبار</h3>
+      <button type="button" id="btnCloseReview" class="btn btn-danger btn-sm">إغلاق ✕</button>
+    </div>
+    <div id="revBody"></div>
   </div>
 </div>
 
@@ -361,14 +539,17 @@
 (function() {
   'use strict';
 
-  // إعدادات مشروع Supabase الجديد (platform-2)
   var SB_URL = 'https://vsiewjrdzrahyhyxhgtm.supabase.co';
   var SB_KEY = 'sb_publishable_BgYjzslIj-SmDnhzWV6ssA_gyPacwTW';
 
   var state = {
     phone: '',
     code: '',
-    studentName: '',
+    portal: null,
+    activeTab: 'new',
+    mistakeGroupBy: 'topic', // 'topic' or 'exam'
+    // exam or practice session
+    mode: 'exam', // 'exam' or 'practice'
     attemptId: null,
     examTitle: '',
     questions: [],
@@ -387,17 +568,43 @@
   function $(id) { return document.getElementById(id); }
 
   function showView(id) {
-    ['viewLogin', 'viewList', 'viewExam', 'viewResult'].forEach(function(v) {
+    ['viewLogin', 'viewPortal', 'viewExam', 'viewResult'].forEach(function(v) {
       $(v).classList.toggle('hidden', v !== id);
     });
     window.scrollTo(0, 0);
   }
 
-  function showAlert(id, msg) {
+  function showAlert(id, msg, cls) {
     var el = $(id);
     if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+    if (cls) el.className = 'alert ' + cls;
     el.textContent = msg;
     el.style.display = 'block';
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function normalizeAns(a) {
+    var s = String(a || '').trim().toUpperCase();
+    var map = { 'ا': 'أ', 'إ': 'أ', 'آ': 'أ', 'A': 'أ', 'B': 'ب', 'C': 'ج', 'D': 'د' };
+    return map[s] || s;
+  }
+
+  function resolveImgUrl(img) {
+    if (!img) return '';
+    if (String(img).indexOf('wordq_html_id_') >= 0) return '';
+    if (/^https?:\/\//i.test(img) || /^data:image\//i.test(img)) return img;
+    return SB_URL + '/storage/v1/object/public/question-images/' + String(img).replace(/^\/+/, '');
+  }
+
+  function renderQuestionContent(q) {
+    var html = '';
+    if (q.html) html += '<div class="word-q-render">' + q.html + '</div>';
+    var imgUrl = resolveImgUrl(q.img);
+    if (imgUrl) html += '<img class="q-img" src="' + escapeHtml(imgUrl) + '" alt="صورة السؤال">';
+    return html || '<div class="muted center" style="padding:14px;">(لا يوجد محتوى ظاهر للسؤال)</div>';
   }
 
   function sbRpc(fnName, payload) {
@@ -415,15 +622,14 @@
         var json = null;
         try { json = txt ? JSON.parse(txt) : null; } catch (e) {}
         if (!r.ok) {
-          var errMsg = (json && (json.message || json.error || json.hint)) || ('خطأ في الاتصال (' + r.status + ')');
-          throw new Error(errMsg);
+          throw new Error((json && (json.message || json.error || json.hint)) || ('خطأ اتصال (' + r.status + ')'));
         }
         return json;
       });
     });
   }
 
-  // استرجاع آخر بيانات دخول محفوظة لتسهيل الأمر على الطالب
+  // استرجاع بيانات الدخول المحفوظة
   try {
     var saved = JSON.parse(localStorage.getItem('exam2_student_cred') || 'null');
     if (saved) {
@@ -444,102 +650,357 @@
 
     showAlert('loginErr', '');
     $('btnLogin').disabled = true;
-    $('btnLogin').textContent = 'جارٍ التحقق...';
+    $('btnLogin').textContent = 'جارٍ الدخول...';
 
     if (directExamId) {
-      startExam(directExamId, function(errMsg) {
+      startRealExam(directExamId, function(errMsg) {
         $('btnLogin').disabled = false;
-        $('btnLogin').textContent = 'دخول إلى الاختبارات';
+        $('btnLogin').textContent = 'دخول إلى البوابة';
         if (errMsg) showAlert('loginErr', errMsg);
       });
     } else {
-      loadStudentExams(function(errMsg) {
+      loadPortal(function(errMsg) {
         $('btnLogin').disabled = false;
-        $('btnLogin').textContent = 'دخول إلى الاختبارات';
+        $('btnLogin').textContent = 'دخول إلى البوابة';
         if (errMsg) showAlert('loginErr', errMsg);
       });
     }
   });
 
-  function loadStudentExams(doneCb) {
-    showAlert('listErr', '');
-    sbRpc('student_exams', { p_phone: state.phone, p_code: state.code })
+  function loadPortal(doneCb) {
+    showAlert('portalErr', '');
+    sbRpc('student_portal_data', { p_phone: state.phone, p_code: state.code })
       .then(function(res) {
         if (!res || res.error) {
-          var msg = (res && res.error) || 'بيانات الدخول غير صحيحة';
-          if (doneCb) doneCb(msg); else showAlert('listErr', msg);
+          var msg = (res && res.error) || 'رقم الهاتف أو الكود غير صحيح';
+          if (doneCb) doneCb(msg); else showAlert('portalErr', msg);
           return;
         }
-        state.studentName = res.name || 'طالب';
-        $('stNameList').textContent = state.studentName;
-        renderExamsList(Array.isArray(res.exams) ? res.exams : []);
-        showView('viewList');
+        state.portal = res;
+        renderPortal();
+        showView('viewPortal');
         if (doneCb) doneCb(null);
       })
       .catch(function(err) {
         var msg = err.message || 'تعذر الاتصال بالخادم';
-        if (msg.indexOf('student_exams') >= 0) {
-          msg = 'دالة قائمة الاختبارات (student_exams) غير مضافة بعد في Supabase.';
+        if (msg.indexOf('student_portal_data') >= 0) {
+          msg = 'يرجى تشغيل كود SQL الخاص ببوابة الطالب في Supabase أولاً.';
         }
-        if (doneCb) doneCb(msg); else showAlert('listErr', msg);
+        if (doneCb) doneCb(msg); else showAlert('portalErr', msg);
       });
   }
 
-  function renderExamsList(exams) {
-    var box = $('examsContainer');
+  function renderPortal() {
+    var d = state.portal || {};
+    var st = d.student || {};
+    $('stNameHeader').textContent = st.name || 'طالب';
+    if (st.group_name) {
+      $('stGroupBadge').textContent = 'مجموعة: ' + st.group_name;
+      $('stGroupBadge').classList.remove('hidden');
+    } else {
+      $('stGroupBadge').classList.add('hidden');
+    }
+
+    var newExams = Array.isArray(d.new_exams) ? d.new_exams : [];
+    var oldExams = Array.isArray(d.old_exams) ? d.old_exams : [];
+    var mistakes = Array.isArray(d.mistakes) ? d.mistakes : [];
+    var topicStats = Array.isArray(d.topic_stats) ? d.topic_stats : [];
+    var videos = Array.isArray(d.videos) ? d.videos : [];
+    var overall = d.overall || {};
+
+    // عدادات التبويبات
+    $('cntNew').textContent = newExams.length;
+    $('cntNew').classList.toggle('hidden', newExams.length === 0);
+    $('cntMistakes').textContent = mistakes.length;
+    $('cntMistakes').classList.toggle('hidden', mistakes.length === 0);
+
+    renderNewExams(newExams);
+    renderOldExams(oldExams, overall);
+    renderMistakes(mistakes, topicStats);
+    renderVideos(videos);
+    switchPortalTab(state.activeTab);
+  }
+
+  function switchPortalTab(tab) {
+    state.activeTab = tab;
+    document.querySelectorAll('.ptab').forEach(function(b) {
+      b.classList.toggle('active', b.getAttribute('data-ptab') === tab);
+    });
+    $('paneNew').classList.toggle('hidden', tab !== 'new');
+    $('paneOld').classList.toggle('hidden', tab !== 'old');
+    $('paneMistakes').classList.toggle('hidden', tab !== 'mistakes');
+    $('paneVideos').classList.toggle('hidden', tab !== 'videos');
+  }
+
+  document.querySelectorAll('.ptab').forEach(function(b) {
+    b.onclick = function() { switchPortalTab(b.getAttribute('data-ptab')); };
+  });
+
+  // 1. الاختبارات الجديدة
+  function renderNewExams(exams) {
+    var box = $('newExamsBox');
     if (!exams.length) {
-      box.innerHTML = '<div class="center muted" style="padding:28px 10px;">لا توجد اختبارات مفتوحة حالياً. تواصل مع معلمك.</div>';
+      box.innerHTML = '<div class="center muted" style="padding:26px 10px;">لا توجد اختبارات جديدة مفتوحة حالياً.</div>';
       return;
     }
     box.innerHTML = exams.map(function(ex) {
       var used = ex.attempts_used || 0;
       var maxA = ex.max_attempts || 1;
       var hasActive = !!ex.has_active;
-      var canStart = hasActive || used < maxA;
-      var btnLabel = hasActive ? 'استكمال الاختبار' : (canStart ? 'ابدأ الاختبار' : 'تم الانتهاء');
-      var statusBadge = hasActive
-        ? '<span class="badge" style="background:#fef3c7;color:#92400e;">قيد التنفيذ</span>'
-        : (used >= maxA ? '<span class="badge badge-done">تم التسليم</span>' : '<span class="badge">متاح الآن</span>');
-
+      var btnLabel = hasActive ? 'استكمال الاختبار' : 'ابدأ الاختبار';
       return '<div class="exam-item">' +
-        '<div>' +
-          '<h3>' + escapeHtml(ex.title) + '</h3>' +
-          '<div class="exam-meta">' +
-            statusBadge +
-            '<span>⏱ المدة: ' + (ex.duration_min || 30) + ' دقيقة</span>' +
-            '<span>🔄 المحاولات: ' + used + ' / ' + maxA + '</span>' +
+        '<div class="exam-item-top">' +
+          '<div>' +
+            '<h3>' + escapeHtml(ex.title) + '</h3>' +
+            '<div class="exam-meta">' +
+              (hasActive ? '<span class="badge badge-warn">قيد التنفيذ</span>' : '<span class="badge">متاح الآن</span>') +
+              '<span>⏱ المدة: ' + (ex.duration_min || 30) + ' دقيقة</span>' +
+              '<span>🔄 المحاولات: ' + used + ' / ' + maxA + '</span>' +
+            '</div>' +
           '</div>' +
+          '<button type="button" class="btn btn-primary" data-start-exam="' + ex.id + '">' + btnLabel + '</button>' +
         '</div>' +
-        '<button type="button" class="btn ' + (canStart ? 'btn-primary' : 'btn-outline') + '" ' +
-          (canStart ? 'data-start-exam="' + ex.id + '"' : 'disabled') + '>' + btnLabel + '</button>' +
       '</div>';
     }).join('');
 
     box.querySelectorAll('[data-start-exam]').forEach(function(btn) {
       btn.onclick = function() {
         var id = btn.getAttribute('data-start-exam');
-        btn.disabled = true;
-        btn.textContent = 'جارٍ الفتح...';
-        startExam(id, function(errMsg) {
+        btn.disabled = true; btn.textContent = 'جارٍ الفتح...';
+        startRealExam(id, function(errMsg) {
           if (errMsg) {
-            btn.disabled = false;
-            btn.textContent = 'ابدأ الاختبار';
-            showAlert('listErr', errMsg);
+            btn.disabled = false; btn.textContent = 'ابدأ الاختبار';
+            showAlert('portalErr', errMsg);
           }
         });
       };
     });
   }
 
-  function startExam(examId, doneCb) {
+  // 2. اختباراتي القديمة + الترتيب في الاختبار والمجموعة والدفعة
+  function renderOldExams(oldExams, overall) {
+    if (overall && overall.total_students > 0 && overall.rank) {
+      $('overallSummaryCard').classList.remove('hidden');
+      $('ovBatchRank').textContent = overall.rank + ' من ' + overall.total_students;
+      $('ovLevel').textContent = overall.level || '-';
+      $('ovAvg').textContent = (overall.avg_pct != null ? overall.avg_pct + '%' : '-');
+      $('ovCount').textContent = oldExams.length;
+    } else {
+      $('overallSummaryCard').classList.add('hidden');
+    }
+
+    var box = $('oldExamsBox');
+    if (!oldExams.length) {
+      box.innerHTML = '<div class="center muted" style="padding:26px 10px;">لم تقم بأداء أي اختبار بعد.</div>';
+      return;
+    }
+
+    box.innerHTML = oldExams.map(function(ex, idx) {
+      var dateStr = ex.submitted_at ? new Date(ex.submitted_at).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' }) : '';
+      var scoreBadge = ex.show_result
+        ? '<span class="badge ' + (ex.pct >= 60 ? 'badge-done' : 'badge-err') + '">الدرجة: ' + ex.score + ' / ' + ex.total + ' (' + ex.pct + '%)</span>'
+        : '<span class="badge badge-warn">النتيجة مخفية حالياً</span>';
+
+      var examRankTxt = (ex.exam_rank && ex.exam_total) ? (ex.exam_rank + ' من ' + ex.exam_total) : 'غير متاح';
+      var groupRankTxt = (ex.group_rank && ex.group_total)
+        ? (ex.group_rank + ' من ' + ex.group_total)
+        : (ex.group_name ? 'غير متاح' : 'غير محددة');
+      var batchRankTxt = (overall && overall.rank && overall.total_students)
+        ? (overall.rank + ' من ' + overall.total_students)
+        : 'غير متاح';
+      var levelTxt = (overall && overall.level) ? overall.level : '-';
+
+      var reviewBtn = ex.show_result
+        ? '<button type="button" class="btn btn-outline btn-sm" data-review-idx="' + idx + '">🔍 مراجعة الإجابات والأخطاء</button>'
+        : '';
+
+      return '<div class="exam-item">' +
+        '<div class="exam-item-top">' +
+          '<div>' +
+            '<h3>' + escapeHtml(ex.title) + '</h3>' +
+            '<div class="exam-meta">' +
+              scoreBadge +
+              (dateStr ? '<span>📅 ' + dateStr + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          reviewBtn +
+        '</div>' +
+        '<div class="rank-grid">' +
+          '<div class="rank-box r-exam">' +
+            '<div class="rlbl">ترتيبك في هذا الاختبار</div>' +
+            '<div class="rval">' + examRankTxt + '</div>' +
+          '</div>' +
+          '<div class="rank-box r-group">' +
+            '<div class="rlbl">ترتيبك في مجموعتك' + (ex.group_name ? ' (' + escapeHtml(ex.group_name) + ')' : '') + '</div>' +
+            '<div class="rval">' + groupRankTxt + '</div>' +
+          '</div>' +
+          '<div class="rank-box r-batch">' +
+            '<div class="rlbl">ترتيبك في الدفعة</div>' +
+            '<div class="rval">' + batchRankTxt + '</div>' +
+          '</div>' +
+          '<div class="rank-box r-level">' +
+            '<div class="rlbl">مستواك بالدفعة</div>' +
+            '<div class="rval">' + escapeHtml(levelTxt) + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    box.querySelectorAll('[data-review-idx]').forEach(function(btn) {
+      btn.onclick = function() {
+        var i = parseInt(btn.getAttribute('data-review-idx'), 10);
+        openReviewModal(oldExams[i]);
+      };
+    });
+  }
+
+  function openReviewModal(ex) {
+    if (!ex) return;
+    $('revTitle').textContent = 'مراجعة: ' + ex.title + ' (' + ex.score + ' / ' + ex.total + ')';
+    var qs = Array.isArray(ex.questions) ? ex.questions : [];
+    if (!qs.length) {
+      $('revBody').innerHTML = '<div class="center muted" style="padding:20px;">لا توجد تفاصيل متاحة للمراجعة.</div>';
+    } else {
+      $('revBody').innerHTML = qs.map(function(q, i) {
+        var ok = !!q.is_correct;
+        return '<div class="mistake-card" style="border-color:' + (ok ? '#bbf7d0' : '#fecaca') + ';">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">' +
+            '<strong>سؤال #' + (i + 1) + (q.topic_name ? ' — ' + escapeHtml(q.topic_name) : '') + '</strong>' +
+            '<span class="badge ' + (ok ? 'badge-done' : 'badge-err') + '">' + (ok ? '✓ إجابة صحيحة' : '✕ إجابة خاطئة') + '</span>' +
+          '</div>' +
+          renderQuestionContent(q) +
+          '<div class="ans-compare">' +
+            '<span class="' + (ok ? 'ans-right' : 'ans-wrong') + '">إجابتك: ' + escapeHtml(q.student_ans || 'لم تُجب') + '</span>' +
+            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(q.correct_ans || '-') + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+    $('reviewModal').style.display = 'flex';
+  }
+  $('btnCloseReview').onclick = function() { $('reviewModal').style.display = 'none'; };
+  $('reviewModal').onclick = function(e) { if (e.target === $('reviewModal')) $('reviewModal').style.display = 'none'; };
+
+  // 3. أخطائي (مطابق لشكل المنصة القديمة مع التدريب وأضعف الأبواب)
+  function renderMistakes(mistakes, topicStats) {
+    $('totalMistakesNum').textContent = mistakes.length;
+    $('pracAllCount').textContent = mistakes.length;
+    $('btnPracticeAll').classList.toggle('hidden', mistakes.length === 0);
+    $('btnPracticeAll').onclick = function() {
+      startPracticeSession('تدريب على جميع أخطائك', mistakes);
+    };
+
+    // أضعف الأبواب عندك
+    var weakList = topicStats.filter(function(t) { return t.wrong_count > 0; });
+    if (weakList.length) {
+      $('weakTopicsCard').classList.remove('hidden');
+      $('weakTopicsBox').innerHTML = weakList.map(function(t) {
+        return '<div class="weak-row">' +
+          '<div class="weak-row-top">' +
+            '<span>' + escapeHtml(t.topic_name || 'عام') + '</span>' +
+            '<span style="color:#64748b;font-size:13px;">' + t.wrong_count + ' غلط من ' + t.total_count + ' (' + t.wrong_pct + '%)</span>' +
+          '</div>' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + Math.min(100, t.wrong_pct) + '%;"></div></div>' +
+        '</div>';
+      }).join('');
+    } else {
+      $('weakTopicsCard').classList.add('hidden');
+    }
+
+    var box = $('mistakesListBox');
+    if (!mistakes.length) {
+      box.innerHTML = '<div class="center" style="padding:28px 10px;color:#166534;font-weight:800;">🎉 ممتاز! لا توجد لديك أي أخطاء مسجلة حتى الآن.</div>';
+      return;
+    }
+
+    // تجميع حسب الباب أو حسب الاختبار
+    var groups = {};
+    mistakes.forEach(function(m) {
+      var key = state.mistakeGroupBy === 'topic' ? (m.topic_name || 'أبواب عامة') : (m.exam_title || 'اختبار');
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(m);
+    });
+
+    var keys = Object.keys(groups);
+    box.innerHTML = keys.map(function(gName, gi) {
+      var items = groups[gName];
+      var cards = items.map(function(m) {
+        return '<div class="mistake-card">' +
+          '<div class="muted" style="margin-bottom:6px;">' +
+            (state.mistakeGroupBy === 'topic' ? 'الاختبار: ' + escapeHtml(m.exam_title) : 'الباب: ' + escapeHtml(m.topic_name || 'عام')) +
+          '</div>' +
+          renderQuestionContent(m) +
+          '<div class="ans-compare">' +
+            '<span class="ans-wrong">إجابتك: ' + escapeHtml(m.student_ans || 'لم تُجب') + '</span>' +
+            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(m.correct_ans) + '</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      return '<div class="mistake-group-head">' +
+        '<div><strong>' + escapeHtml(gName) + '</strong> <span class="badge badge-err" style="margin-right:6px;">' + items.length + ' خطأ</span></div>' +
+        '<button type="button" class="btn btn-soft btn-sm" data-prac-group="' + gi + '">تدرّب</button>' +
+      '</div>' + cards;
+    }).join('');
+
+    box.querySelectorAll('[data-prac-group]').forEach(function(btn) {
+      btn.onclick = function() {
+        var gName = keys[parseInt(btn.getAttribute('data-prac-group'), 10)];
+        startPracticeSession('تدريب على أخطاء: ' + gName, groups[gName]);
+      };
+    });
+  }
+
+  $('btnGroupByTopic').onclick = function() {
+    state.mistakeGroupBy = 'topic';
+    $('btnGroupByTopic').classList.add('active');
+    $('btnGroupByExam').classList.remove('active');
+    if (state.portal) renderMistakes(state.portal.mistakes || [], state.portal.topic_stats || []);
+  };
+  $('btnGroupByExam').onclick = function() {
+    state.mistakeGroupBy = 'exam';
+    $('btnGroupByExam').classList.add('active');
+    $('btnGroupByTopic').classList.remove('active');
+    if (state.portal) renderMistakes(state.portal.mistakes || [], state.portal.topic_stats || []);
+  };
+
+  // 4. الفيديوهات
+  function getYoutubeEmbed(url) {
+    if (!url) return '';
+    var m = String(url).match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return m ? ('https://www.youtube.com/embed/' + m[1]) : '';
+  }
+
+  function renderVideos(videos) {
+    var box = $('videosBox');
+    if (!videos.length) {
+      box.innerHTML = '<div class="center muted" style="padding:26px 10px;">لا توجد فيديوهات مضافة حالياً.</div>';
+      return;
+    }
+    box.innerHTML = videos.map(function(v) {
+      var embed = getYoutubeEmbed(v.url);
+      return '<div class="video-card">' +
+        (embed ? '<div class="video-embed"><iframe src="' + embed + '" allowfullscreen loading="lazy"></iframe></div>' : '') +
+        '<div class="video-body">' +
+          '<h4 style="margin:0 0 6px;color:var(--primary);">' + escapeHtml(v.title) + '</h4>' +
+          (v.topic_name ? '<span class="badge" style="margin-bottom:6px;">' + escapeHtml(v.topic_name) + '</span>' : '') +
+          (v.description ? '<p class="muted" style="margin:6px 0;">' + escapeHtml(v.description) + '</p>' : '') +
+          (!embed && v.url ? '<a href="' + escapeHtml(v.url) + '" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;margin-top:6px;">مشاهدة الفيديو ↗</a>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ==================== وضع أداء الاختبار الحقيقي ====================
+  function startRealExam(examId, doneCb) {
     sbRpc('exam_start', { p_exam: examId, p_phone: state.phone, p_code: state.code })
       .then(function(res) {
         if (!res || res.error) {
           if (doneCb) doneCb((res && res.error) || 'تعذر فتح الاختبار');
           return;
         }
+        state.mode = 'exam';
         state.attemptId = res.attempt;
-        state.studentName = res.name || state.studentName;
         state.examTitle = res.title || 'اختبار إلكتروني';
         state.questions = Array.isArray(res.questions) ? res.questions : [];
         state.answers = (res.answers && typeof res.answers === 'object') ? res.answers : {};
@@ -552,19 +1013,22 @@
           return;
         }
 
-        // حساب الوقت المتبقي بدقة اعتماداً على توقيت الخادم
         var startedMs = new Date(res.started_at).getTime();
         var serverNowMs = new Date(res.now).getTime();
         var durationMs = (res.duration_min || 30) * 60 * 1000;
-        var remainingMs = Math.max(0, (startedMs + durationMs) - serverNowMs);
-        state.endTimeMs = Date.now() + remainingMs;
+        state.endTimeMs = Date.now() + Math.max(0, (startedMs + durationMs) - serverNowMs);
 
         $('exTitle').textContent = state.examTitle;
-        $('exStudent').textContent = state.studentName;
+        $('exStudent').textContent = res.name || (state.portal && state.portal.student && state.portal.student.name) || '';
         $('totalCount').textContent = state.questions.length;
         $('qTotalNum').textContent = state.questions.length;
+        $('timerPill').classList.remove('hidden');
+        $('btnSubmitTop').classList.remove('hidden');
+        $('btnExitPractice').classList.add('hidden');
+        $('saveState').textContent = '✓ محفوظ تلقائياً';
         showAlert('leaveWarn', '');
         showAlert('examErr', '');
+        showAlert('pracFeedback', '');
 
         renderNavigator();
         renderCurrentQuestion();
@@ -577,11 +1041,33 @@
       });
   }
 
-  function resolveImgUrl(img) {
-    if (!img) return '';
-    if (String(img).indexOf('wordq_html_id_') >= 0) return '';
-    if (/^https?:\/\//i.test(img) || /^data:image\//i.test(img)) return img;
-    return SB_URL + '/storage/v1/object/public/question-images/' + String(img).replace(/^\/+/, '');
+  // ==================== وضع التدريب التفاعلي على الأخطاء ====================
+  function startPracticeSession(title, mistakeList) {
+    if (!mistakeList || !mistakeList.length) return;
+    state.mode = 'practice';
+    state.attemptId = null;
+    state.examTitle = title;
+    state.questions = mistakeList.map(function(m) {
+      return { id: m.question_id, img: m.img, html: m.html, correct_ans: normalizeAns(m.correct_ans) };
+    });
+    state.answers = {};
+    state.currentIndex = 0;
+    clearInterval(state.timerHandle);
+
+    $('exTitle').textContent = '🎯 ' + title;
+    $('exStudent').textContent = (state.portal && state.portal.student && state.portal.student.name) || '';
+    $('totalCount').textContent = state.questions.length;
+    $('qTotalNum').textContent = state.questions.length;
+    $('timerPill').classList.add('hidden');
+    $('btnSubmitTop').classList.add('hidden');
+    $('btnExitPractice').classList.remove('hidden');
+    $('saveState').textContent = 'وضع التدريب الفوري';
+    showAlert('leaveWarn', '');
+    showAlert('examErr', '');
+
+    renderNavigator();
+    renderCurrentQuestion();
+    showView('viewExam');
   }
 
   function renderNavigator() {
@@ -607,9 +1093,9 @@
     var q = state.questions[state.currentIndex];
     if (!q) return;
     $('qIndexNum').textContent = state.currentIndex + 1;
-
     var chosen = state.answers[q.id] || '';
     var badge = $('qStatusBadge');
+
     if (chosen) {
       badge.textContent = 'تم اختيار: ' + chosen;
       badge.className = 'badge badge-done';
@@ -618,34 +1104,43 @@
       badge.className = 'badge';
     }
 
-    var bodyHtml = '';
-    if (q.html) {
-      bodyHtml += '<div class="word-q-render">' + q.html + '</div>';
+    $('qBody').innerHTML = renderQuestionContent(q);
+    showAlert('pracFeedback', '');
+
+    if (state.mode === 'practice' && chosen) {
+      if (normalizeAns(chosen) === normalizeAns(q.correct_ans)) {
+        showAlert('pracFeedback', '✅ إجابة صحيحة! أحسنت يا بطل.', 'alert-ok');
+      } else {
+        showAlert('pracFeedback', '❌ إجابة غير صحيحة — الإجابة الصحيحة هي: ' + q.correct_ans, 'alert-err');
+      }
     }
-    var imgUrl = resolveImgUrl(q.img);
-    if (imgUrl) {
-      bodyHtml += '<img class="q-img" src="' + escapeHtml(imgUrl) + '" alt="صورة السؤال">';
-    }
-    if (!bodyHtml) {
-      bodyHtml = '<div class="muted center" style="padding:20px;">(لا يوجد محتوى ظاهر لهذا السؤال)</div>';
-    }
-    $('qBody').innerHTML = bodyHtml;
 
     $('optionsGrid').querySelectorAll('.opt-btn').forEach(function(btn) {
       var v = btn.getAttribute('data-val');
-      btn.classList.toggle('selected', v === chosen);
+      btn.classList.remove('selected', 'prac-ok', 'prac-bad');
+      if (state.mode === 'practice' && chosen) {
+        if (v === normalizeAns(q.correct_ans)) btn.classList.add('prac-ok');
+        else if (v === chosen) btn.classList.add('prac-bad');
+      } else if (v === chosen) {
+        btn.classList.add('selected');
+      }
       btn.onclick = function() {
         state.answers[q.id] = v;
         renderNavigator();
         renderCurrentQuestion();
-        scheduleSave();
+        if (state.mode === 'exam') scheduleSave();
       };
     });
 
     $('btnPrev').disabled = state.currentIndex === 0;
     var isLast = state.currentIndex === state.questions.length - 1;
-    $('btnNext').textContent = isLast ? 'تسليم الاختبار ✓' : 'التالي ←';
-    $('btnNext').className = isLast ? 'btn btn-success' : 'btn btn-primary';
+    if (state.mode === 'practice') {
+      $('btnNext').textContent = isLast ? 'إنهاء التدريب ✓' : 'التالي ←';
+      $('btnNext').className = isLast ? 'btn btn-success' : 'btn btn-primary';
+    } else {
+      $('btnNext').textContent = isLast ? 'تسليم الاختبار ✓' : 'التالي ←';
+      $('btnNext').className = isLast ? 'btn btn-success' : 'btn btn-primary';
+    }
   }
 
   function scheduleSave() {
@@ -663,7 +1158,7 @@
         $('saveState').textContent = '✓ محفوظ تلقائياً';
         $('saveState').style.color = '#16a34a';
       }).catch(function() {
-        $('saveState').textContent = '⚠ سيتم الحفظ عند التسليم';
+        $('saveState').textContent = '⚠ سيُحفظ عند التسليم';
         $('saveState').style.color = '#dc2626';
       });
     }, 350);
@@ -696,7 +1191,6 @@
         : 'هل أنت متأكد من تسليم الاختبار الآن؟';
       if (!confirm(msg)) return;
     }
-
     state.submitting = true;
     clearInterval(state.timerHandle);
     $('btnSubmitTop').disabled = true;
@@ -725,7 +1219,7 @@
         $('resHiddenWrap').style.display = 'none';
         $('resScoreText').textContent = res.score + ' / ' + total;
         $('resPctText').textContent = pct + '%';
-        $('resMsg').textContent = pct >= 85 ? 'ممتاز جداً! استمر في التفوق 🌟' : (pct >= 60 ? 'أداء جيد! بالتوفيق في القادم 👍' : 'لا بأس، راجع أخطاءك وحاول مجدداً 💪');
+        $('resMsg').textContent = pct >= 85 ? 'ممتاز جداً! استمر في التفوق 🌟' : (pct >= 60 ? 'أداء جيد! بالتوفيق في القادم 👍' : 'لا بأس، راجع أخطاءك وتدرب عليها 💪');
       } else {
         $('resScoreWrap').style.display = 'none';
         $('resHiddenWrap').style.display = 'block';
@@ -739,9 +1233,8 @@
     });
   }
 
-  // تتبع مغادرة صفحة الاختبار (منع الغش)
   document.addEventListener('visibilitychange', function() {
-    if (document.hidden && state.attemptId && !state.submitting) {
+    if (document.hidden && state.mode === 'exam' && state.attemptId && !state.submitting) {
       state.tabLeaves++;
       showAlert('leaveWarn', '⚠️ تنبيه: تم رصد خروجك من صفحة الاختبار (' + state.tabLeaves + ' مرة). يرجى البقاء داخل الصفحة.');
     }
@@ -759,24 +1252,24 @@
       state.currentIndex++;
       renderNavigator();
       renderCurrentQuestion();
+    } else if (state.mode === 'practice') {
+      showView('viewPortal');
     } else {
       submitExam(false);
     }
   };
   $('btnSubmitTop').onclick = function() { submitExam(false); };
-  $('btnRefreshList').onclick = function() { loadStudentExams(); };
+  $('btnExitPractice').onclick = function() { showView('viewPortal'); };
+  $('btnRefreshPortal').onclick = function() { loadPortal(); };
   $('btnLogout').onclick = function() {
-    state.phone = ''; state.code = '';
+    state.phone = ''; state.code = ''; state.portal = null;
     showView('viewLogin');
   };
-  $('btnBackToList').onclick = function() {
+  $('btnBackToPortal').onclick = function() {
     directExamId = '';
-    loadStudentExams();
+    state.activeTab = 'old';
+    loadPortal();
   };
-
-  function escapeHtml(str) {
-    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
 })();
 </script>
 </body>
