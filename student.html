@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>بوابة الطالب</title>
+<title>اختباراتي | بوابة الطالب</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#1e3a8a">
+<meta name="theme-color" content="#0f2557">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="بوابة الطالب">
+<meta name="apple-mobile-web-app-title" content="اختباراتي">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --primary: #1e3a8a;
-    --primary-bright: #1d4ed8;
+    --primary: #0f2557;
+    --primary-bright: #1e3a8a;
     --primary-light: #eff6ff;
     --success: #16a34a;
     --danger: #dc2626;
@@ -56,7 +56,7 @@
   .login-wrap { max-width: 440px; margin: 40px auto; }
   .logo-badge {
     width: 68px; height: 68px; margin: 0 auto 12px; border-radius: 18px;
-    background: linear-gradient(135deg, #1e3a8a, #2563eb); color: #fff;
+    background: linear-gradient(135deg, #091738, #0f2557); color: #fff;
     display: flex; align-items: center; justify-content: center; font-size: 32px;
     box-shadow: 0 8px 22px rgba(30, 58, 138, .25);
   }
@@ -349,6 +349,33 @@
     gap: 4px;
   }
   .btn-video-link:hover { background: #dbeafe; }
+
+  /* Honor Roll (لوحة الشرف) */
+  .honor-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 55%, #eff6ff 100%);
+    border: 1.5px solid #fcd34d;
+  }
+  .honor-head {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 12px;
+  }
+  .honor-list { display: flex; flex-direction: column; gap: 7px; }
+  .honor-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 12px; border-radius: 11px; background: #fff; border: 1px solid #e2e8f0;
+    font-size: 14px; font-weight: 700;
+  }
+  .honor-row.me {
+    background: #eff6ff; border: 1.5px solid #0f2557;
+  }
+  .honor-rank {
+    min-width: 30px; height: 30px; border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; background: #e2e8f0; color: #0f172a;
+  }
+  .honor-rank.r1 { background: #f59e0b; color: #fff; }
+  .honor-rank.r2 { background: #94a3b8; color: #fff; }
+  .honor-rank.r3 { background: #b45309; color: #fff; }
 </style>
 </head>
 <body>
@@ -357,7 +384,7 @@
 <div id="viewLogin" class="container login-wrap">
   <div class="card center">
     <div class="logo-badge">🎓</div>
-    <h2 style="color:var(--primary);margin-bottom:4px;">بوابة الطالب</h2>
+    <h2 style="color:var(--primary);margin-bottom:4px;">منصة اختباراتي</h2>
     <p class="muted" style="margin-top:0;margin-bottom:18px;">أدخل رقم الهاتف وكود الطالب للدخول إلى اختباراتك وأخطائك</p>
 
     <div id="loginErr" class="alert alert-err"></div>
@@ -380,7 +407,7 @@
 <div id="viewPortal" class="container hidden">
   <!-- شريط تثبيت البوابة كتطبيق على الموبايل -->
   <div id="pwaBanner" class="pwa-banner">
-    <span>📲 ثبّت «بوابة الطالب» كأيقونة تطبيق على موبايلك للوصول السريع</span>
+    <span>📲 ثبّت «اختباراتي» كأيقونة تطبيق على موبايلك للوصول السريع</span>
     <button type="button" id="btnInstallPwa" class="btn btn-primary btn-sm">تثبيت الآن</button>
   </div>
   <!-- رأس البوابة -->
@@ -389,7 +416,7 @@
       <div class="portal-greeting">
         <h2>أهلاً <span id="stNameHeader"></span> 👋</h2>
         <div class="sub">
-          بوابة الطالب
+          منصة اختباراتي • بوابة الطالب
           <span id="stGroupBadge" class="badge hidden" style="margin-right:6px;"></span>
         </div>
       </div>
@@ -450,6 +477,20 @@
           <div class="rval" id="ovCount">-</div>
         </div>
       </div>
+    </div>
+
+    <div id="honorCard" class="card honor-card hidden">
+      <div class="honor-head">
+        <div>
+          <h3 style="margin:0;color:#0f2557;">🏆 لوحة الشرف (الأوائل)</h3>
+          <div class="muted" style="font-size:12.5px;">أعلى 10 طلاب حسب متوسط الدرجات</div>
+        </div>
+        <div class="sub-toggle">
+          <button type="button" id="btnHonorBatch" class="active">أوائل الدفعة</button>
+          <button type="button" id="btnHonorGroup">أوائل مجموعتك</button>
+        </div>
+      </div>
+      <div id="honorListBox" class="honor-list"></div>
     </div>
 
     <div class="card">
@@ -600,6 +641,7 @@
     portal: null,
     activeTab: 'new',
     mistakeGroupBy: 'topic', // 'topic' or 'exam'
+    honorMode: 'batch', // 'batch' or 'group'
     // exam or practice session
     mode: 'exam', // 'exam' or 'practice'
     attemptId: null,
@@ -768,6 +810,7 @@
 
     renderNewExams(newExams);
     renderOldExams(oldExams, overall);
+    renderHonorRoll(d.leaderboard_batch || [], d.leaderboard_group || [], st);
     renderMistakes(mistakes, topicStats);
     renderVideos(videos);
     switchPortalTab(state.activeTab);
@@ -932,6 +975,55 @@
   }
   $('btnCloseReview').onclick = function() { $('reviewModal').style.display = 'none'; };
   $('reviewModal').onclick = function(e) { if (e.target === $('reviewModal')) $('reviewModal').style.display = 'none'; };
+
+  
+  // لوحة الشرف (أوائل الدفعة وأوائل المجموعة)
+  function renderHonorRoll(batchList, groupList, currentSt) {
+    var hasAny = (Array.isArray(batchList) && batchList.length > 0) || (Array.isArray(groupList) && groupList.length > 0);
+    if (!hasAny) {
+      $('honorCard').classList.add('hidden');
+      return;
+    }
+    $('honorCard').classList.remove('hidden');
+    var hasGroup = Array.isArray(groupList) && groupList.length > 0;
+    $('btnHonorGroup').classList.toggle('hidden', !hasGroup);
+    if (!hasGroup && state.honorMode === 'group') state.honorMode = 'batch';
+
+    $('btnHonorBatch').classList.toggle('active', state.honorMode === 'batch');
+    $('btnHonorGroup').classList.toggle('active', state.honorMode === 'group');
+
+    var list = state.honorMode === 'group' ? groupList : batchList;
+    if (!list.length) {
+      $('honorListBox').innerHTML = '<div class="center muted" style="padding:14px;">لا توجد بيانات متاحة حالياً.</div>';
+      return;
+    }
+    var myId = currentSt && currentSt.student_id != null ? String(currentSt.student_id) : '';
+    $('honorListBox').innerHTML = list.map(function(item) {
+      var r = item.rank || 0;
+      var rCls = r === 1 ? 'r1' : (r === 2 ? 'r2' : (r === 3 ? 'r3' : ''));
+      var medal = r === 1 ? '🥇' : (r === 2 ? '🥈' : (r === 3 ? '🥉' : r));
+      var isMe = myId && String(item.student_id) === myId;
+      return '<div class="honor-row' + (isMe ? ' me' : '') + '">' +
+        '<div style="display:flex;align-items:center;gap:10px;">' +
+          '<span class="honor-rank ' + rCls + '">' + medal + '</span>' +
+          '<div>' +
+            '<span>' + escapeHtml(item.name || 'طالب') + (isMe ? ' <span class="badge" style="margin-right:4px;">أنت</span>' : '') + '</span>' +
+            (item.group_name && state.honorMode === 'batch' ? '<div style="font-size:11.5px;color:#64748b;">' + escapeHtml(item.group_name) + '</div>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="badge badge-done" style="font-size:13px;">' + (item.avg_pct != null ? item.avg_pct + '%' : '-') + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  $('btnHonorBatch').onclick = function() {
+    state.honorMode = 'batch';
+    if (state.portal) renderHonorRoll(state.portal.leaderboard_batch || [], state.portal.leaderboard_group || [], state.portal.student || {});
+  };
+  $('btnHonorGroup').onclick = function() {
+    state.honorMode = 'group';
+    if (state.portal) renderHonorRoll(state.portal.leaderboard_batch || [], state.portal.leaderboard_group || [], state.portal.student || {});
+  };
 
   // 3. أخطائي (مطابق لشكل المنصة القديمة مع التدريب وأضعف الأبواب)
   function renderMistakes(mistakes, topicStats) {
