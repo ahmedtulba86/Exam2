@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
 <title>بوابة الطالب</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="بوابة الطالب">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -313,6 +318,37 @@
     box-shadow: 0 10px 26px rgba(22, 163, 74, .28);
   }
   .score-circle .big { font-size: 32px; font-weight: 800; line-height: 1.1; }
+
+  .pwa-banner {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border: 1.5px solid #f59e0b;
+    color: #78350f;
+    border-radius: 14px;
+    padding: 11px 16px;
+    margin-bottom: 14px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .btn-video-link {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #93c5fd;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .btn-video-link:hover { background: #dbeafe; }
 </style>
 </head>
 <body>
@@ -342,6 +378,11 @@
 
 <!-- 2. شاشة البوابة الرئيسية (4 تبويبات) -->
 <div id="viewPortal" class="container hidden">
+  <!-- شريط تثبيت البوابة كتطبيق على الموبايل -->
+  <div id="pwaBanner" class="pwa-banner">
+    <span>📲 ثبّت «بوابة الطالب» كأيقونة تطبيق على موبايلك للوصول السريع</span>
+    <button type="button" id="btnInstallPwa" class="btn btn-primary btn-sm">تثبيت الآن</button>
+  </div>
   <!-- رأس البوابة -->
   <div class="card">
     <div class="portal-header">
@@ -521,6 +562,17 @@
       تم استلام إجاباتك وحفظها بنجاح. سيقوم المعلم بإعلان النتيجة لاحقاً.
     </div>
     <button type="button" id="btnBackToPortal" class="btn btn-primary btn-block" style="margin-top:14px;">العودة إلى بوابة الطالب</button>
+  </div>
+</div>
+
+<!-- نافذة تشغيل فيديو الشرح السريع -->
+<div id="videoModal" class="modal-bg">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">
+      <h3 id="vidModalTitle" style="margin:0;color:var(--primary);">🎬 فيديو الشرح</h3>
+      <button type="button" id="btnCloseVideo" class="btn btn-danger btn-sm">إغلاق ✕</button>
+    </div>
+    <div id="vidModalBody"></div>
   </div>
 </div>
 
@@ -890,19 +942,39 @@
       startPracticeSession('تدريب على جميع أخطائك', mistakes);
     };
 
+    // ربط أضعف الأبواب بفيديوهات الشرح تلقائياً
+    var allVideos = (state.portal && Array.isArray(state.portal.videos)) ? state.portal.videos : [];
+    function findTopicVideo(tName) {
+      if (!tName) return null;
+      var norm = String(tName).trim().toLowerCase();
+      for (var i = 0; i < allVideos.length; i++) {
+        if (allVideos[i].topic_name && String(allVideos[i].topic_name).trim().toLowerCase() === norm) {
+          return allVideos[i];
+        }
+      }
+      return null;
+    }
+
     // أضعف الأبواب عندك
     var weakList = topicStats.filter(function(t) { return t.wrong_count > 0; });
     if (weakList.length) {
       $('weakTopicsCard').classList.remove('hidden');
       $('weakTopicsBox').innerHTML = weakList.map(function(t) {
+        var vid = findTopicVideo(t.topic_name);
+        var vidBtn = vid
+          ? ' <button type="button" class="btn-video-link" data-open-vid="' + escapeHtml(vid.id) + '">🎬 شاهد الشرح</button>'
+          : '';
         return '<div class="weak-row">' +
           '<div class="weak-row-top">' +
-            '<span>' + escapeHtml(t.topic_name || 'عام') + '</span>' +
+            '<span>' + escapeHtml(t.topic_name || 'عام') + vidBtn + '</span>' +
             '<span style="color:#64748b;font-size:13px;">' + t.wrong_count + ' غلط من ' + t.total_count + ' (' + t.wrong_pct + '%)</span>' +
           '</div>' +
           '<div class="progress-track"><div class="progress-fill" style="width:' + Math.min(100, t.wrong_pct) + '%;"></div></div>' +
         '</div>';
       }).join('');
+      $('weakTopicsBox').querySelectorAll('[data-open-vid]').forEach(function(b) {
+        b.onclick = function() { openVideoById(b.getAttribute('data-open-vid')); };
+      });
     } else {
       $('weakTopicsCard').classList.add('hidden');
     }
@@ -1270,6 +1342,53 @@
     state.activeTab = 'old';
     loadPortal();
   };
+
+  // تشغيل فيديو الشرح في نافذة منبثقة من داخل تبويب أخطائي
+  function openVideoById(vidId) {
+    var vids = (state.portal && Array.isArray(state.portal.videos)) ? state.portal.videos : [];
+    var v = null;
+    for (var i = 0; i < vids.length; i++) {
+      if (String(vids[i].id) === String(vidId)) { v = vids[i]; break; }
+    }
+    if (!v) return;
+    $('vidModalTitle').textContent = '🎬 ' + (v.title || 'فيديو الشرح');
+    var embed = getYoutubeEmbed(v.url);
+    $('vidModalBody').innerHTML =
+      (embed ? '<div class="video-embed" style="border-radius:12px;overflow:hidden;margin-bottom:10px;"><iframe src="' + embed + '" allowfullscreen></iframe></div>' : '') +
+      (v.description ? '<p class="muted">' + escapeHtml(v.description) + '</p>' : '') +
+      (!embed && v.url ? '<a href="' + escapeHtml(v.url) + '" target="_blank" class="btn btn-primary btn-block" style="text-decoration:none;">فتح الفيديو ↗</a>' : '');
+    $('videoModal').style.display = 'flex';
+  }
+  $('btnCloseVideo').onclick = function() {
+    $('videoModal').style.display = 'none';
+    $('vidModalBody').innerHTML = '';
+  };
+  $('videoModal').onclick = function(e) {
+    if (e.target === $('videoModal')) {
+      $('videoModal').style.display = 'none';
+      $('vidModalBody').innerHTML = '';
+    }
+  };
+
+  // تفعيل تثبيت بوابة الطالب كتطبيق (PWA) على موبايل الطالب
+  var deferredPwaPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPwaPrompt = e;
+    var banner = $('pwaBanner');
+    if (banner) banner.style.display = 'flex';
+  });
+  var installBtn = $('btnInstallPwa');
+  if (installBtn) {
+    installBtn.onclick = function() {
+      if (!deferredPwaPrompt) return;
+      deferredPwaPrompt.prompt();
+      deferredPwaPrompt.userChoice.then(function() {
+        deferredPwaPrompt = null;
+        $('pwaBanner').style.display = 'none';
+      });
+    };
+  }
 })();
 </script>
 </body>
