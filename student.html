@@ -376,6 +376,26 @@
   .honor-rank.r1 { background: #f59e0b; color: #fff; }
   .honor-rank.r2 { background: #94a3b8; color: #fff; }
   .honor-rank.r3 { background: #b45309; color: #fff; }
+
+  .announce-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #0f2557, #1e3a8a);
+    color: #ffffff;
+    border-right: 6px solid #f59e0b;
+    border-radius: 14px;
+    padding: 13px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 18px rgba(15, 37, 87, .2);
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.7;
+  }
+  .announce-banner .ann-ico {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
 </style>
 </head>
 <body>
@@ -409,6 +429,11 @@
   <div id="pwaBanner" class="pwa-banner">
     <span>📲 ثبّت «اختباراتي» كأيقونة تطبيق على موبايلك للوصول السريع</span>
     <button type="button" id="btnInstallPwa" class="btn btn-primary btn-sm">تثبيت الآن</button>
+  </div>
+  <!-- شريط تنبيهات وإعلانات المعلم -->
+  <div id="announceBanner" class="announce-banner">
+    <span class="ann-ico">📢</span>
+    <div id="announceText" style="flex:1;white-space:pre-line;"></div>
   </div>
   <!-- رأس البوابة -->
   <div class="card">
@@ -803,6 +828,19 @@
       $('stGroupBadge').classList.remove('hidden');
     } else {
       $('stGroupBadge').classList.add('hidden');
+    }
+
+    // شريط تنبيهات وإعلانات المعلم
+    var annBanner = $('announceBanner');
+    var annText = $('announceText');
+    if (annBanner && annText) {
+      var annMsg = (d.announcement || '').trim();
+      if (annMsg) {
+        annText.textContent = annMsg;
+        annBanner.style.display = 'flex';
+      } else {
+        annBanner.style.display = 'none';
+      }
     }
 
     var newExams = Array.isArray(d.new_exams) ? d.new_exams : [];
