@@ -1,0 +1,20 @@
+{
+  "name": "بوابة الطالب - الاختبارات والمتابعة",
+  "short_name": "بوابة الطالب",
+  "description": "بوابة الطالب لأداء الاختبارات ومراجعة الأخطاء ومتابعة الفيديوهات",
+  "start_url": "./student.html",
+  "scope": "./",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#eef2f6",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%231e3a8a'/><text x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' font-size='260'>🎓</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
