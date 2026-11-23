@@ -13334,6 +13334,36 @@ body:not(.juice-dark) .v26-kpi-strip {
     background-color: #0f2557 !important;
     border-color: #0f2557 !important;
   }
+  #ikhScrollBar {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+    align-items: center;
+    background: linear-gradient(135deg, #0f2557, #1e3a8a);
+    color: #fff;
+    border-radius: 12px;
+    padding: 9px 12px;
+    margin: 8px 0 10px 0;
+    box-shadow: 0 4px 14px rgba(15, 37, 87, .22);
+    scrollbar-width: thin;
+  }
+  #ikhScrollBar::-webkit-scrollbar { height: 5px; }
+  #ikhScrollBar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.35); border-radius: 999px; }
+  #ikhScrollBar button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    border: none;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform .12s;
+  }
+  #ikhScrollBar button:active { transform: scale(.96); }
   #ikhToolsBar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
     background: linear-gradient(135deg, #0f2557, #1e3a8a);
@@ -13520,50 +13550,55 @@ body:not(.juice-dark) .v26-kpi-strip {
     }
   }
 
-  // 2. حقن شريط أدوات «اختباراتي» + زر عائم مضمون الظهور دائماً
-  function ensureIkhFab() {
-    if (document.getElementById('ikhFab') || !document.body) return;
-    var fab = document.createElement('button');
-    fab.id = 'ikhFab';
-    fab.type = 'button';
-    fab.innerHTML = '🎓 أدوات اختباراتي (أصعب الأسئلة • السبورة • السباق)';
-    fab.onclick = openWaReportsModal;
-    document.body.appendChild(fab);
-  }
-
+  // 2. حقن شريط التبويبات الأفقي المتحرك (يمين وشمال) داخل شريط استيراد Word مباشرة
   function ensureIkhBar() {
-    ensureIkhFab();
-    if (document.getElementById('ikhToolsBar') || !document.body) return;
+    if (document.getElementById('ikhScrollBar') || !document.body) return;
     var anchor = null;
-    // البحث عن زر استيراد Word ثم الصعود للحاوية الخاصة به
     var btns = document.querySelectorAll('button');
     for (var i = 0; i < btns.length; i++) {
       var bt = (btns[i].textContent || '').trim();
       if (bt.indexOf('استيراد أسئلة من Word') >= 0 || bt.indexOf('إعادة تصحيح الجميع') >= 0) {
         var box = btns[i].parentElement;
-        while (box && box.parentElement && box.parentElement !== document.body && (box.textContent || '').length < 300) {
+        while (box && box.parentElement && box.parentElement !== document.body && (box.textContent || '').length < 320) {
           anchor = box;
           box = box.parentElement;
         }
         if (anchor) break;
       }
     }
-    if (!anchor || !anchor.parentNode) return;
 
     var bar = document.createElement('div');
-    bar.id = 'ikhToolsBar';
+    bar.id = 'ikhScrollBar';
     bar.innerHTML =
-      '<div><strong style="font-size:15px;">🎓 أدوات منصة اختباراتي السريعة</strong>' +
-      '<div style="font-size:12px;opacity:.9;">تقارير واتساب، كشف الغائبين، أصعب الأسئلة للسبورة، سباق التفوق، وإعلانات الطلاب</div></div>' +
-      '<div class="ikh-btns">' +
-        '<button type="button" id="ikhSyncGroupsBtn">🔄 مزامنة المجموعات</button>' +
-        '<button type="button" id="ikhAnnounceBtn">📢 إعلان للطلاب</button>' +
-        '<button type="button" id="ikhWaReportsBtn">📊 التقارير والسبورة والسباق</button>' +
-      '</div>';
-    anchor.parentNode.insertBefore(bar, anchor);
-    document.getElementById('ikhSyncGroupsBtn').onclick = syncStudentGroupsToSupabase;
-    document.getElementById('ikhAnnounceBtn').onclick = openAnnounceModal;
-    document.getElementById('ikhWaReportsBtn').onclick = openWaReportsModal;
+      '<button type="button" id="ikhBtnHard" style="background:#dc2626;color:#fff;">🔥 أصعب الأسئلة</button>' +
+      '<button type="button" id="ikhBtnBoard" style="background:#f59e0b;color:#0f172a;">🖥️ السبورة التفاعلية</button>' +
+      '<button type="button" id="ikhBtnRace" style="background:#a855f7;color:#fff;">🏇 سباق التفوق</button>' +
+      '<button type="button" id="ikhBtnWa" style="background:#16a34a;color:#fff;">📲 تقارير واتساب</button>' +
+      '<button type="button" id="ikhBtnAbsent" style="background:#ea580c;color:#fff;">⚠️ الغائبين</button>' +
+      '<button type="button" id="ikhBtnAnn" style="background:#fef3c7;color:#92400e;">📢 إعلان للطلاب</button>' +
+      '<button type="button" id="ikhBtnSync" style="background:#e0f2fe;color:#0f2557;">🔄 مزامنة المجموعات</button>';
+
+    if (anchor && anchor.parentNode) {
+      // إدراج الشريط المتحرك مباشرة أسفل شريط استيراد Word
+      anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+    } else {
+      // احتياطي: أعلى الصفحة إن لم يكن مركز الاختبارات مفتوحاً بعد
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+
+    document.getElementById('ikhBtnHard').onclick = function() { window.__ikhRepTab = 'hard'; openWaReportsModal(); };
+    document.getElementById('ikhBtnBoard').onclick = function() {
+      window.__ikhRepTab = 'hard';
+      openWaReportsModal();
+    };
+    document.getElementById('ikhBtnRace').onclick = function() {
+      window.__ikhRepTab = 'done';
+      openWaReportsModal();
+    };
+    document.getElementById('ikhBtnWa').onclick = function() { window.__ikhRepTab = 'done'; openWaReportsModal(); };
+    document.getElementById('ikhBtnAbsent').onclick = function() { window.__ikhRepTab = 'absent'; openWaReportsModal(); };
+    document.getElementById('ikhBtnAnn').onclick = openAnnounceModal;
+    document.getElementById('ikhBtnSync').onclick = syncStudentGroupsToSupabase;
   }
 
   // ==================== 3. مزامنة مجموعات الطلاب ====================
@@ -13601,7 +13636,7 @@ body:not(.juice-dark) .v26-kpi-strip {
 
   function syncStudentGroupsToSupabase() {
     if (!window.SB_URL || !window.sbHeaders) return alert('يرجى تسجيل دخول المعلم أولاً.');
-    var btn = document.getElementById('ikhSyncGroupsBtn');
+    var btn = document.getElementById('ikhBtnSync') || document.getElementById('ikhModalSyncBtn');
     var origText = btn.textContent;
     btn.disabled = true; btn.textContent = 'جارٍ المزامنة...';
 
