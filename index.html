@@ -13029,6 +13029,8 @@ body:not(.juice-dark) .v26-kpi-strip {
 </script>
 <!-- WORD_IMPORTER_ADDON_END -->
 
+
+
 <!-- IKHTIBARATI_ADDON_START -->
 <style id="ikhtibaratiTheme">
   :root {
@@ -13080,6 +13082,13 @@ body:not(.juice-dark) .v26-kpi-strip {
     display: inline-block; padding: 2px 8px; border-radius: 999px;
     font-size: 12px; font-weight: 700; background: #e0e7ff; color: #0f2557;
   }
+  .ikh-subtabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .ikh-subtab {
+    flex: 1; min-width: 140px; padding: 8px 12px; border-radius: 9px; border: 1.5px solid #cbd5e1;
+    background: #f1f5f9; color: #334155; font-weight: 800; font-size: 13.5px; cursor: pointer; font-family: inherit;
+  }
+  .ikh-subtab.active { background: #0f2557; color: #fff; border-color: #0f2557; }
+  .ikh-wa-warn { background: #d97706 !important; }
 </style>
 
 <script id="ikhtibaratiScript">
@@ -13216,6 +13225,10 @@ body:not(.juice-dark) .v26-kpi-strip {
           '<select id="ikhExamSelect" style="flex:1;min-width:220px;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:9px;font-family:inherit;font-size:14px;"></select>' +
           '<button type="button" id="ikhLoadReportBtn" style="background:#0f2557;color:#fff;border:none;border-radius:9px;padding:9px 18px;font-weight:800;cursor:pointer;">عرض النتائج</button>' +
         '</div>' +
+        '<div class="ikh-subtabs">' +
+          '<button type="button" id="ikhTabDone" class="ikh-subtab active">✅ الممتحنين (<span id="ikhCntDone">0</span>)</button>' +
+          '<button type="button" id="ikhTabAbsent" class="ikh-subtab">⚠️ الغائبين عن الاختبار (<span id="ikhCntAbsent">0</span>)</button>' +
+        '</div>' +
         '<div id="ikhReportStatus" style="font-size:13.5px;font-weight:700;color:#475569;margin-bottom:10px;"></div>' +
         '<div id="ikhReportList" style="max-height:460px;overflow-y:auto;"></div>' +
       '</div>';
@@ -13223,6 +13236,14 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhCloseModal').onclick = function() { m.style.display = 'none'; };
     m.onclick = function(e) { if (e.target === m) m.style.display = 'none'; };
     document.getElementById('ikhLoadReportBtn').onclick = loadSelectedExamReport;
+    document.getElementById('ikhTabDone').onclick = function() {
+      window.__ikhRepTab = 'done';
+      renderIkhReportView();
+    };
+    document.getElementById('ikhTabAbsent').onclick = function() {
+      window.__ikhRepTab = 'absent';
+      renderIkhReportView();
+    };
   }
 
   function openWaReportsModal() {
@@ -13287,10 +13308,7 @@ body:not(.juice-dark) .v26-kpi-strip {
       var questions = Array.isArray(res[2]) ? res[2] : [];
       var topics = Array.isArray(res[3]) ? res[3] : [];
 
-      if (!attempts.length) {
-        stEl.textContent = 'لم يقم أي طالب بتسليم هذا الاختبار بعد.';
-        return;
-      }
+      // حساب الغائبين حتى لو لم يمتحن أحد بعد
 
       var stuMap = {};
       students.forEach(function(s) { stuMap[String(s.student_id)] = s; });
@@ -13339,7 +13357,34 @@ body:not(.juice-dark) .v26-kpi-strip {
       rows.sort(function(x, y) { return y.score - x.score; });
       var totalExam = rows.length;
 
-      stEl.textContent = 'عدد الطلاب الممتحنين: ' + totalExam + ' طالب.';
+      var doneIds = {};
+      rows.forEach(function(r) { doneIds[String(r.student_id)] = true; });
+      var absentRows = students.filter(function(s) { return !doneIds[String(s.student_id)]; });
+
+      window.__ikhRepData = { examTitle: examTitle, rows: rows, absentRows: absentRows };
+      window.__ikhRepTab = window.__ikhRepTab || 'done';
+      document.getElementById('ikhCntDone').textContent = rows.length;
+      document.getElementById('ikhCntAbsent').textContent = absentRows.length;
+      renderIkhReportView();
+    }).catch(function(err) {
+      stEl.textContent = 'حدث خطأ: ' + (err.message || err);
+    });
+  }
+
+
+  function renderIkhReportView() {
+    var d = window.__ikhRepData;
+    if (!d) return;
+    var tab = window.__ikhRepTab || 'done';
+    document.getElementById('ikhTabDone').classList.toggle('active', tab === 'done');
+    document.getElementById('ikhTabAbsent').classList.toggle('active', tab === 'absent');
+    var stEl = document.getElementById('ikhReportStatus');
+    var listEl = document.getElementById('ikhReportList');
+
+    if (tab === 'done') {
+      var rows = d.rows;
+      var totalExam = rows.length;
+      stEl.textContent = totalExam ? ('عدد الطلاب الممتحنين: ' + totalExam + ' طالب.') : 'لم يقم أي طالب بتسليم هذا الاختبار بعد.';
       listEl.innerHTML = rows.map(function(r) {
         var examRank = 1 + rows.filter(function(o) { return o.score > r.score; }).length;
         var grpRows = r.group_name ? rows.filter(function(o) { return o.group_name === r.group_name; }) : [];
@@ -13347,7 +13392,7 @@ body:not(.juice-dark) .v26-kpi-strip {
 
         var msg = 'السلام عليكم ورحمة الله وبركاته 🌹\n' +
           'تقرير منصة «اختباراتي» لولي أمر الطالب: *' + r.name + '*\n' +
-          '📝 الاختبار: ' + examTitle + '\n' +
+          '📝 الاختبار: ' + d.examTitle + '\n' +
           '📊 الدرجة: *' + r.score + ' / ' + r.total + '* (' + r.pct + '%)\n' +
           '🏆 الترتيب في الاختبار: ' + examRank + ' من ' + totalExam + '\n' +
           (grpRank ? ('👥 الترتيب في مجموعة (' + r.group_name + '): ' + grpRank + ' من ' + grpRows.length + '\n') : '') +
@@ -13368,9 +13413,28 @@ body:not(.juice-dark) .v26-kpi-strip {
           '<a class="ikh-wa-btn" href="' + waUrl + '" target="_blank">📲 إرسال واتساب</a>' +
         '</div>';
       }).join('');
-    }).catch(function(err) {
-      stEl.textContent = 'حدث خطأ: ' + (err.message || err);
-    });
+    } else {
+      var abs = d.absentRows;
+      stEl.textContent = abs.length ? ('عدد الطلاب الذين لم يمتحنوا بعد: ' + abs.length + ' طالب.') : '🎉 ممتاز! جميع الطلاب أدّوا هذا الاختبار.';
+      listEl.innerHTML = abs.map(function(s) {
+        var msg = 'السلام عليكم ورحمة الله وبركاته 🌹\n' +
+          'تذكير من منصة «اختباراتي» للطالب / ولي أمر الطالب: *' + (s.name || '') + '*\n' +
+          '⚠️ لم يتم تسليم اختبار: *' + d.examTitle + '* حتى الآن.\n' +
+          'يرجى الدخول على بوابة الطالب وأداء الاختبار قبل إغلاقه:\n' +
+          'https://ahmedtulba86.github.io/Exam2/student.html\n' +
+          'مع تمنياتنا بالتوفيق 🎓';
+        var waPhone = formatEgyptPhone(s.phone);
+        var waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
+
+        return '<div class="ikh-row" style="border-color:#fde68a;background:#fffbeb;">' +
+          '<div>' +
+            '<strong style="color:#92400e;">' + String(s.name || 'طالب').replace(/</g, '<') + '</strong> ' +
+            (s.group_name ? '<span class="ikh-badge">مجموعة: ' + String(s.group_name).replace(/</g, '<') + '</span>' : '') +
+          '</div>' +
+          '<a class="ikh-wa-btn ikh-wa-warn" href="' + waUrl + '" target="_blank">⚠️ تنبيه واتساب</a>' +
+        '</div>';
+      }).join('');
+    }
   }
 
   document.addEventListener('DOMContentLoaded', function() {
