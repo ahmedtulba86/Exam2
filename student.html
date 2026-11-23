@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>بوابة اختبارات الطلاب</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #eff6ff;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #cbd5e1;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: 'Cairo', Tahoma, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 16px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 6px 24px rgba(15, 23, 42, .07);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 16px;
+  }
+  h1, h2, h3 { margin-top: 0; }
+  .center { text-align: center; }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  /* Login */
+  .login-wrap {
+    max-width: 440px;
+    margin: 36px auto;
+  }
+  .logo-badge {
+    width: 64px; height: 64px;
+    margin: 0 auto 12px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+    box-shadow: 0 8px 20px rgba(30, 64, 175, .25);
+  }
+  .field { margin-bottom: 14px; text-align: right; }
+  .field label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 6px; color: #334155; }
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 11px;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .field input:focus { border-color: var(--primary); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border: none; border-radius: 11px;
+    padding: 12px 20px;
+    font-family: inherit; font-size: 15px; font-weight: 800;
+    cursor: pointer; transition: transform .1s, opacity .2s, background .2s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+  .btn-success { background: var(--success); color: #fff; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-outline { background: #fff; color: var(--text); border: 2px solid var(--border); }
+  .btn-block { width: 100%; }
+
+  .alert {
+    padding: 11px 14px;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .alert-err { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  .alert-warn { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+  .alert-ok { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+  /* Exams List */
+  .topbar-simple {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; margin-bottom: 16px;
+  }
+  .exam-item {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    background: #f8fafc;
+  }
+  .exam-item h3 { margin: 0 0 4px; color: var(--primary-dark); font-size: 17px; }
+  .exam-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 13px; color: #475569; }
+  .badge {
+    display: inline-block; padding: 2px 9px; border-radius: 999px;
+    font-size: 12px; font-weight: 700; background: #e0e7ff; color: #1e40af;
+  }
+  .badge-done { background: #dcfce7; color: #166534; }
+
+  /* Exam Header Sticky */
+  .exam-header {
+    position: sticky; top: 0; z-index: 50;
+    background: #ffffff;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 10px 14px;
+    box-shadow: 0 4px 14px rgba(15,23,42,.06);
+  }
+  .exam-header-inner {
+    max-width: 820px; margin: 0 auto;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .timer-pill {
+    background: #eff6ff; color: #1e40af; border: 2px solid #93c5fd;
+    padding: 5px 14px; border-radius: 999px;
+    font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums;
+    direction: ltr;
+  }
+  .timer-pill.low { background: #fef2f2; color: #dc2626; border-color: #fca5a5; animation: pulse 1s infinite; }
+  @keyframes pulse { 50% { opacity: .6; } }
+
+  /* Question Navigator */
+  .q-nav {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;
+  }
+  .q-pill {
+    min-width: 36px; height: 36px; border-radius: 9px;
+    border: 1.5px solid var(--border); background: #fff; color: #334155;
+    font-weight: 800; font-family: inherit; cursor: pointer;
+  }
+  .q-pill.answered { background: #dcfce7; border-color: #16a34a; color: #166534; }
+  .q-pill.current { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+  /* Question Content */
+  .q-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;
+  }
+  .q-img {
+    max-width: 100%; height: auto; display: block; margin: 10px auto;
+    border-radius: 10px; border: 1px solid #e2e8f0;
+  }
+  .word-q-render {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 10px 0 16px;
+    color: #0f172a;
+    font-size: 17px;
+    line-height: 1.9;
+    text-align: right;
+    direction: rtl;
+    overflow-x: auto;
+  }
+  .word-q-render img { max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0; display: block; }
+  .word-q-render table { border-collapse: collapse; margin: 10px 0; max-width: 100%; }
+  .word-q-render td, .word-q-render th { border: 1px solid #94a3b8; padding: 6px 10px; }
+  .word-q-render sup { font-size: .75em; vertical-align: super; }
+  .word-q-render sub { font-size: .75em; vertical-align: sub; }
+  .word-q-render math { direction: ltr; unicode-bidi: isolate; font-size: 1.15em; margin: 0 3px; }
+
+  /* Options */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 18px 0;
+  }
+  @media (max-width: 480px) {
+    .options-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .opt-btn {
+    padding: 15px 10px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: #f8fafc;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .opt-btn:hover { border-color: var(--primary); background: var(--primary-light); }
+  .opt-btn.selected {
+    background: var(--primary);
+    border-color: var(--primary-dark);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(30, 64, 175, .28);
+  }
+
+  .nav-actions {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between;
+    margin-top: 14px; padding-top: 14px; border-top: 1px solid #e2e8f0;
+  }
+
+  /* Result */
+  .score-circle {
+    width: 150px; height: 150px;
+    margin: 14px auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #16a34a, #22c55e);
+    color: #fff;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: 0 10px 26px rgba(22, 163, 74, .28);
+  }
+  .score-circle .big { font-size: 34px; font-weight: 800; line-height: 1.1; }
+  .score-circle .pct { font-size: 15px; opacity: .95; }
+
+  .hidden { display: none !important; }
+  .save-dot { font-size: 12px; color: var(--success); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- 1. شاشة تسجيل دخول الطالب -->
+<div id="viewLogin" class="container login-wrap">
+  <div class="card center">
+    <div class="logo-badge">📝</div>
+    <h2 style="color:var(--primary-dark);margin-bottom:4px;">بوابة اختبارات الطلاب</h2>
+    <p class="muted" style="margin-top:0;margin-bottom:18px;">أدخل رقم الهاتف وكود الطالب للدخول إلى الاختبارات</p>
+
+    <div id="loginErr" class="alert alert-err"></div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label for="inpPhone">رقم الهاتف</label>
+        <input type="tel" id="inpPhone" placeholder="مثال: 010xxxxxxxx" required autocomplete="tel">
+      </div>
+      <div class="field">
+        <label for="inpCode">كود الطالب</label>
+        <input type="text" id="inpCode" placeholder="أدخل الكود الخاص بك" required autocomplete="off">
+      </div>
+      <button type="submit" id="btnLogin" class="btn btn-primary btn-block">دخول إلى الاختبارات</button>
+    </form>
+  </div>
+</div>
+
+<!-- 2. شاشة قائمة الاختبارات المتاحة -->
+<div id="viewList" class="container hidden">
+  <div class="card">
+    <div class="topbar-simple">
+      <div>
+        <h2 style="margin:0;color:var(--primary-dark);">مرحباً، <span id="stNameList"></span> 👋</h2>
+        <div class="muted">اختر الاختبار الذي تريد البدء فيه من القائمة التالية</div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" id="btnRefreshList" class="btn btn-outline" style="padding:8px 14px;font-size:13px;">تحديث</button>
+        <button type="button" id="btnLogout" class="btn btn-danger" style="padding:8px 14px;font-size:13px;">خروج</button>
+      </div>
+    </div>
+
+    <div id="listErr" class="alert alert-err"></div>
+    <div id="examsContainer"></div>
+  </div>
+</div>
+
+<!-- 3. شاشة أداء الاختبار -->
+<div id="viewExam" class="hidden">
+  <div class="exam-header">
+    <div class="exam-header-inner">
+      <div>
+        <div style="font-weight:800;color:var(--primary-dark);font-size:16px;" id="exTitle"></div>
+        <div style="font-size:12px;color:var(--muted);">
+          الطالب: <span id="exStudent"></span> • <span id="saveState" class="save-dot">✓ محفوظ تلقائياً</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="timerPill" class="timer-pill">00:00</div>
+        <button type="button" id="btnSubmitTop" class="btn btn-success" style="padding:8px 14px;font-size:14px;">تسليم الاختبار</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="leaveWarn" class="alert alert-warn"></div>
+    <div id="examErr" class="alert alert-err"></div>
+
+    <div class="card" style="padding:14px;">
+      <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px;">
+        الأسئلة (<span id="answeredCount">0</span> / <span id="totalCount">0</span> مُجاب):
+      </div>
+      <div id="qNav" class="q-nav"></div>
+    </div>
+
+    <div class="card">
+      <div class="q-card-head">
+        <strong style="color:var(--primary);font-size:17px;">السؤال <span id="qIndexNum">1</span> من <span id="qTotalNum">1</span></strong>
+        <span id="qStatusBadge" class="badge">لم يُجب بعد</span>
+      </div>
+
+      <div id="qBody"></div>
+
+      <div style="font-weight:700;font-size:14px;color:#334155;margin-top:8px;">اختر الإجابة الصحيحة:</div>
+      <div class="options-grid" id="optionsGrid">
+        <button type="button" class="opt-btn" data-val="أ">أ</button>
+        <button type="button" class="opt-btn" data-val="ب">ب</button>
+        <button type="button" class="opt-btn" data-val="ج">ج</button>
+        <button type="button" class="opt-btn" data-val="د">د</button>
+      </div>
+
+      <div class="nav-actions">
+        <button type="button" id="btnPrev" class="btn btn-outline">→ السابق</button>
+        <button type="button" id="btnNext" class="btn btn-primary">التالي ←</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. شاشة النتيجة -->
+<div id="viewResult" class="container login-wrap hidden">
+  <div class="card center">
+    <h2 style="color:var(--primary-dark);">تم تسليم الاختبار بنجاح 🎉</h2>
+    <p class="muted" id="resExamTitle"></p>
+
+    <div id="resScoreWrap">
+      <div class="score-circle">
+        <div class="big" id="resScoreText">0 / 0</div>
+        <div class="pct" id="resPctText">0%</div>
+      </div>
+      <p id="resMsg" style="font-weight:800;font-size:17px;color:#166534;"></p>
+    </div>
+
+    <div id="resHiddenWrap" class="alert alert-ok" style="display:none;">
+      تم استلام إجاباتك وحفظها بنجاح. سيقوم المعلم بإعلان النتيجة لاحقاً.
+    </div>
+
+    <button type="button" id="btnBackToList" class="btn btn-primary btn-block" style="margin-top:14px;">العودة إلى قائمة الاختبارات</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // إعدادات مشروع Supabase الجديد (platform-2)
+  var SB_URL = 'https://vsiewjrdzrahyhyxhgtm.supabase.co';
+  var SB_KEY = 'sb_publishable_BgYjzslIj-SmDnhzWV6ssA_gyPacwTW';
+
+  var state = {
+    phone: '',
+    code: '',
+    studentName: '',
+    attemptId: null,
+    examTitle: '',
+    questions: [],
+    answers: {},
+    currentIndex: 0,
+    endTimeMs: 0,
+    timerHandle: null,
+    tabLeaves: 0,
+    submitting: false,
+    saveTimer: null
+  };
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var directExamId = urlParams.get('exam') || urlParams.get('id') || '';
+
+  function $(id) { return document.getElementById(id); }
+
+  function showView(id) {
+    ['viewLogin', 'viewList', 'viewExam', 'viewResult'].forEach(function(v) {
+      $(v).classList.toggle('hidden', v !== id);
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function showAlert(id, msg) {
+    var el = $(id);
+    if (!msg) { el.style.display = 'none'; el.textContent = ''; return; }
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function sbRpc(fnName, payload) {
+    return fetch(SB_URL + '/rest/v1/rpc/' + fnName, {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload || {})
+    }).then(function(r) {
+      if (r.status === 204) return null;
+      return r.text().then(function(txt) {
+        var json = null;
+        try { json = txt ? JSON.parse(txt) : null; } catch (e) {}
+        if (!r.ok) {
+          var errMsg = (json && (json.message || json.error || json.hint)) || ('خطأ في الاتصال (' + r.status + ')');
+          throw new Error(errMsg);
+        }
+        return json;
+      });
+    });
+  }
+
+  // استرجاع آخر بيانات دخول محفوظة لتسهيل الأمر على الطالب
+  try {
+    var saved = JSON.parse(localStorage.getItem('exam2_student_cred') || 'null');
+    if (saved) {
+      $('inpPhone').value = saved.phone || '';
+      $('inpCode').value = saved.code || '';
+    }
+  } catch (e) {}
+
+  $('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var phone = ($('inpPhone').value || '').trim();
+    var code = ($('inpCode').value || '').trim();
+    if (!phone || !code) return showAlert('loginErr', 'يرجى إدخال رقم الهاتف والكود.');
+
+    state.phone = phone;
+    state.code = code;
+    try { localStorage.setItem('exam2_student_cred', JSON.stringify({ phone: phone, code: code })); } catch (err) {}
+
+    showAlert('loginErr', '');
+    $('btnLogin').disabled = true;
+    $('btnLogin').textContent = 'جارٍ التحقق...';
+
+    if (directExamId) {
+      startExam(directExamId, function(errMsg) {
+        $('btnLogin').disabled = false;
+        $('btnLogin').textContent = 'دخول إلى الاختبارات';
+        if (errMsg) showAlert('loginErr', errMsg);
+      });
+    } else {
+      loadStudentExams(function(errMsg) {
+        $('btnLogin').disabled = false;
+        $('btnLogin').textContent = 'دخول إلى الاختبارات';
+        if (errMsg) showAlert('loginErr', errMsg);
+      });
+    }
+  });
+
+  function loadStudentExams(doneCb) {
+    showAlert('listErr', '');
+    sbRpc('student_exams', { p_phone: state.phone, p_code: state.code })
+      .then(function(res) {
+        if (!res || res.error) {
+          var msg = (res && res.error) || 'بيانات الدخول غير صحيحة';
+          if (doneCb) doneCb(msg); else showAlert('listErr', msg);
+          return;
+        }
+        state.studentName = res.name || 'طالب';
+        $('stNameList').textContent = state.studentName;
+        renderExamsList(Array.isArray(res.exams) ? res.exams : []);
+        showView('viewList');
+        if (doneCb) doneCb(null);
+      })
+      .catch(function(err) {
+        var msg = err.message || 'تعذر الاتصال بالخادم';
+        if (msg.indexOf('student_exams') >= 0) {
+          msg = 'دالة قائمة الاختبارات (student_exams) غير مضافة بعد في Supabase.';
+        }
+        if (doneCb) doneCb(msg); else showAlert('listErr', msg);
+      });
+  }
+
+  function renderExamsList(exams) {
+    var box = $('examsContainer');
+    if (!exams.length) {
+      box.innerHTML = '<div class="center muted" style="padding:28px 10px;">لا توجد اختبارات مفتوحة حالياً. تواصل مع معلمك.</div>';
+      return;
+    }
+    box.innerHTML = exams.map(function(ex) {
+      var used = ex.attempts_used || 0;
+      var maxA = ex.max_attempts || 1;
+      var hasActive = !!ex.has_active;
+      var canStart = hasActive || used < maxA;
+      var btnLabel = hasActive ? 'استكمال الاختبار' : (canStart ? 'ابدأ الاختبار' : 'تم الانتهاء');
+      var statusBadge = hasActive
+        ? '<span class="badge" style="background:#fef3c7;color:#92400e;">قيد التنفيذ</span>'
+        : (used >= maxA ? '<span class="badge badge-done">تم التسليم</span>' : '<span class="badge">متاح الآن</span>');
+
+      return '<div class="exam-item">' +
+        '<div>' +
+          '<h3>' + escapeHtml(ex.title) + '</h3>' +
+          '<div class="exam-meta">' +
+            statusBadge +
+            '<span>⏱ المدة: ' + (ex.duration_min || 30) + ' دقيقة</span>' +
+            '<span>🔄 المحاولات: ' + used + ' / ' + maxA + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<button type="button" class="btn ' + (canStart ? 'btn-primary' : 'btn-outline') + '" ' +
+          (canStart ? 'data-start-exam="' + ex.id + '"' : 'disabled') + '>' + btnLabel + '</button>' +
+      '</div>';
+    }).join('');
+
+    box.querySelectorAll('[data-start-exam]').forEach(function(btn) {
+      btn.onclick = function() {
+        var id = btn.getAttribute('data-start-exam');
+        btn.disabled = true;
+        btn.textContent = 'جارٍ الفتح...';
+        startExam(id, function(errMsg) {
+          if (errMsg) {
+            btn.disabled = false;
+            btn.textContent = 'ابدأ الاختبار';
+            showAlert('listErr', errMsg);
+          }
+        });
+      };
+    });
+  }
+
+  function startExam(examId, doneCb) {
+    sbRpc('exam_start', { p_exam: examId, p_phone: state.phone, p_code: state.code })
+      .then(function(res) {
+        if (!res || res.error) {
+          if (doneCb) doneCb((res && res.error) || 'تعذر فتح الاختبار');
+          return;
+        }
+        state.attemptId = res.attempt;
+        state.studentName = res.name || state.studentName;
+        state.examTitle = res.title || 'اختبار إلكتروني';
+        state.questions = Array.isArray(res.questions) ? res.questions : [];
+        state.answers = (res.answers && typeof res.answers === 'object') ? res.answers : {};
+        state.currentIndex = 0;
+        state.tabLeaves = 0;
+        state.submitting = false;
+
+        if (!state.questions.length) {
+          if (doneCb) doneCb('هذا الاختبار لا يحتوي على أسئلة بعد.');
+          return;
+        }
+
+        // حساب الوقت المتبقي بدقة اعتماداً على توقيت الخادم
+        var startedMs = new Date(res.started_at).getTime();
+        var serverNowMs = new Date(res.now).getTime();
+        var durationMs = (res.duration_min || 30) * 60 * 1000;
+        var remainingMs = Math.max(0, (startedMs + durationMs) - serverNowMs);
+        state.endTimeMs = Date.now() + remainingMs;
+
+        $('exTitle').textContent = state.examTitle;
+        $('exStudent').textContent = state.studentName;
+        $('totalCount').textContent = state.questions.length;
+        $('qTotalNum').textContent = state.questions.length;
+        showAlert('leaveWarn', '');
+        showAlert('examErr', '');
+
+        renderNavigator();
+        renderCurrentQuestion();
+        startTimer();
+        showView('viewExam');
+        if (doneCb) doneCb(null);
+      })
+      .catch(function(err) {
+        if (doneCb) doneCb(err.message || 'تعذر بدء الاختبار');
+      });
+  }
+
+  function resolveImgUrl(img) {
+    if (!img) return '';
+    if (String(img).indexOf('wordq_html_id_') >= 0) return '';
+    if (/^https?:\/\//i.test(img) || /^data:image\//i.test(img)) return img;
+    return SB_URL + '/storage/v1/object/public/question-images/' + String(img).replace(/^\/+/, '');
+  }
+
+  function renderNavigator() {
+    var answered = 0;
+    var html = state.questions.map(function(q, i) {
+      var isAns = !!state.answers[q.id];
+      if (isAns) answered++;
+      var cls = 'q-pill' + (isAns ? ' answered' : '') + (i === state.currentIndex ? ' current' : '');
+      return '<button type="button" class="' + cls + '" data-qi="' + i + '">' + (i + 1) + '</button>';
+    }).join('');
+    $('answeredCount').textContent = answered;
+    $('qNav').innerHTML = html;
+    $('qNav').querySelectorAll('.q-pill').forEach(function(b) {
+      b.onclick = function() {
+        state.currentIndex = parseInt(b.getAttribute('data-qi'), 10);
+        renderNavigator();
+        renderCurrentQuestion();
+      };
+    });
+  }
+
+  function renderCurrentQuestion() {
+    var q = state.questions[state.currentIndex];
+    if (!q) return;
+    $('qIndexNum').textContent = state.currentIndex + 1;
+
+    var chosen = state.answers[q.id] || '';
+    var badge = $('qStatusBadge');
+    if (chosen) {
+      badge.textContent = 'تم اختيار: ' + chosen;
+      badge.className = 'badge badge-done';
+    } else {
+      badge.textContent = 'لم يُجب بعد';
+      badge.className = 'badge';
+    }
+
+    var bodyHtml = '';
+    if (q.html) {
+      bodyHtml += '<div class="word-q-render">' + q.html + '</div>';
+    }
+    var imgUrl = resolveImgUrl(q.img);
+    if (imgUrl) {
+      bodyHtml += '<img class="q-img" src="' + escapeHtml(imgUrl) + '" alt="صورة السؤال">';
+    }
+    if (!bodyHtml) {
+      bodyHtml = '<div class="muted center" style="padding:20px;">(لا يوجد محتوى ظاهر لهذا السؤال)</div>';
+    }
+    $('qBody').innerHTML = bodyHtml;
+
+    $('optionsGrid').querySelectorAll('.opt-btn').forEach(function(btn) {
+      var v = btn.getAttribute('data-val');
+      btn.classList.toggle('selected', v === chosen);
+      btn.onclick = function() {
+        state.answers[q.id] = v;
+        renderNavigator();
+        renderCurrentQuestion();
+        scheduleSave();
+      };
+    });
+
+    $('btnPrev').disabled = state.currentIndex === 0;
+    var isLast = state.currentIndex === state.questions.length - 1;
+    $('btnNext').textContent = isLast ? 'تسليم الاختبار ✓' : 'التالي ←';
+    $('btnNext').className = isLast ? 'btn btn-success' : 'btn btn-primary';
+  }
+
+  function scheduleSave() {
+    $('saveState').textContent = 'جارٍ الحفظ...';
+    $('saveState').style.color = '#d97706';
+    clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(function() {
+      if (!state.attemptId || state.submitting) return;
+      sbRpc('exam_save', {
+        p_attempt: state.attemptId,
+        p_phone: state.phone,
+        p_code: state.code,
+        p_answers: state.answers
+      }).then(function() {
+        $('saveState').textContent = '✓ محفوظ تلقائياً';
+        $('saveState').style.color = '#16a34a';
+      }).catch(function() {
+        $('saveState').textContent = '⚠ سيتم الحفظ عند التسليم';
+        $('saveState').style.color = '#dc2626';
+      });
+    }, 350);
+  }
+
+  function startTimer() {
+    clearInterval(state.timerHandle);
+    function tick() {
+      var leftSec = Math.max(0, Math.floor((state.endTimeMs - Date.now()) / 1000));
+      var m = Math.floor(leftSec / 60);
+      var s = leftSec % 60;
+      var pill = $('timerPill');
+      pill.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+      pill.classList.toggle('low', leftSec <= 120);
+      if (leftSec <= 0) {
+        clearInterval(state.timerHandle);
+        submitExam(true);
+      }
+    }
+    tick();
+    state.timerHandle = setInterval(tick, 1000);
+  }
+
+  function submitExam(auto) {
+    if (state.submitting || !state.attemptId) return;
+    if (!auto) {
+      var unanswered = state.questions.filter(function(q) { return !state.answers[q.id]; }).length;
+      var msg = unanswered > 0
+        ? 'يوجد ' + unanswered + ' سؤال لم تجب عنه بعد. هل أنت متأكد من تسليم الاختبار الآن؟'
+        : 'هل أنت متأكد من تسليم الاختبار الآن؟';
+      if (!confirm(msg)) return;
+    }
+
+    state.submitting = true;
+    clearInterval(state.timerHandle);
+    $('btnSubmitTop').disabled = true;
+    $('btnSubmitTop').textContent = 'جارٍ التسليم...';
+
+    sbRpc('exam_submit', {
+      p_attempt: state.attemptId,
+      p_phone: state.phone,
+      p_code: state.code,
+      p_answers: state.answers,
+      p_leaves: state.tabLeaves
+    }).then(function(res) {
+      $('btnSubmitTop').disabled = false;
+      $('btnSubmitTop').textContent = 'تسليم الاختبار';
+      if (res && res.error) {
+        state.submitting = false;
+        showAlert('examErr', res.error);
+        return;
+      }
+      state.attemptId = null;
+      $('resExamTitle').textContent = state.examTitle;
+      if (res && typeof res.score === 'number') {
+        var total = res.total || state.questions.length || 1;
+        var pct = Math.round((res.score / total) * 100);
+        $('resScoreWrap').style.display = 'block';
+        $('resHiddenWrap').style.display = 'none';
+        $('resScoreText').textContent = res.score + ' / ' + total;
+        $('resPctText').textContent = pct + '%';
+        $('resMsg').textContent = pct >= 85 ? 'ممتاز جداً! استمر في التفوق 🌟' : (pct >= 60 ? 'أداء جيد! بالتوفيق في القادم 👍' : 'لا بأس، راجع أخطاءك وحاول مجدداً 💪');
+      } else {
+        $('resScoreWrap').style.display = 'none';
+        $('resHiddenWrap').style.display = 'block';
+      }
+      showView('viewResult');
+    }).catch(function(err) {
+      state.submitting = false;
+      $('btnSubmitTop').disabled = false;
+      $('btnSubmitTop').textContent = 'تسليم الاختبار';
+      showAlert('examErr', 'حدث خطأ أثناء التسليم: ' + (err.message || 'حاول مجدداً'));
+    });
+  }
+
+  // تتبع مغادرة صفحة الاختبار (منع الغش)
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden && state.attemptId && !state.submitting) {
+      state.tabLeaves++;
+      showAlert('leaveWarn', '⚠️ تنبيه: تم رصد خروجك من صفحة الاختبار (' + state.tabLeaves + ' مرة). يرجى البقاء داخل الصفحة.');
+    }
+  });
+
+  $('btnPrev').onclick = function() {
+    if (state.currentIndex > 0) {
+      state.currentIndex--;
+      renderNavigator();
+      renderCurrentQuestion();
+    }
+  };
+  $('btnNext').onclick = function() {
+    if (state.currentIndex < state.questions.length - 1) {
+      state.currentIndex++;
+      renderNavigator();
+      renderCurrentQuestion();
+    } else {
+      submitExam(false);
+    }
+  };
+  $('btnSubmitTop').onclick = function() { submitExam(false); };
+  $('btnRefreshList').onclick = function() { loadStudentExams(); };
+  $('btnLogout').onclick = function() {
+    state.phone = ''; state.code = '';
+    showView('viewLogin');
+  };
+  $('btnBackToList').onclick = function() {
+    directExamId = '';
+    loadStudentExams();
+  };
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+})();
+</script>
+</body>
+</html>
