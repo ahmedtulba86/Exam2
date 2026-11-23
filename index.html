@@ -13476,6 +13476,26 @@ body:not(.juice-dark) .v26-kpi-strip {
     display: none; margin-top: 14px; padding: 16px; border-radius: 14px;
     background: rgba(255,255,255,.12); border: 1.5px solid #fcd34d; text-align: center;
   }
+  #ikhFab {
+    position: fixed;
+    bottom: 72px;
+    left: 16px;
+    z-index: 100050;
+    background: linear-gradient(135deg, #0f2557, #1e3a8a);
+    color: #fff;
+    border: 2px solid #f59e0b;
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(15, 37, 87, .4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #ikhFab:hover { transform: scale(1.03); }
 </style>
 
 <script id="ikhtibaratiScript">
@@ -13500,26 +13520,35 @@ body:not(.juice-dark) .v26-kpi-strip {
     }
   }
 
-  // 2. حقن شريط أدوات «اختباراتي» داخل مركز الاختبارات (بجوار شريط استيراد Word مباشرة)
+  // 2. حقن شريط أدوات «اختباراتي» + زر عائم مضمون الظهور دائماً
+  function ensureIkhFab() {
+    if (document.getElementById('ikhFab') || !document.body) return;
+    var fab = document.createElement('button');
+    fab.id = 'ikhFab';
+    fab.type = 'button';
+    fab.innerHTML = '🎓 أدوات اختباراتي (أصعب الأسئلة • السبورة • السباق)';
+    fab.onclick = openWaReportsModal;
+    document.body.appendChild(fab);
+  }
+
   function ensureIkhBar() {
-    if (document.getElementById('ikhToolsBar')) return;
-    var anchor = document.getElementById('wordImportBar') || document.getElementById('qcWordBar');
-    if (!anchor) {
-      // البحث الذكي عن شريط استيراد Word أو أدوات الضبط السريع
-      var candidates = document.querySelectorAll('div, section');
-      for (var i = 0; i < candidates.length; i++) {
-        var el = candidates[i];
-        if (el.children.length > 0 && el.children.length <= 6) {
-          var txt = (el.textContent || '').trim();
-          if (txt.indexOf('استيراد أسئلة من Word مباشرة') >= 0 && txt.length < 250) {
-            anchor = el;
-            break;
-          }
+    ensureIkhFab();
+    if (document.getElementById('ikhToolsBar') || !document.body) return;
+    var anchor = null;
+    // البحث عن زر استيراد Word ثم الصعود للحاوية الخاصة به
+    var btns = document.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      var bt = (btns[i].textContent || '').trim();
+      if (bt.indexOf('استيراد أسئلة من Word') >= 0 || bt.indexOf('إعادة تصحيح الجميع') >= 0) {
+        var box = btns[i].parentElement;
+        while (box && box.parentElement && box.parentElement !== document.body && (box.textContent || '').length < 300) {
+          anchor = box;
+          box = box.parentElement;
         }
+        if (anchor) break;
       }
     }
-    var targetParent = anchor ? anchor.parentNode : document.getElementById('qcTab');
-    if (!targetParent) return;
+    if (!anchor || !anchor.parentNode) return;
 
     var bar = document.createElement('div');
     bar.id = 'ikhToolsBar';
@@ -13531,11 +13560,7 @@ body:not(.juice-dark) .v26-kpi-strip {
         '<button type="button" id="ikhAnnounceBtn">📢 إعلان للطلاب</button>' +
         '<button type="button" id="ikhWaReportsBtn">📊 التقارير والسبورة والسباق</button>' +
       '</div>';
-    if (anchor) {
-      targetParent.insertBefore(bar, anchor);
-    } else {
-      targetParent.insertBefore(bar, targetParent.firstChild);
-    }
+    anchor.parentNode.insertBefore(bar, anchor);
     document.getElementById('ikhSyncGroupsBtn').onclick = syncStudentGroupsToSupabase;
     document.getElementById('ikhAnnounceBtn').onclick = openAnnounceModal;
     document.getElementById('ikhWaReportsBtn').onclick = openWaReportsModal;
