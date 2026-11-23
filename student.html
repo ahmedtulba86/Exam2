@@ -598,6 +598,10 @@
         <div id="resPctText" style="font-size:15px;">0%</div>
       </div>
       <p id="resMsg" style="font-weight:800;font-size:16px;color:#166534;"></p>
+      <div id="certActionWrap" class="hidden" style="margin-top:14px;padding:12px;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:12px;">
+        <div style="font-weight:800;color:#92400e;margin-bottom:8px;">🏅 مبروك التفوق! شهادة التقدير الخاصة بك جاهزة</div>
+        <button type="button" id="btnDownloadCert" class="btn btn-primary btn-block" style="background:linear-gradient(135deg,#0f2557,#1e3a8a);">🎓 تحميل شهادة التقدير (صورة)</button>
+      </div>
     </div>
     <div id="resHiddenWrap" class="alert alert-ok" style="display:none;">
       تم استلام إجاباتك وحفظها بنجاح. سيقوم المعلم بإعلان النتيجة لاحقاً.
@@ -684,6 +688,12 @@
     var s = String(a || '').trim().toUpperCase();
     var map = { 'ا': 'أ', 'إ': 'أ', 'آ': 'أ', 'A': 'أ', 'B': 'ب', 'C': 'ج', 'D': 'د' };
     return map[s] || s;
+  }
+
+  function toDbAns(a) {
+    var ar = normalizeAns(a);
+    var map = { 'أ': 'a', 'ب': 'b', 'ج': 'c', 'د': 'd' };
+    return map[ar] || String(a || '').trim().toLowerCase();
   }
 
   function resolveImgUrl(img) {
@@ -906,7 +916,10 @@
       var levelTxt = (overall && overall.level) ? overall.level : '-';
 
       var reviewBtn = ex.show_result
-        ? '<button type="button" class="btn btn-outline btn-sm" data-review-idx="' + idx + '">🔍 مراجعة الإجابات والأخطاء</button>'
+        ? '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+            '<button type="button" class="btn btn-outline btn-sm" data-review-idx="' + idx + '">🔍 مراجعة</button>' +
+            (ex.pct >= 85 ? '<button type="button" class="btn btn-primary btn-sm" style="background:#b45309;" data-cert-idx="' + idx + '">🏅 شهادة التقدير</button>' : '') +
+          '</div>'
         : '';
 
       return '<div class="exam-item">' +
@@ -947,6 +960,14 @@
         openReviewModal(oldExams[i]);
       };
     });
+    box.querySelectorAll('[data-cert-idx]').forEach(function(btn) {
+      btn.onclick = function() {
+        var i = parseInt(btn.getAttribute('data-cert-idx'), 10);
+        var ex = oldExams[i];
+        var stName = (state.portal && state.portal.student && state.portal.student.name) || 'الطالب المتفوق';
+        downloadCertificate(stName, ex.title, ex.score, ex.total, ex.pct);
+      };
+    });
   }
 
   function openReviewModal(ex) {
@@ -965,8 +986,8 @@
           '</div>' +
           renderQuestionContent(q) +
           '<div class="ans-compare">' +
-            '<span class="' + (ok ? 'ans-right' : 'ans-wrong') + '">إجابتك: ' + escapeHtml(q.student_ans || 'لم تُجب') + '</span>' +
-            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(q.correct_ans || '-') + '</span>' +
+            '<span class="' + (ok ? 'ans-right' : 'ans-wrong') + '">إجابتك: ' + escapeHtml(q.student_ans ? normalizeAns(q.student_ans) : 'لم تُجب') + '</span>' +
+            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(q.correct_ans ? normalizeAns(q.correct_ans) : '-') + '</span>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -1095,8 +1116,8 @@
           '</div>' +
           renderQuestionContent(m) +
           '<div class="ans-compare">' +
-            '<span class="ans-wrong">إجابتك: ' + escapeHtml(m.student_ans || 'لم تُجب') + '</span>' +
-            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(m.correct_ans) + '</span>' +
+            '<span class="ans-wrong">إجابتك: ' + escapeHtml(m.student_ans ? normalizeAns(m.student_ans) : 'لم تُجب') + '</span>' +
+            '<span class="ans-right">الإجابة الصحيحة: ' + escapeHtml(normalizeAns(m.correct_ans)) + '</span>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -1257,11 +1278,12 @@
     var q = state.questions[state.currentIndex];
     if (!q) return;
     $('qIndexNum').textContent = state.currentIndex + 1;
-    var chosen = state.answers[q.id] || '';
+    var chosenRaw = state.answers[q.id] || '';
+    var chosenAr = normalizeAns(chosenRaw);
     var badge = $('qStatusBadge');
 
-    if (chosen) {
-      badge.textContent = 'تم اختيار: ' + chosen;
+    if (chosenAr) {
+      badge.textContent = 'تم اختيار: ' + chosenAr;
       badge.className = 'badge badge-done';
     } else {
       badge.textContent = 'لم يُجب بعد';
@@ -1271,25 +1293,26 @@
     $('qBody').innerHTML = renderQuestionContent(q);
     showAlert('pracFeedback', '');
 
-    if (state.mode === 'practice' && chosen) {
-      if (normalizeAns(chosen) === normalizeAns(q.correct_ans)) {
+    if (state.mode === 'practice' && chosenAr) {
+      if (chosenAr === normalizeAns(q.correct_ans)) {
         showAlert('pracFeedback', '✅ إجابة صحيحة! أحسنت يا بطل.', 'alert-ok');
       } else {
-        showAlert('pracFeedback', '❌ إجابة غير صحيحة — الإجابة الصحيحة هي: ' + q.correct_ans, 'alert-err');
+        showAlert('pracFeedback', '❌ إجابة غير صحيحة — الإجابة الصحيحة هي: ' + normalizeAns(q.correct_ans), 'alert-err');
       }
     }
 
     $('optionsGrid').querySelectorAll('.opt-btn').forEach(function(btn) {
-      var v = btn.getAttribute('data-val');
+      var v = btn.getAttribute('data-val'); // 'أ','ب','ج','د'
       btn.classList.remove('selected', 'prac-ok', 'prac-bad');
-      if (state.mode === 'practice' && chosen) {
+      if (state.mode === 'practice' && chosenAr) {
         if (v === normalizeAns(q.correct_ans)) btn.classList.add('prac-ok');
-        else if (v === chosen) btn.classList.add('prac-bad');
-      } else if (v === chosen) {
+        else if (v === chosenAr) btn.classList.add('prac-bad');
+      } else if (v === chosenAr) {
         btn.classList.add('selected');
       }
       btn.onclick = function() {
-        state.answers[q.id] = v;
+        // الحفظ بصيغة a,b,c,d لتطابق بنك الأسئلة 100% ومنع أي تعارض في إعادة التصحيح
+        state.answers[q.id] = (state.mode === 'exam') ? toDbAns(v) : v;
         renderNavigator();
         renderCurrentQuestion();
         if (state.mode === 'exam') scheduleSave();
@@ -1384,6 +1407,18 @@
         $('resScoreText').textContent = res.score + ' / ' + total;
         $('resPctText').textContent = pct + '%';
         $('resMsg').textContent = pct >= 85 ? 'ممتاز جداً! استمر في التفوق 🌟' : (pct >= 60 ? 'أداء جيد! بالتوفيق في القادم 👍' : 'لا بأس، راجع أخطاءك وتدرب عليها 💪');
+        var certWrap = $('certActionWrap');
+        if (certWrap) {
+          if (pct >= 85) {
+            certWrap.classList.remove('hidden');
+            $('btnDownloadCert').onclick = function() {
+              var stName = $('exStudent').textContent || (state.portal && state.portal.student && state.portal.student.name) || 'الطالب المتفوق';
+              downloadCertificate(stName, state.examTitle, res.score, total, pct);
+            };
+          } else {
+            certWrap.classList.add('hidden');
+          }
+        }
       } else {
         $('resScoreWrap').style.display = 'none';
         $('resHiddenWrap').style.display = 'block';
@@ -1434,6 +1469,93 @@
     state.activeTab = 'old';
     loadPortal();
   };
+
+
+  // توليد وتحميل شهادة تقدير فورية للمتفوقين (85% فأكثر)
+  function downloadCertificate(studentName, examTitle, score, total, pct) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 850;
+    var ctx = canvas.getContext('2d');
+
+    // خلفية فاخرة
+    var bgGrad = ctx.createLinearGradient(0, 0, 1200, 850);
+    bgGrad.addColorStop(0, '#f8fafc');
+    bgGrad.addColorStop(0.5, '#ffffff');
+    bgGrad.addColorStop(1, '#eff6ff');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1200, 850);
+
+    // إطار أزرق غامق وذهبي
+    ctx.strokeStyle = '#0f2557';
+    ctx.lineWidth = 22;
+    ctx.strokeRect(26, 26, 1148, 798);
+
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 5;
+    ctx.strokeRect(52, 52, 1096, 746);
+
+    // شريط علوي
+    ctx.fillStyle = '#0f2557';
+    ctx.fillRect(52, 52, 1096, 110);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 42px Cairo, Tahoma, Arial';
+    ctx.fillText('🎓 منصة اختباراتي التعليمية', 600, 122);
+
+    // عنوان الشهادة
+    ctx.fillStyle = '#b45309';
+    ctx.font = 'bold 58px Cairo, Tahoma, Arial';
+    ctx.fillText('شهادة تقدير وتفوق', 600, 255);
+
+    ctx.fillStyle = '#475569';
+    ctx.font = 'bold 28px Cairo, Tahoma, Arial';
+    ctx.fillText('تتقدم إدارة المنصة بخالص التهنئة والتقدير للطالب / الطالبة:', 600, 330);
+
+    // اسم الطالب
+    ctx.fillStyle = '#0f2557';
+    ctx.font = 'bold 54px Cairo, Tahoma, Arial';
+    ctx.fillText(studentName, 600, 420);
+
+    // خط ذهبي تحت الاسم
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(320, 448);
+    ctx.lineTo(880, 448);
+    ctx.stroke();
+
+    // تفاصيل الاختبار والدرجة
+    ctx.fillStyle = '#334155';
+    ctx.font = 'bold 30px Cairo, Tahoma, Arial';
+    ctx.fillText('لتفوقه وتميزه في اختبار: ' + examTitle, 600, 515);
+
+    // صندوق الدرجة
+    ctx.fillStyle = '#eff6ff';
+    ctx.strokeStyle = '#0f2557';
+    ctx.lineWidth = 3;
+    ctx.fillRect(360, 555, 480, 95);
+    ctx.strokeRect(360, 555, 480, 95);
+
+    ctx.fillStyle = '#166534';
+    ctx.font = 'bold 38px Cairo, Tahoma, Arial';
+    ctx.fillText('الدرجة: ' + score + ' / ' + total + '  (' + pct + '%) 🌟', 600, 616);
+
+    // التوقيع والتاريخ
+    var today = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 24px Cairo, Tahoma, Arial';
+    ctx.fillText('تاريخ الإصدار: ' + today, 600, 725);
+    ctx.fillStyle = '#0f2557';
+    ctx.font = 'bold 26px Cairo, Tahoma, Arial';
+    ctx.fillText('مع أطيب التمنيات بدوام النجاح والتفوق', 600, 770);
+
+    var a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'شهادة_تقدير_' + studentName.replace(/\s+/g, '_') + '.png';
+    a.click();
+  }
 
   // تشغيل فيديو الشرح في نافذة منبثقة من داخل تبويب أخطائي
   function openVideoById(vidId) {
