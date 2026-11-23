@@ -13033,6 +13033,8 @@ body:not(.juice-dark) .v26-kpi-strip {
 
 
 
+
+
 <!-- IKHTIBARATI_ADDON_START -->
 <style id="ikhtibaratiTheme">
   :root {
@@ -13059,17 +13061,19 @@ body:not(.juice-dark) .v26-kpi-strip {
     font-size: 13.5px; cursor: pointer; font-family: inherit;
   }
   #ikhSyncGroupsBtn { background: #e0f2fe; color: #0f2557; }
+  #ikhAnnounceBtn { background: #fef3c7; color: #92400e; }
   #ikhWaReportsBtn { background: #16a34a; color: #fff; }
 
-  #ikhModal {
+  #ikhModal, #ikhAnnModal {
     position: fixed; inset: 0; z-index: 100060; background: rgba(9, 23, 56, .75);
     display: none; align-items: flex-start; justify-content: center; padding: 12px; overflow-y: auto;
   }
-  #ikhModalBox {
-    background: #fff; color: #0f172a; width: 100%; max-width: 860px;
+  #ikhModalBox, #ikhAnnBox {
+    background: #fff; color: #0f172a; width: 100%; max-width: 920px;
     border-radius: 16px; padding: 18px; margin: 12px auto; direction: rtl;
     box-shadow: 0 20px 50px rgba(0,0,0,.35);
   }
+  #ikhAnnBox { max-width: 560px; }
   .ikh-row {
     display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
     gap: 10px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 11px;
@@ -13086,16 +13090,116 @@ body:not(.juice-dark) .v26-kpi-strip {
   }
   .ikh-subtabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
   .ikh-subtab {
-    flex: 1; min-width: 140px; padding: 8px 12px; border-radius: 9px; border: 1.5px solid #cbd5e1;
+    flex: 1; min-width: 125px; padding: 8px 10px; border-radius: 9px; border: 1.5px solid #cbd5e1;
     background: #f1f5f9; color: #334155; font-weight: 800; font-size: 13.5px; cursor: pointer; font-family: inherit;
   }
   .ikh-subtab.active { background: #0f2557; color: #fff; border-color: #0f2557; }
   .ikh-wa-warn { background: #d97706 !important; }
+
+  .ikh-actions-strip {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px;
+  }
+  .ikh-act-btn {
+    border: none; border-radius: 9px; padding: 8px 12px; font-weight: 800;
+    font-size: 13px; cursor: pointer; font-family: inherit; color: #fff;
+  }
+
+  /* Hardest Questions Card */
+  .ikh-hard-card {
+    border: 1.5px solid #fecaca; border-radius: 12px; padding: 12px;
+    margin-bottom: 10px; background: #fff;
+  }
+  .ikh-hard-bar {
+    height: 8px; border-radius: 999px; background: #e2e8f0; overflow: hidden; margin: 6px 0 8px;
+  }
+  .ikh-hard-fill {
+    height: 100%; background: linear-gradient(90deg, #dc2626, #ef4444);
+  }
+  .ikh-q-preview {
+    max-height: 160px; overflow: hidden; font-size: 14px; line-height: 1.7;
+    background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px;
+  }
+  .ikh-q-preview img { max-height: 120px; width: auto; display: block; border-radius: 6px; }
+
+  /* Fullscreen Smart Board Mode for Hardest Questions */
+  #ikhBoardModal {
+    position: fixed; inset: 0; z-index: 100090; background: #0b1224; color: #f8fafc;
+    display: none; flex-direction: column; direction: rtl;
+  }
+  #ikhBoardTop {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 12px 18px; background: #0f2557; border-bottom: 2px solid #1e3a8a;
+  }
+  #ikhBoardStage {
+    position: relative; flex: 1; overflow-y: auto; padding: 24px;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  }
+  #ikhBoardCard {
+    background: #ffffff; color: #0f172a; width: 100%; max-width: 1080px;
+    border-radius: 18px; padding: 28px 32px; font-size: 26px; line-height: 1.9;
+    box-shadow: 0 18px 45px rgba(0,0,0,.4); position: relative;
+  }
+  #ikhBoardCard img { max-width: 100%; max-height: 55vh; height: auto; display: block; margin: 10px auto; border-radius: 10px; }
+  #ikhBoardCard table { border-collapse: collapse; margin: 10px 0; }
+  #ikhBoardCard td, #ikhBoardCard th { border: 1px solid #64748b; padding: 8px 12px; }
+  #ikhBoardCanvas {
+    position: fixed; inset: 64px 0 0 0; width: 100%; height: calc(100vh - 64px);
+    z-index: 100095; pointer-events: none; touch-action: none;
+  }
+  #ikhBoardCanvas.drawing { pointer-events: auto; cursor: crosshair; }
+
+  /* Fullscreen Excellence Race Modal (سباق التفوق) */
+  #ikhRaceModal {
+    position: fixed; inset: 0; z-index: 100090;
+    background: linear-gradient(180deg, #091738 0%, #0f2557 45%, #14532d 100%);
+    color: #fff; display: none; flex-direction: column; direction: rtl; overflow-y: auto;
+  }
+  #ikhRaceTop {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 12px 18px; background: rgba(9, 23, 56, .92); border-bottom: 2px solid #f59e0b;
+  }
+  #ikhRaceTrackWrap {
+    flex: 1; padding: 16px 20px; max-width: 1180px; width: 100%; margin: 0 auto;
+  }
+  .ikh-lane {
+    position: relative; height: 58px; margin-bottom: 10px; border-radius: 12px;
+    background: linear-gradient(90deg, rgba(22,163,74,.28), rgba(255,255,255,.1));
+    border: 1.5px solid rgba(255,255,255,.22);
+    display: flex; align-items: center; padding: 0 12px; overflow: hidden;
+  }
+  .ikh-lane::after {
+    content: '🏁'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+    font-size: 24px; opacity: .85;
+  }
+  .ikh-lane-meta {
+    position: relative; z-index: 2; font-size: 13px; font-weight: 800;
+    background: rgba(9, 23, 56, .75); padding: 3px 10px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  .ikh-hurdle {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 18px; opacity: .75; z-index: 1;
+  }
+  .ikh-racer {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    z-index: 3; display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #0f172a;
+    padding: 5px 12px; border-radius: 999px; font-weight: 800; font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.35); white-space: nowrap;
+  }
+  .ikh-podium {
+    display: none; margin-top: 14px; padding: 16px; border-radius: 14px;
+    background: rgba(255,255,255,.12); border: 1.5px solid #fcd34d; text-align: center;
+  }
 </style>
 
 <script id="ikhtibaratiScript">
 (function(){
   'use strict';
+
+  function esc(s) {
+    return String(s || '').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+  }
 
   // 1. تحديث اسم المنصة في العنوان والواجهة
   function applyBrandName() {
@@ -13119,17 +13223,19 @@ body:not(.juice-dark) .v26-kpi-strip {
     bar.id = 'ikhToolsBar';
     bar.innerHTML =
       '<div><strong style="font-size:15px;">🎓 أدوات منصة اختباراتي السريعة</strong>' +
-      '<div style="font-size:12px;opacity:.9;">مزامنة المجموعات لترتيب الطلاب + تقارير واتساب لأولياء الأمور</div></div>' +
+      '<div style="font-size:12px;opacity:.9;">تقارير واتساب، كشف الغائبين، أصعب الأسئلة للسبورة، سباق التفوق، وإعلانات الطلاب</div></div>' +
       '<div class="ikh-btns">' +
-        '<button type="button" id="ikhSyncGroupsBtn">🔄 مزامنة مجموعات الطلاب</button>' +
-        '<button type="button" id="ikhWaReportsBtn">📲 تقارير أولياء الأمور (واتساب)</button>' +
+        '<button type="button" id="ikhSyncGroupsBtn">🔄 مزامنة المجموعات</button>' +
+        '<button type="button" id="ikhAnnounceBtn">📢 إعلان للطلاب</button>' +
+        '<button type="button" id="ikhWaReportsBtn">📊 التقارير والسبورة والسباق</button>' +
       '</div>';
     qcTab.insertBefore(bar, qcTab.firstChild);
     document.getElementById('ikhSyncGroupsBtn').onclick = syncStudentGroupsToSupabase;
+    document.getElementById('ikhAnnounceBtn').onclick = openAnnounceModal;
     document.getElementById('ikhWaReportsBtn').onclick = openWaReportsModal;
   }
 
-  // 3. استخراج قائمة الطلاب والمجموعات من ذاكرة المنصة المحلية ومزامنة group_name في Supabase
+  // ==================== 3. مزامنة مجموعات الطلاب ====================
   function collectLocalStudentsWithGroups() {
     var mapById = {};
     var mapByPhone = {};
@@ -13163,21 +13269,16 @@ body:not(.juice-dark) .v26-kpi-strip {
   }
 
   function syncStudentGroupsToSupabase() {
-    if (!window.SB_URL || !window.sbHeaders) {
-      return alert('يرجى تسجيل دخول المعلم أولاً.');
-    }
+    if (!window.SB_URL || !window.sbHeaders) return alert('يرجى تسجيل دخول المعلم أولاً.');
     var btn = document.getElementById('ikhSyncGroupsBtn');
     var origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'جارٍ المزامنة...';
+    btn.disabled = true; btn.textContent = 'جارٍ المزامنة...';
 
     var localMap = collectLocalStudentsWithGroups();
     fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,phone,group_name', { headers: window.sbHeaders() })
       .then(function(r) { return r.json(); })
       .then(function(rows) {
-        if (!Array.isArray(rows) || !rows.length) {
-          throw new Error('لا يوجد طلاب في جدول الاختبارات بعد.');
-        }
+        if (!Array.isArray(rows) || !rows.length) throw new Error('لا يوجد طلاب في جدول الاختبارات بعد.');
         var updates = [];
         rows.forEach(function(row) {
           var grp = localMap.byId[String(row.student_id)] || '';
@@ -13185,12 +13286,10 @@ body:not(.juice-dark) .v26-kpi-strip {
             var ph = String(row.phone).replace(/\D/g, '').slice(-10);
             grp = localMap.byPhone[ph] || '';
           }
-          if (grp && grp !== row.group_name) {
-            updates.push({ id: row.id, group_name: grp });
-          }
+          if (grp && grp !== row.group_name) updates.push({ id: row.id, group_name: grp });
         });
         if (!updates.length) {
-          alert('✅ كل مجموعات الطلاب متزامنة بالفعل (أو لم يتم تعيين مجموعات جديدة).');
+          alert('✅ كل مجموعات الطلاب متزامنة بالفعل.');
           return;
         }
         return Promise.all(updates.map(function(u) {
@@ -13200,290 +13299,25 @@ body:not(.juice-dark) .v26-kpi-strip {
             body: JSON.stringify({ group_name: u.group_name })
           });
         })).then(function() {
-          alert('✅ تم تحديث اسم المجموعة لـ ' + updates.length + ' طالب بنجاح! سيظهر لهم «ترتيبك في مجموعتك» الآن.');
+          alert('✅ تم تحديث اسم المجموعة لـ ' + updates.length + ' طالب بنجاح!');
         });
       })
-      .catch(function(err) {
-        alert('تعذر المزامنة: ' + (err.message || err));
-      })
-      .finally(function() {
-        btn.disabled = false;
-        btn.textContent = origText;
-      });
+      .catch(function(err) { alert('تعذر المزامنة: ' + (err.message || err)); })
+      .finally(function() { btn.disabled = false; btn.textContent = origText; });
   }
 
-  // 4. نافذة تقارير أولياء الأمور عبر واتساب
-  function ensureIkhModal() {
-    if (document.getElementById('ikhModal')) return;
+  // ==================== 4. إعلانات وتنبيهات المعلم لبوابة الطالب ====================
+  function ensureAnnModal() {
+    if (document.getElementById('ikhAnnModal')) return;
     var m = document.createElement('div');
-    m.id = 'ikhModal';
+    m.id = 'ikhAnnModal';
     m.innerHTML =
-      '<div id="ikhModalBox">' +
+      '<div id="ikhAnnBox">' +
         '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">' +
-          '<h3 style="margin:0;color:#0f2557;">📲 إرسال تقارير النتائج لأولياء الأمور (واتساب)</h3>' +
-          '<button type="button" id="ikhCloseModal" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;">إغلاق ✕</button>' +
+          '<h3 style="margin:0;color:#0f2557;">📢 شريط إعلانات وتنبيهات الطلاب</h3>' +
+          '<button type="button" id="ikhCloseAnn" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;">إغلاق ✕</button>' +
         '</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">' +
-          '<select id="ikhExamSelect" style="flex:1;min-width:220px;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:9px;font-family:inherit;font-size:14px;"></select>' +
-          '<button type="button" id="ikhLoadReportBtn" style="background:#0f2557;color:#fff;border:none;border-radius:9px;padding:9px 18px;font-weight:800;cursor:pointer;">عرض النتائج</button>' +
-          '<button type="button" id="ikhCopyTopBtn" style="background:#b45309;color:#fff;border:none;border-radius:9px;padding:9px 14px;font-weight:800;cursor:pointer;">📋 نسخ بوست الأوائل</button>' +
-        '</div>' +
-        '<div class="ikh-subtabs">' +
-          '<button type="button" id="ikhTabDone" class="ikh-subtab active">✅ الممتحنين (<span id="ikhCntDone">0</span>)</button>' +
-          '<button type="button" id="ikhTabAbsent" class="ikh-subtab">⚠️ الغائبين عن الاختبار (<span id="ikhCntAbsent">0</span>)</button>' +
-        '</div>' +
-        '<div id="ikhReportStatus" style="font-size:13.5px;font-weight:700;color:#475569;margin-bottom:10px;"></div>' +
-        '<div id="ikhReportList" style="max-height:460px;overflow-y:auto;"></div>' +
-      '</div>';
-    document.body.appendChild(m);
-    document.getElementById('ikhCloseModal').onclick = function() { m.style.display = 'none'; };
-    m.onclick = function(e) { if (e.target === m) m.style.display = 'none'; };
-    document.getElementById('ikhLoadReportBtn').onclick = loadSelectedExamReport;
-    document.getElementById('ikhTabDone').onclick = function() {
-      window.__ikhRepTab = 'done';
-      renderIkhReportView();
-    };
-    document.getElementById('ikhTabAbsent').onclick = function() {
-      window.__ikhRepTab = 'absent';
-      renderIkhReportView();
-    };
-    document.getElementById('ikhCopyTopBtn').onclick = copyTopStudentsPost;
-  }
-
-  function openWaReportsModal() {
-    if (!window.SB_URL || !window.sbHeaders) return alert('يرجى تسجيل دخول المعلم أولاً.');
-    ensureIkhModal();
-    document.getElementById('ikhModal').style.display = 'flex';
-    var sel = document.getElementById('ikhExamSelect');
-    sel.innerHTML = '<option value="">جارٍ تحميل الاختبارات...</option>';
-    document.getElementById('ikhReportList').innerHTML = '';
-    document.getElementById('ikhReportStatus').textContent = '';
-
-    fetch(window.SB_URL + '/rest/v1/exams?select=id,title&order=created_at.desc', { headers: window.sbHeaders() })
-      .then(function(r) { return r.json(); })
-      .then(function(rows) {
-        if (!Array.isArray(rows) || !rows.length) {
-          sel.innerHTML = '<option value="">لا توجد اختبارات منشورة بعد</option>';
-          return;
-        }
-        sel.innerHTML = rows.map(function(e) {
-          return '<option value="' + e.id + '">' + String(e.title || '').replace(/</g, '<') + '</option>';
-        }).join('');
-        loadSelectedExamReport();
-      })
-      .catch(function(e) {
-        sel.innerHTML = '<option value="">تعذر تحميل الاختبارات</option>';
-      });
-  }
-
-  function normAns(a) {
-    var s = String(a || '').trim().toUpperCase();
-    var m = { 'ا': 'أ', 'إ': 'أ', 'آ': 'أ', 'A': 'أ', 'B': 'ب', 'C': 'ج', 'D': 'د' };
-    return m[s] || s;
-  }
-
-  function formatEgyptPhone(p) {
-    var d = String(p || '').replace(/\D/g, '');
-    if (!d) return '';
-    if (d.indexOf('00') === 0) d = d.slice(2);
-    if (d.indexOf('0') === 0 && d.length === 11) d = '2' + d;
-    return d;
-  }
-
-  function loadSelectedExamReport() {
-    var sel = document.getElementById('ikhExamSelect');
-    var examId = sel.value;
-    var examTitle = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'الاختبار';
-    if (!examId) return;
-
-    var stEl = document.getElementById('ikhReportStatus');
-    var listEl = document.getElementById('ikhReportList');
-    stEl.textContent = 'جارٍ حساب الدرجات والترتيب وأضعف الأبواب...';
-    listEl.innerHTML = '';
-
-    Promise.all([
-      fetch(window.SB_URL + '/rest/v1/attempts?exam_id=eq.' + examId + '&submitted_at=not.is.null&select=id,student_id,score,total,answers,q_order,submitted_at', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
-      fetch(window.SB_URL + '/rest/v1/exam_students?select=student_id,name,phone,group_name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
-      fetch(window.SB_URL + '/rest/v1/questions?select=id,correct,topic_id', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
-      fetch(window.SB_URL + '/rest/v1/topics?select=id,name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); })
-    ]).then(function(res) {
-      var attempts = Array.isArray(res[0]) ? res[0] : [];
-      var students = Array.isArray(res[1]) ? res[1] : [];
-      var questions = Array.isArray(res[2]) ? res[2] : [];
-      var topics = Array.isArray(res[3]) ? res[3] : [];
-
-      // حساب الغائبين حتى لو لم يمتحن أحد بعد
-
-      var stuMap = {};
-      students.forEach(function(s) { stuMap[String(s.student_id)] = s; });
-      var topicMap = {};
-      topics.forEach(function(t) { topicMap[String(t.id)] = t.name; });
-      var qMap = {};
-      questions.forEach(function(q) { qMap[String(q.id)] = q; });
-
-      // أفضل محاولة لكل طالب
-      var bestByStu = {};
-      attempts.forEach(function(a) {
-        var k = String(a.student_id);
-        if (!bestByStu[k] || (a.score || 0) > (bestByStu[k].score || 0)) bestByStu[k] = a;
-      });
-      var rows = Object.keys(bestByStu).map(function(k) {
-        var a = bestByStu[k];
-        var s = stuMap[k] || { name: 'طالب #' + k, phone: '', group_name: '' };
-        // حساب أضعف باب للطالب في هذا الاختبار
-        var wrongByTopic = {};
-        var ans = a.answers || {};
-        (a.q_order || []).forEach(function(qid) {
-          var q = qMap[String(qid)];
-          if (!q) return;
-          if (normAns(ans[qid]) !== normAns(q.correct)) {
-            var tName = topicMap[String(q.topic_id)] || 'عام';
-            wrongByTopic[tName] = (wrongByTopic[tName] || 0) + 1;
-          }
-        });
-        var weakest = '';
-        var maxW = 0;
-        Object.keys(wrongByTopic).forEach(function(tn) {
-          if (wrongByTopic[tn] > maxW) { maxW = wrongByTopic[tn]; weakest = tn; }
-        });
-        return {
-          student_id: k,
-          name: s.name || ('طالب #' + k),
-          phone: s.phone || '',
-          group_name: s.group_name || '',
-          score: a.score || 0,
-          total: a.total || 0,
-          pct: a.total ? Math.round((a.score || 0) * 100 / a.total) : 0,
-          weakest: weakest
-        };
-      });
-
-      rows.sort(function(x, y) { return y.score - x.score; });
-      var totalExam = rows.length;
-
-      var doneIds = {};
-      rows.forEach(function(r) { doneIds[String(r.student_id)] = true; });
-      var absentRows = students.filter(function(s) { return !doneIds[String(s.student_id)]; });
-
-      window.__ikhRepData = { examTitle: examTitle, rows: rows, absentRows: absentRows };
-      window.__ikhRepTab = window.__ikhRepTab || 'done';
-      document.getElementById('ikhCntDone').textContent = rows.length;
-      document.getElementById('ikhCntAbsent').textContent = absentRows.length;
-      renderIkhReportView();
-    }).catch(function(err) {
-      stEl.textContent = 'حدث خطأ: ' + (err.message || err);
-    });
-  }
-
-
-
-  function copyTopStudentsPost() {
-    var d = window.__ikhRepData;
-    if (!d || !d.rows || !d.rows.length) {
-      return alert('لا توجد نتائج طلاب في هذا الاختبار لنسخ بوست الأوائل.');
-    }
-    var top10 = d.rows.slice(0, 10);
-    var medals = ['🥇', '🥈', '🥉'];
-    var lines = [
-      '🏆 *لوحة شرف وأوائل اختبار: ' + d.examTitle + '* 🏆',
-      'منصة *اختباراتي* تهنئ طلابها المتفوقين:',
-      '──────────────────'
-    ];
-    top10.forEach(function(r, idx) {
-      var rank = 1 + d.rows.filter(function(o) { return o.score > r.score; }).length;
-      var icon = medals[rank - 1] || ('🔹 #' + rank);
-      var grp = r.group_name ? (' (' + r.group_name + ')') : '';
-      lines.push(icon + ' *' + r.name + '*' + grp + ' — ' + r.score + '/' + r.total + ' (' + r.pct + '%)');
-    });
-    lines.push('──────────────────');
-    lines.push('🌟 ألف مبروك للأبطال وبالتوفيق للجميع في الاختبارات القادمة! 🎓');
-    var text = lines.join('\n');
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function() {
-        alert('✅ تم نسخ بوست أوائل الاختبار! يمكنك لصقه مباشرة في جروب الواتساب الآن.');
-      }).catch(function() {
-        prompt('انسخ بوست الأوائل من هنا:', text);
-      });
-    } else {
-      prompt('انسخ بوست الأوائل من هنا:', text);
-    }
-  }
-
-  function renderIkhReportView() {
-    var d = window.__ikhRepData;
-    if (!d) return;
-    var tab = window.__ikhRepTab || 'done';
-    document.getElementById('ikhTabDone').classList.toggle('active', tab === 'done');
-    document.getElementById('ikhTabAbsent').classList.toggle('active', tab === 'absent');
-    var stEl = document.getElementById('ikhReportStatus');
-    var listEl = document.getElementById('ikhReportList');
-
-    if (tab === 'done') {
-      var rows = d.rows;
-      var totalExam = rows.length;
-      stEl.textContent = totalExam ? ('عدد الطلاب الممتحنين: ' + totalExam + ' طالب.') : 'لم يقم أي طالب بتسليم هذا الاختبار بعد.';
-      listEl.innerHTML = rows.map(function(r) {
-        var examRank = 1 + rows.filter(function(o) { return o.score > r.score; }).length;
-        var grpRows = r.group_name ? rows.filter(function(o) { return o.group_name === r.group_name; }) : [];
-        var grpRank = r.group_name ? (1 + grpRows.filter(function(o) { return o.score > r.score; }).length) : null;
-
-        var msg = 'السلام عليكم ورحمة الله وبركاته 🌹\n' +
-          'تقرير منصة «اختباراتي» لولي أمر الطالب: *' + r.name + '*\n' +
-          '📝 الاختبار: ' + d.examTitle + '\n' +
-          '📊 الدرجة: *' + r.score + ' / ' + r.total + '* (' + r.pct + '%)\n' +
-          '🏆 الترتيب في الاختبار: ' + examRank + ' من ' + totalExam + '\n' +
-          (grpRank ? ('👥 الترتيب في مجموعة (' + r.group_name + '): ' + grpRank + ' من ' + grpRows.length + '\n') : '') +
-          (r.weakest ? ('📌 أكثر باب يحتاج مراجعة: ' + r.weakest + '\n') : '🌟 أداء ممتاز بدون أخطاء متكررة!\n') +
-          'مع تمنياتنا بالتوفيق والتفوق الدائم 🎓';
-
-        var waPhone = formatEgyptPhone(r.phone);
-        var waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
-
-        return '<div class="ikh-row">' +
-          '<div>' +
-            '<strong style="color:#0f2557;">' + String(r.name).replace(/</g, '<') + '</strong> ' +
-            '<span class="ikh-badge">' + r.score + ' / ' + r.total + ' (' + r.pct + '%)</span> ' +
-            '<span class="ikh-badge">الترتيب: ' + examRank + '/' + totalExam + '</span>' +
-            (r.group_name ? ' <span class="ikh-badge">مجموعة: ' + String(r.group_name).replace(/</g, '<') + ' (' + grpRank + '/' + grpRows.length + ')</span>' : '') +
-            (r.weakest ? '<div style="font-size:12px;color:#b91c1c;margin-top:3px;">أضعف باب: ' + String(r.weakest).replace(/</g, '<') + '</div>' : '') +
-          '</div>' +
-          '<a class="ikh-wa-btn" href="' + waUrl + '" target="_blank">📲 إرسال واتساب</a>' +
-        '</div>';
-      }).join('');
-    } else {
-      var abs = d.absentRows;
-      stEl.textContent = abs.length ? ('عدد الطلاب الذين لم يمتحنوا بعد: ' + abs.length + ' طالب.') : '🎉 ممتاز! جميع الطلاب أدّوا هذا الاختبار.';
-      listEl.innerHTML = abs.map(function(s) {
-        var msg = 'السلام عليكم ورحمة الله وبركاته 🌹\n' +
-          'تذكير من منصة «اختباراتي» للطالب / ولي أمر الطالب: *' + (s.name || '') + '*\n' +
-          '⚠️ لم يتم تسليم اختبار: *' + d.examTitle + '* حتى الآن.\n' +
-          'يرجى الدخول على بوابة الطالب وأداء الاختبار قبل إغلاقه:\n' +
-          'https://ahmedtulba86.github.io/Exam2/student.html\n' +
-          'مع تمنياتنا بالتوفيق 🎓';
-        var waPhone = formatEgyptPhone(s.phone);
-        var waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(msg);
-
-        return '<div class="ikh-row" style="border-color:#fde68a;background:#fffbeb;">' +
-          '<div>' +
-            '<strong style="color:#92400e;">' + String(s.name || 'طالب').replace(/</g, '<') + '</strong> ' +
-            (s.group_name ? '<span class="ikh-badge">مجموعة: ' + String(s.group_name).replace(/</g, '<') + '</span>' : '') +
-          '</div>' +
-          '<a class="ikh-wa-btn ikh-wa-warn" href="' + waUrl + '" target="_blank">⚠️ تنبيه واتساب</a>' +
-        '</div>';
-      }).join('');
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    applyBrandName();
-    ensureIkhBar();
-  });
-  setInterval(function() {
-    ensureIkhBar();
-  }, 1500);
-})();
-</script>
-<!-- IKHTIBARATI_ADDON_END -->
+        '<p style="font-size:13.5px;color:#475569;margin-top:0;">أي نص تكتبه هنا سيظهر فوراً في شريط بارز أعلى <b>بوابة الطالب</b> لجميع الطلاب.</p>' +
+        '<textarea id="ikhAnnInput" rows="4" placeholder="مثال: موعد الاختبار الشامل يوم الخميس الساعة 8 مساءً — بالتوفيق للأبطال!" style="width:100%;padding:12px;border:2px solid #cbd5e1;border-radius:10px;font-family:inherit;font-size:15px;">
 </body>
 </html>
