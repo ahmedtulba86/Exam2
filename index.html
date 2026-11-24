@@ -7837,13 +7837,34 @@ function pubView(){body().innerHTML='جارٍ التحميل...';
     Q.stu=a[3]||[];var snm={};Q.stu.forEach(function(x){snm[x.student_id]=x.name;});
     var cnt={};(a[2]||[]).forEach(function(x){cnt[x.exam_id]=(cnt[x.exam_id]||0)+1;});Q.quizzes=a[0]||[];
     var h='<div class="card"><b>رابط صفحة الطالب</b><div class="form-row"><input id="qpUrl" class="flex-1" style="direction:ltr" placeholder="https://اسم-حسابك.github.io/exam/" value="'+esc(stBase())+'"><button onclick="qcSaveUrl()">حفظ</button><button class="secondary" onclick="qcCopyBase()">نسخ</button></div><div style="font-size:12px;color:#64748b;margin-top:6px">رابط واحد ثابت لكل الطلاب: يدخل الطالب برقمه وكوده ويختار اسم الاختبار من القائمة. سمِّ كل اختبار باسم واضح ومختلف، وأغلق (فتح/إغلاق) أي اختبار تريد إخفاءه.</div></div>'+
-    '<div class="card"><b>نشر اختبار للطلاب</b><div class="form-row"><select id="qpQ" class="flex-1">'+Q.quizzes.map(function(z,i){return '<option value="'+i+'">'+esc(z.title)+' ('+z.question_ids.length+' سؤال)</option>';}).join('')+'</select></div>'+
-    '<div class="form-row"><label>المدة (دقيقة)</label><input type="number" id="qpD" value="30" min="1" style="width:80px"><label>المحاولات</label><input type="number" id="qpA" value="1" min="1" style="width:70px"></div>'+
-    '<div class="form-row"><label>يفتح</label><input type="datetime-local" id="qpO" style="width:auto"><label>يغلق</label><input type="datetime-local" id="qpC" style="width:auto"></div>'+
-    '<label style="display:block;margin:6px 0"><input type="checkbox" id="qpS" checked style="width:auto;min-height:0"> إظهار الدرجة للطالب بعد التسليم</label>'+
-    '<label style="display:block;margin:6px 0"><input type="checkbox" id="qpR" style="width:auto;min-height:0" onchange="qcRestrictToggle()"> لطلاب محددين فقط (باقي الطلاب لن يروه)</label><div id="qpRBox" style="display:none"><input id="qpRF" placeholder="بحث بالاسم" oninput="qcRestrictFilter()" style="width:100%;margin-bottom:4px"><select id="qpRS" multiple size="6" style="width:100%">'+Q.stu.map(function(x){return '<option value="'+esc(x.student_id)+'">'+esc(x.name)+'</option>';}).join('')+'</select><div style="font-size:12px;color:#64748b">اضغط Ctrl أو اضغط مطولًا لاختيار أكثر من طالب. يحتاج تشغيل كود الإعداد مرة واحدة (تبويب العلاج، أسفل الصفحة).</div></div><button onclick="qcPublish()">نشر الاختبار</button></div>'+
+    '<div class="card" style="padding:12px 14px;"><b style="color:#0f2557;font-size:15px;display:block;margin-bottom:8px;">📤 نشر اختبار للطلاب</b>'+
+    '<div class="form-row" style="gap:6px;margin:0 0 8px 0;align-items:center;">'+
+      '<select id="qpQ" style="width:auto;min-width:170px;max-width:240px;flex:1 1 180px;">'+Q.quizzes.map(function(z,i){return '<option value="'+i+'">'+esc(z.title)+' ('+z.question_ids.length+' س)</option>';}).join('')+'</select>'+
+      '<select id="qpGrade" onchange="qcTargetGradeChange()" style="width:auto;min-width:135px;flex:0 1 165px;" title="اختر الصف الدراسي"><option value="">🏫 كل الصفوف</option></select>'+
+      '<select id="qpGroup" onchange="qcTargetGroupChange()" style="width:auto;min-width:135px;flex:0 1 165px;" title="اختر المجموعة"><option value="">👥 كل المجموعات</option></select>'+
+      '<div style="position:relative;flex:1 1 170px;min-width:155px;max-width:230px;">'+
+        '<input type="text" id="qpStuSearch" placeholder="👤 بحث عن طالب محدد..." autocomplete="off" oninput="qcStuSearchFilter()" onfocus="qcStuSearchFilter()" style="width:100%;padding:8px 10px;">'+
+        '<input type="hidden" id="qpStuId" value="">'+
+        '<div id="qpStuDrop" style="display:none;position:absolute;top:100%;right:0;left:0;z-index:99;background:#fff;border:1.5px solid #0f2557;border-radius:9px;max-height:190px;overflow-y:auto;box-shadow:0 8px 20px rgba(0,0,0,.18);"></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="form-row" style="gap:6px;margin:0 0 8px 0;align-items:center;">'+
+      '<label style="font-size:12.5px;">المدة</label><input type="number" id="qpD" value="30" min="1" style="width:66px;padding:7px 8px;" title="المدة بالدقائق">'+
+      '<label style="font-size:12.5px;">يفتح</label><input type="datetime-local" id="qpO" style="width:auto;padding:7px 8px;font-size:13px;">'+
+      '<label style="font-size:12.5px;">يغلق</label><input type="datetime-local" id="qpC" style="width:auto;padding:7px 8px;font-size:13px;">'+
+      '<label style="font-size:12.5px;">المحاولات</label><input type="number" id="qpA" value="1" min="1" style="width:58px;padding:7px 8px;">'+
+    '</div>'+
+    '<div class="form-row" style="gap:10px;margin:0;align-items:center;justify-content:space-between;">'+
+      '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">'+
+        '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" id="qpS" checked style="width:auto;min-height:0"> إظهار الدرجة</label>'+
+        '<label style="font-size:12.5px;" title="الافتراضي: تفتح المراجعة تلقائياً بعد إغلاق الاختبار">وقت فتح المراجعة</label><input type="datetime-local" id="qpRev" style="width:auto;padding:7px 8px;font-size:13px;" title="اتركه فارغاً ليفتح تلقائياً بعد إغلاق الاختبار">'+
+        '<label style="display:inline-flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;"><input type="checkbox" id="qpWp" style="width:auto;min-height:0"> 📷 تصوير ورقة الحل</label>'+
+      '</div>'+
+      '<button onclick="qcPublish()" style="padding:9px 22px;font-weight:800;">نشر الاختبار</button>'+
+    '</div>'+
+    '<div id="qpTargetHint" style="font-size:11.5px;color:#64748b;margin-top:6px;">💡 اترك «وقت فتح المراجعة» فارغاً لتفتح تلقائياً بعد انتهاء وقت إغلاق الاختبار.</div></div>'+
     '<div class="card"><div class="form-row"><b class="flex-1">الاختبارات المنشورة</b><button class="secondary" onclick="qcSync()">ترحيل الدرجات لسجل الدرجات الآن</button></div>';
-    (a[1]||[]).forEach(function(e){h+='<div class="question-box"><b>'+esc(e.title)+'</b> '+(e.allowed_students?'<span class="badge" style="background:#ede9fe;color:#5b21b6">مخصص لـ '+e.allowed_students.length+' طالب: '+esc(e.allowed_students.slice(0,3).map(function(i){return snm[i]||i;}).join('، '))+(e.allowed_students.length>3?'...':'')+'</span> ':'')+(e.is_open?'<span class="badge badge-low">مفتوح</span>':'<span class="badge">مغلق</span>')+'<div style="font-size:12px;color:#64748b">'+e.question_ids.length+' سؤال · '+e.duration_min+' دقيقة · سلّم '+(cnt[e.id]||0)+'</div><div class="form-row">'+
+    (a[1]||[]).forEach(function(e){h+='<div class="question-box"><b>'+esc(e.title)+'</b> '+(e.target_grade?'<span class="badge" style="background:#dbeafe;color:#0f2557">🏫 '+esc(e.target_grade)+'</span> ':'')+(e.target_group?'<span class="badge" style="background:#ccfbf1;color:#115e59">👥 '+esc(e.target_group)+'</span> ':'')+(e.allowed_students?'<span class="badge" style="background:#ede9fe;color:#5b21b6">مخصص لـ '+e.allowed_students.length+' طالب: '+esc(e.allowed_students.slice(0,3).map(function(i){return snm[i]||i;}).join('، '))+(e.allowed_students.length>3?'...':'')+'</span> ':'')+(e.is_open?'<span class="badge badge-low">مفتوح</span>':'<span class="badge">مغلق</span>')+'<div style="font-size:12px;color:#64748b">'+e.question_ids.length+' سؤال · '+e.duration_min+' دقيقة · سلّم '+(cnt[e.id]||0)+'</div><div class="form-row">'+
       '<button class="secondary" onclick="qcLink(\''+e.id+'\')">نسخ الرابط</button><button class="secondary" onclick="qcShare(\''+e.id+'\')">واتساب</button><button class="warning" onclick="qcToggle(\''+e.id+'\','+(!e.is_open)+')">'+(e.is_open?'إغلاق':'فتح')+'</button><button class="secondary" onclick="qcRev(\''+e.id+'\','+(!e.allow_review)+')">'+(e.allow_review?'إغلاق المراجعة':'فتح المراجعة للطلاب')+'</button><button class="secondary" onclick="qcRevAt(\''+e.id+'\')">'+(e.review_at?'موعد المراجعة: '+new Date(e.review_at).toLocaleString('ar-EG'):'جدولة فتح المراجعة')+'</button><button onclick="qcRes(\''+e.id+'\')">النتائج</button><button class="secondary" onclick="qcCheat(\''+e.id+'\')">تقرير الغش</button><button class="secondary" onclick="qcPaper(\'exam\',\''+e.id+'\')">نسخة مطبوعة</button><button class="danger" onclick="qcDelE(\''+e.id+'\')">حذف</button></div><div id="res_'+e.id+'"></div></div>';});
     body().innerHTML=h+((a[1]||[]).length?'':'لم تنشر اختبارات بعد.')+'</div>';}).catch(err);}
 window.qcRestrictToggle=function(){var c=document.getElementById('qpR').checked;document.getElementById('qpRBox').style.display=c?'block':'none';
@@ -7851,11 +7872,86 @@ window.qcRestrictToggle=function(){var c=document.getElementById('qpR').checked;
 window.qcRestrictFilter=function(){var v=document.getElementById('qpRF').value.trim();Array.prototype.forEach.call(document.getElementById('qpRS').options,function(o){o.hidden=v&&o.text.indexOf(v)<0;});};
 window.qcCopyBase=function(){var u=stBase();if(!u)return alert('احفظ الرابط أولًا');try{navigator.clipboard.writeText(u);}catch(e){}prompt('الرابط العام للطلاب',u);};
 window.qcSaveUrl=function(){var v=document.getElementById('qpUrl').value.trim();try{localStorage.setItem('qc_student_url',v);}catch(e){}alert('تم الحفظ');};
+window.qcGetGradesCfg=function(){
+  var def={grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
+  try{var s=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');if(s&&Array.isArray(s.grades)&&s.grades.length){def.grades=s.grades;def.groupGrades=s.groupGrades||{};}}catch(e){}
+  return def;
+};
+window.qcInitPublishSelectors=function(){
+  var gSel=document.getElementById('qpGrade');
+  if(!gSel)return;
+  var cfg=qcGetGradesCfg();
+  gSel.innerHTML='<option value="">🏫 كل الصفوف</option>'+cfg.grades.map(function(g){return '<option value="'+esc(g)+'">🏫 '+esc(g)+'</option>';}).join('');
+  qcTargetGradeChange();
+};
+window.qcTargetGradeChange=function(){
+  var gSel=document.getElementById('qpGrade'),grpSel=document.getElementById('qpGroup');
+  if(!gSel||!grpSel)return;
+  var grade=gSel.value,cfg=qcGetGradesCfg();
+  var allGroups=[];
+  try{if(window.state&&Array.isArray(window.state.groups))allGroups=window.state.groups.slice();}catch(e){}
+  (Q.stu||[]).forEach(function(s){if(s.group_name&&allGroups.indexOf(s.group_name)<0)allGroups.push(s.group_name);});
+  var filtered=grade?allGroups.filter(function(g){return cfg.groupGrades[g]===grade;}):allGroups;
+  grpSel.innerHTML='<option value="">'+(grade?'👥 كل مجموعات '+esc(grade):'👥 كل المجموعات')+'</option>'+filtered.map(function(g){return '<option value="'+esc(g)+'">👥 '+esc(g)+'</option>';}).join('');
+  document.getElementById('qpStuId').value='';
+  document.getElementById('qpStuSearch').value='';
+  var dr=document.getElementById('qpStuDrop');if(dr)dr.style.display='none';
+};
+window.qcTargetGroupChange=function(){
+  document.getElementById('qpStuId').value='';
+  document.getElementById('qpStuSearch').value='';
+  var dr=document.getElementById('qpStuDrop');if(dr)dr.style.display='none';
+};
+window.qcStuSearchFilter=function(){
+  var inp=document.getElementById('qpStuSearch'),dr=document.getElementById('qpStuDrop');
+  if(!inp||!dr)return;
+  var q=(inp.value||'').trim().toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
+  if(!q){document.getElementById('qpStuId').value='';}
+  var grade=(document.getElementById('qpGrade')&&document.getElementById('qpGrade').value)||'';
+  var grp=(document.getElementById('qpGroup')&&document.getElementById('qpGroup').value)||'';
+  var cfg=qcGetGradesCfg();
+  var list=(Q.stu||[]).filter(function(s){
+    var sGrp=s.group_name||'';
+    var sGrd=s.grade_name||(sGrp&&cfg.groupGrades[sGrp])||'';
+    if(grp&&sGrp!==grp)return false;
+    if(!grp&&grade&&sGrd!==grade)return false;
+    if(!q)return true;
+    var nm=String(s.name||'').toLowerCase().replace(/[أإآ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي');
+    return nm.indexOf(q)>=0;
+  }).slice(0,25);
+  if(!list.length){
+    dr.innerHTML='<div style="padding:8px 10px;font-size:12.5px;color:#64748b;">لا يوجد طالب مطابق</div>';
+  }else{
+    dr.innerHTML='<div style="padding:6px 10px;font-size:12px;color:#0f2557;background:#eff6ff;cursor:pointer;font-weight:700;border-bottom:1px solid #e2e8f0;" onclick="qcPickStu('','')">✕ الكل (بدون تحديد طالب)</div>'+
+      list.map(function(s){
+        return '<div style="padding:7px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9;" onclick="qcPickStu(''+esc(s.student_id)+'',''+esc(s.name).replace(/'/g,"\'")+'')"><b>'+esc(s.name)+'</b>'+(s.group_name?' <small style="color:#64748b">('+esc(s.group_name)+')</small>':'')+'</div>';
+      }).join('');
+  }
+  dr.style.display='block';
+};
+window.qcPickStu=function(sid,name){
+  var hid=document.getElementById('qpStuId'),inp=document.getElementById('qpStuSearch'),dr=document.getElementById('qpStuDrop');
+  if(hid)hid.value=sid||'';
+  if(inp)inp.value=name||'';
+  if(dr)dr.style.display='none';
+};
+document.addEventListener('click',function(e){
+  var dr=document.getElementById('qpStuDrop'),inp=document.getElementById('qpStuSearch');
+  if(dr&&inp&&!dr.contains(e.target)&&e.target!==inp)dr.style.display='none';
+});
 window.qcPublish=function(){var z=Q.quizzes[+document.getElementById('qpQ').value];if(!z)return alert('ولّد اختبارًا أولًا من «توليد اختبار»');
-  var o=document.getElementById('qpO').value,c=document.getElementById('qpC').value,al=null;
-  if(document.getElementById('qpR').checked){al=Array.prototype.filter.call(document.getElementById('qpRS').options,function(x){return x.selected;}).map(function(x){return x.value;});if(!al.length)return alert('اختر طالبًا واحدًا على الأقل أو ألغِ التخصيص');}
-  api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,allowed_students:al},'return=representation').then(function(r){
-    var l=stBase()?examLink(r[0].id):'';if(l)try{navigator.clipboard.writeText(l);}catch(e){}alert('تم النشر'+(l?'، ونُسخ رابط الاختبار:\n'+l:'. احفظ رابط صفحة الطالب لتحصل على الرابط.'));pubView();}).catch(function(e){if(al&&/allowed_students/.test(String(e&&e.message)))alert('لازم تشغّل كود الإعداد (تبويب العلاج، أسفل الصفحة) مرة واحدة في Supabase قبل النشر لطلاب محددين.');else err(e);});};
+  var o=document.getElementById('qpO').value,c=document.getElementById('qpC').value,rev=document.getElementById('qpRev').value;
+  var grade=(document.getElementById('qpGrade')&&document.getElementById('qpGrade').value)||'';
+  var grp=(document.getElementById('qpGroup')&&document.getElementById('qpGroup').value)||'';
+  var stuId=(document.getElementById('qpStuId')&&document.getElementById('qpStuId').value)||'';
+  var al=stuId?[stuId]:null;
+  var wp=!!(document.getElementById('qpWp')&&document.getElementById('qpWp').checked);
+  var revIso=rev?new Date(rev).toISOString():(c?new Date(c).toISOString():null);
+  api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,review_at:revIso,allowed_students:al,target_grade:grade,target_group:grp,require_work_photos:wp},'return=representation').then(function(r){
+    var l=stBase()?examLink(r[0].id):'';if(l)try{navigator.clipboard.writeText(l);}catch(e){}alert('تم النشر بنجاح!'+(l?'
+ونُسخ رابط الاختبار:
+'+l:''));pubView();}).catch(function(e){alert('تعذر النشر: '+(e.message||e)+'
+(تأكد من تشغيل كود SQL الأخير في Supabase)');});};
 window.qcLink=function(id){var l=examLink(id);if(!l)return;try{navigator.clipboard.writeText(l);}catch(e){}prompt('رابط الاختبار',l);};
 window.qcShare=function(id){var l=examLink(id);if(l)window.open('https://wa.me/?text='+encodeURIComponent('رابط الاختبار:\n'+l+'\nادخل برقم تليفونك والكود السري.'));};
 window.qcToggle=function(id,v){api('PATCH','exams?id=eq.'+id,{is_open:v},'return=minimal').then(pubView).catch(err);};
@@ -13644,7 +13740,7 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhReportList').innerHTML = '';
     document.getElementById('ikhReportStatus').textContent = '';
 
-    fetch(window.SB_URL + '/rest/v1/exams?select=id,title,require_work_photos&order=created_at.desc', { headers: window.sbHeaders() })
+    fetch(window.SB_URL + '/rest/v1/exams?select=id,title,require_work_photos,target_grade,target_group,allowed_students&order=created_at.desc', { headers: window.sbHeaders() })
       .then(function(r) { return r.json(); })
       .then(function(rows) {
         if (!Array.isArray(rows) || !rows.length) {
@@ -13652,7 +13748,8 @@ body:not(.juice-dark) .v26-kpi-strip {
           return;
         }
         window.__ikhExamsMeta = {};
-        rows.forEach(function(e) { window.__ikhExamsMeta[String(e.id)] = !!e.require_work_photos; });
+        window.__ikhExamsFull = {};
+        rows.forEach(function(e) { window.__ikhExamsMeta[String(e.id)] = !!e.require_work_photos; window.__ikhExamsFull[String(e.id)] = e; });
         sel.innerHTML = rows.map(function(e) {
           return '<option value="' + e.id + '">' + esc(e.title) + (e.require_work_photos ? ' (📷 مطلوب ورقة الحل)' : '') + '</option>';
         }).join('');
@@ -13695,7 +13792,7 @@ body:not(.juice-dark) .v26-kpi-strip {
 
     Promise.all([
       fetch(window.SB_URL + '/rest/v1/attempts?exam_id=eq.' + examId + '&submitted_at=not.is.null&select=id,student_id,score,total,answers,q_order,submitted_at,work_photos', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
-      fetch(window.SB_URL + '/rest/v1/exam_students?select=student_id,name,phone,group_name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
+      fetch(window.SB_URL + '/rest/v1/exam_students?select=student_id,name,phone,group_name,grade_name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
       fetch(window.SB_URL + '/rest/v1/questions?select=id,correct,topic_id,image_path,question_html', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
       fetch(window.SB_URL + '/rest/v1/topics?select=id,name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); })
     ]).then(function(res) {
@@ -13773,7 +13870,16 @@ body:not(.juice-dark) .v26-kpi-strip {
 
       var doneIds = {};
       rows.forEach(function(r) { doneIds[String(r.student_id)] = true; });
-      var absentRows = students.filter(function(s) { return !doneIds[String(s.student_id)]; });
+      var exObj = (window.__ikhExamsFull && window.__ikhExamsFull[String(examId)]) || {};
+      var absentRows = students.filter(function(s) {
+        if (doneIds[String(s.student_id)]) return false;
+        if (Array.isArray(exObj.allowed_students) && exObj.allowed_students.length) {
+          return exObj.allowed_students.indexOf(String(s.student_id)) >= 0;
+        }
+        if (exObj.target_group) return (s.group_name || '') === exObj.target_group;
+        if (exObj.target_grade) return (s.grade_name || '') === exObj.target_grade;
+        return true;
+      });
 
       window.__ikhRepData = { examTitle: examTitle, rows: rows, absentRows: absentRows, hardQuestions: hardQuestions };
       window.__ikhRepTab = window.__ikhRepTab || 'done';

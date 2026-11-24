@@ -949,6 +949,16 @@
     b.onclick = function() { switchPortalTab(b.getAttribute('data-ptab')); };
   });
 
+  function formatArDateTime(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      var timeStr = d.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' });
+      var dayStr = d.toLocaleDateString('ar-EG', { weekday: 'long', day: 'numeric', month: 'short' });
+      return 'الساعة ' + timeStr + ' يوم ' + dayStr;
+    } catch (e) { return ''; }
+  }
+
   // 1. الاختبارات الجديدة
   function renderNewExams(exams) {
     var box = $('newExamsBox');
@@ -961,6 +971,14 @@
       var maxA = ex.max_attempts || 1;
       var hasActive = !!ex.has_active;
       var btnLabel = hasActive ? 'استكمال الاختبار' : 'ابدأ الاختبار';
+      var schedHtml = '';
+      if (ex.opens_at && ex.closes_at) {
+        schedHtml = '<div style="font-size:12.5px;color:#0f2557;font-weight:700;margin-top:6px;">📅 مفتوح من ' + formatArDateTime(ex.opens_at) + ' إلى ' + formatArDateTime(ex.closes_at) + '</div>';
+      } else if (ex.closes_at) {
+        schedHtml = '<div style="font-size:12.5px;color:#b45309;font-weight:700;margin-top:6px;">⏳ يغلق: ' + formatArDateTime(ex.closes_at) + '</div>';
+      } else if (ex.opens_at) {
+        schedHtml = '<div style="font-size:12.5px;color:#0f2557;font-weight:700;margin-top:6px;">📅 مفتوح منذ: ' + formatArDateTime(ex.opens_at) + '</div>';
+      }
       return '<div class="exam-item">' +
         '<div class="exam-item-top">' +
           '<div>' +
@@ -970,6 +988,7 @@
               '<span>⏱ المدة: ' + (ex.duration_min || 30) + ' دقيقة</span>' +
               '<span>🔄 المحاولات: ' + used + ' / ' + maxA + '</span>' +
             '</div>' +
+            schedHtml +
           '</div>' +
           '<button type="button" class="btn btn-primary" data-start-exam="' + ex.id + '">' + btnLabel + '</button>' +
         '</div>' +
@@ -1023,10 +1042,14 @@
         : 'غير متاح';
       var levelTxt = (overall && overall.level) ? overall.level : '-';
 
-      var reviewBtn = ex.show_result
-        ? '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-            '<button type="button" class="btn btn-outline btn-sm" data-review-idx="' + idx + '">🔍 مراجعة</button>' +
-            (ex.pct >= 85 ? '<button type="button" class="btn btn-primary btn-sm" style="background:#b45309;" data-cert-idx="' + idx + '">🏅 شهادة التقدير</button>' : '') +
+      var canRev = (ex.can_review !== undefined) ? !!ex.can_review : !!ex.show_result;
+      var revLockBadge = (!canRev && ex.review_at)
+        ? '<span class="badge badge-warn">🔒 المراجعة تفتح: ' + formatArDateTime(ex.review_at) + '</span>'
+        : '';
+      var reviewBtn = (ex.show_result || canRev)
+        ? '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">' +
+            (canRev ? '<button type="button" class="btn btn-outline btn-sm" data-review-idx="' + idx + '">🔍 مراجعة</button>' : revLockBadge) +
+            (ex.show_result && ex.pct >= 85 ? '<button type="button" class="btn btn-primary btn-sm" style="background:#b45309;" data-cert-idx="' + idx + '">🏅 شهادة التقدير</button>' : '') +
           '</div>'
         : '';
 
