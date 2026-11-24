@@ -13277,7 +13277,8 @@ body:not(.juice-dark) .v26-kpi-strip {
       '<button type="button" id="ikhBtnWa" style="background:#16a34a;color:#fff;">📲 تقارير واتساب</button>' +
       '<button type="button" id="ikhBtnAbsent" style="background:#ea580c;color:#fff;">⚠️ الغائبين</button>' +
       '<button type="button" id="ikhBtnAnn" style="background:#fef3c7;color:#92400e;">📢 إعلان للطلاب</button>' +
-      '<button type="button" id="ikhBtnSync" style="background:#e0f2fe;color:#0f2557;">🔄 مزامنة المجموعات</button>';
+      '<button type="button" id="ikhBtnGrades" style="background:#fde68a;color:#78350f;">🏫 إدارة الصفوف</button>' +
+      '<button type="button" id="ikhBtnSync" style="background:#e0f2fe;color:#0f2557;">🔄 مزامنة المجموعات والصفوف</button>';
 
     if (anchor && anchor.parentNode) {
       // إدراج الشريط المتحرك مباشرة أسفل شريط استيراد Word
@@ -13299,6 +13300,7 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhBtnWa').onclick = function() { window.__ikhRepTab = 'done'; openWaReportsModal(); };
     document.getElementById('ikhBtnAbsent').onclick = function() { window.__ikhRepTab = 'absent'; openWaReportsModal(); };
     document.getElementById('ikhBtnAnn').onclick = openAnnounceModal;
+    document.getElementById('ikhBtnGrades').onclick = openGradesManagerModal;
     document.getElementById('ikhBtnSync').onclick = syncStudentGroupsToSupabase;
   }
 
@@ -13335,42 +13337,189 @@ body:not(.juice-dark) .v26-kpi-strip {
     return { byId: mapById, byPhone: mapByPhone };
   }
 
-  function syncStudentGroupsToSupabase() {
-    if (!window.SB_URL || !window.sbHeaders) return alert('يرجى تسجيل دخول المعلم أولاً.');
+  function getGradesConfig() {
+    var def = {
+      grades: ['الصف الأول الثانوي', 'الصف الثاني الثانوي', 'الصف الثالث الثانوي'],
+      groupGrades: {}
+    };
+    try {
+      var saved = JSON.parse(localStorage.getItem('ikh_grades_cfg_v1') || 'null');
+      if (saved && Array.isArray(saved.grades) && saved.grades.length) {
+        def.grades = saved.grades;
+        def.groupGrades = saved.groupGrades || {};
+      }
+    } catch(e) {}
+    return def;
+  }
+
+  function saveGradesConfig(cfg) {
+    try { localStorage.setItem('ikh_grades_cfg_v1', JSON.stringify(cfg)); } catch(e) {}
+  }
+
+  function collectAllLocalGroups() {
+    var set = {};
+    try {
+      if (window.state && Array.isArray(window.state.groups)) {
+        window.state.groups.forEach(function(g) { if (g) set[String(g).trim()] = true; });
+      }
+      var lm = collectLocalStudentsWithGroups();
+      Object.keys(lm.byId).forEach(function(k) { if (lm.byId[k]) set[lm.byId[k]] = true; });
+    } catch(e) {}
+    return Object.keys(set);
+  }
+
+  function openGradesManagerModal() {
+    var m = document.getElementById('ikhGradesModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'ikhGradesModal';
+      m.style.cssText = 'position:fixed;inset:0;z-index:100080;background:rgba(9,23,56,.78);display:none;align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto;direction:rtl;';
+      m.innerHTML =
+        '<div style="background:#fff;color:#0f172a;width:100%;max-width:720px;border-radius:16px;padding:18px;margin:12px auto;box-shadow:0 20px 50px rgba(0,0,0,.35);">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">' +
+            '<h3 style="margin:0;color:#0f2557;">🏫 إدارة الصفوف الدراسية (عزل كل صف لوحده)</h3>' +
+            '<button type="button" id="ikhGradesClose" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;">إغلاق ✕</button>' +
+          '</div>' +
+          '<p style="font-size:13.5px;color:#475569;margin-top:0;">اربط كل مجموعة بالصف الدراسي بتاعها، واضغط <b>حفظ ومزامنة</b>؛ وبكده كل صف هيكون مستقل تماماً في الترتيب ولوحة الشرف في بوابة الطالب.</p>' +
+          '<div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:12px;margin-bottom:12px;">' +
+            '<strong style="color:#0f2557;font-size:14px;">1) الصفوف الدراسية المتاحة:</strong>' +
+            '<div style="display:flex;gap:8px;margin:8px 0;">' +
+              '<input type="text" id="ikhNewGradeInput" placeholder="أضف صف جديد (مثال: الصف الأول الإعدادي)" style="flex:1;padding:8px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:14px;">' +
+              '<button type="button" id="ikhAddGradeBtn" style="background:#0f2557;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:800;cursor:pointer;">+ إضافة صف</button>' +
+            '</div>' +
+            '<div id="ikhGradesChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;"></div>' +
+          '</div>' +
+          '<div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:12px;margin-bottom:14px;">' +
+            '<strong style="color:#0f2557;font-size:14px;">2) ربط كل مجموعة بالصف الدراسي الخاص بها:</strong>' +
+            '<div id="ikhGroupGradeRows" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;"></div>' +
+          '</div>' +
+          '<div id="ikhGradesStatus" style="font-size:13.5px;font-weight:700;color:#0f766e;margin-bottom:10px;"></div>' +
+          '<button type="button" id="ikhSaveGradesSyncBtn" style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;">💾 حفظ ومزامنة الصفوف مع السحابة الآن</button>' +
+        '</div>';
+      document.body.appendChild(m);
+      document.getElementById('ikhGradesClose').onclick = function() { m.style.display = 'none'; };
+      m.onclick = function(e) { if (e.target === m) m.style.display = 'none'; };
+      document.getElementById('ikhAddGradeBtn').onclick = function() {
+        var inp = document.getElementById('ikhNewGradeInput');
+        var val = (inp.value || '').trim();
+        if (!val) return;
+        var cfg = getGradesConfig();
+        if (cfg.grades.indexOf(val) < 0) {
+          cfg.grades.push(val);
+          saveGradesConfig(cfg);
+        }
+        inp.value = '';
+        renderGradesManagerUI();
+      };
+      document.getElementById('ikhSaveGradesSyncBtn').onclick = function() {
+        var cfg = getGradesConfig();
+        document.querySelectorAll('[data-ikh-grp-sel]').forEach(function(sel) {
+          var gName = sel.getAttribute('data-ikh-grp-sel');
+          cfg.groupGrades[gName] = sel.value || '';
+        });
+        saveGradesConfig(cfg);
+        document.getElementById('ikhGradesStatus').textContent = 'تم الحفظ محلياً، جارٍ مزامنة الصفوف مع Supabase...';
+        syncStudentGroupsToSupabase(function(msg) {
+          document.getElementById('ikhGradesStatus').textContent = msg;
+        });
+      };
+    }
+    document.getElementById('ikhGradesStatus').textContent = '';
+    renderGradesManagerUI();
+    m.style.display = 'flex';
+  }
+
+  function renderGradesManagerUI() {
+    var cfg = getGradesConfig();
+    var chipsEl = document.getElementById('ikhGradesChips');
+    chipsEl.innerHTML = cfg.grades.map(function(gr, idx) {
+      return '<span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #0f2557;color:#0f2557;padding:4px 10px;border-radius:999px;font-size:13px;font-weight:700;">' +
+        esc(gr) +
+        '<button type="button" data-del-grade="' + idx + '" style="background:none;border:none;color:#dc2626;font-weight:900;cursor:pointer;padding:0 2px;font-size:14px;">✕</button>' +
+      '</span>';
+    }).join('');
+    chipsEl.querySelectorAll('[data-del-grade]').forEach(function(b) {
+      b.onclick = function() {
+        var i = parseInt(b.getAttribute('data-del-grade'), 10);
+        var c = getGradesConfig();
+        c.grades.splice(i, 1);
+        saveGradesConfig(c);
+        renderGradesManagerUI();
+      };
+    });
+
+    var groups = collectAllLocalGroups();
+    var rowsEl = document.getElementById('ikhGroupGradeRows');
+    if (!groups.length) {
+      rowsEl.innerHTML = '<div style="color:#64748b;font-size:13px;">لا توجد مجموعات مسجلة بعد. أضف مجموعاتك من سجل الدرجات أولاً.</div>';
+      return;
+    }
+    rowsEl.innerHTML = groups.map(function(gName) {
+      var cur = cfg.groupGrades[gName] || '';
+      var opts = '<option value="">— اختر الصف الدراسي —</option>' + cfg.grades.map(function(gr) {
+        return '<option value="' + esc(gr) + '"' + (cur === gr ? ' selected' : '') + '>' + esc(gr) + '</option>';
+      }).join('');
+      return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;padding:8px 12px;border-radius:9px;border:1px solid #cbd5e1;flex-wrap:wrap;">' +
+        '<strong style="color:#0f172a;font-size:14px;">👥 ' + esc(gName) + '</strong>' +
+        '<select data-ikh-grp-sel="' + esc(gName) + '" style="min-width:200px;padding:7px 10px;border:1.5px solid #94a3b8;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:700;">' + opts + '</select>' +
+      '</div>';
+    }).join('');
+  }
+
+  function syncStudentGroupsToSupabase(doneCb) {
+    if (!window.SB_URL || !window.sbHeaders) {
+      var m = 'يرجى تسجيل دخول المعلم أولاً.';
+      if (typeof doneCb === 'function') doneCb('⚠️ ' + m); else alert(m);
+      return;
+    }
     var btn = document.getElementById('ikhBtnSync') || document.getElementById('ikhModalSyncBtn');
-    var origText = btn.textContent;
-    btn.disabled = true; btn.textContent = 'جارٍ المزامنة...';
+    var origText = btn ? btn.textContent : '';
+    if (btn) { btn.disabled = true; btn.textContent = 'جارٍ المزامنة...'; }
 
     var localMap = collectLocalStudentsWithGroups();
-    fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,phone,group_name', { headers: window.sbHeaders() })
-      .then(function(r) { return r.json(); })
+    var cfg = getGradesConfig();
+    fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,phone,group_name,grade_name', { headers: window.sbHeaders() })
+      .then(function(r) {
+        if (!r.ok) throw new Error('تأكد من تشغيل كود SQL الخاص بإضافة عمود الصف (grade_name) في Supabase أولاً.');
+        return r.json();
+      })
       .then(function(rows) {
         if (!Array.isArray(rows) || !rows.length) throw new Error('لا يوجد طلاب في جدول الاختبارات بعد.');
         var updates = [];
         rows.forEach(function(row) {
-          var grp = localMap.byId[String(row.student_id)] || '';
+          var grp = localMap.byId[String(row.student_id)] || row.group_name || '';
           if (!grp && row.phone) {
             var ph = String(row.phone).replace(/\D/g, '').slice(-10);
             grp = localMap.byPhone[ph] || '';
           }
-          if (grp && grp !== row.group_name) updates.push({ id: row.id, group_name: grp });
+          var grd = (grp && cfg.groupGrades[grp]) ? cfg.groupGrades[grp] : (row.grade_name || '');
+          if ((grp && grp !== row.group_name) || (grd !== (row.grade_name || ''))) {
+            updates.push({ id: row.id, group_name: grp, grade_name: grd });
+          }
         });
         if (!updates.length) {
-          alert('✅ كل مجموعات الطلاب متزامنة بالفعل.');
+          var okMsg = '✅ كل المجموعات والصفوف متزامنة بالفعل.';
+          if (typeof doneCb === 'function') doneCb(okMsg); else alert(okMsg);
           return;
         }
         return Promise.all(updates.map(function(u) {
           return fetch(window.SB_URL + '/rest/v1/exam_students?id=eq.' + u.id, {
             method: 'PATCH',
             headers: window.sbHeaders({ 'Prefer': 'return=minimal' }),
-            body: JSON.stringify({ group_name: u.group_name })
+            body: JSON.stringify({ group_name: u.group_name, grade_name: u.grade_name })
           });
         })).then(function() {
-          alert('✅ تم تحديث اسم المجموعة لـ ' + updates.length + ' طالب بنجاح!');
+          var okMsg = '✅ تم تحديث المجموعة والصف الدراسي لـ ' + updates.length + ' طالب بنجاح!';
+          if (typeof doneCb === 'function') doneCb(okMsg); else alert(okMsg);
         });
       })
-      .catch(function(err) { alert('تعذر المزامنة: ' + (err.message || err)); })
-      .finally(function() { btn.disabled = false; btn.textContent = origText; });
+      .catch(function(err) {
+        var em = 'تعذر المزامنة: ' + (err.message || err);
+        if (typeof doneCb === 'function') doneCb('⚠️ ' + em); else alert(em);
+      })
+      .finally(function() {
+        if (btn) { btn.disabled = false; btn.textContent = origText; }
+      });
   }
 
   // ==================== 4. إعلانات وتنبيهات المعلم لبوابة الطالب ====================
