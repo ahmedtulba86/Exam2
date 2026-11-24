@@ -727,6 +727,73 @@ body.juice-dark .grades-card .grades-table-scroll tbody td.sticky-col{
 @media(max-width:600px){#smartDashboardV22 .sd-kpi .sd-value{font-size:19px}#smartDashboardV22 .grid-forms{grid-template-columns:1fr!important}}
 </style>
 
+
+<style id="quickPanelsCompactGradesCSS">
+/* لوحة الإضافة السريعة ولوحة النقل السريع (مقفولتان افتراضياً) */
+.quick-panel{padding:0!important;margin-bottom:8px!important;border-right:4px solid #0f2557!important;overflow:hidden}
+.quick-panel.quick-transfer-bar{border-right-color:#0f766e!important}
+.quick-panel>summary{
+  cursor:pointer;list-style:none;padding:8px 12px;font-weight:800;font-size:13.5px;
+  color:#0f2557;display:flex;justify-content:space-between;align-items:center;
+  user-select:none;background:#f8fafc;
+}
+.quick-panel.quick-transfer-bar>summary{color:#0f766e}
+.quick-panel>summary::-webkit-details-marker{display:none}
+.quick-panel>summary::after{content:"▾";font-size:14px;color:#64748b;transition:transform .2s}
+.quick-panel[open]>summary::after{transform:rotate(180deg)}
+.quick-panel[open]>summary{border-bottom:1px solid #e2e8f0}
+.quick-panel .qp-body{padding:10px 12px;background:#fff}
+.quick-panel .qp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:8px 12px}
+.quick-panel .qp-cell>label{display:block;font-size:11.5px;font-weight:700;color:#475569;margin-bottom:3px}
+.quick-panel .qp-row{display:flex;gap:5px;align-items:center;flex-wrap:nowrap}
+.quick-panel input,.quick-panel select{min-height:34px!important;padding:5px 8px!important;font-size:13px!important;border-radius:8px!important}
+.quick-panel button{min-height:34px!important;padding:5px 11px!important;font-size:12.5px!important;white-space:nowrap!important;border-radius:8px!important}
+body.juice-dark .quick-panel>summary{background:#172438;color:#e2e8f0}
+body.juice-dark .quick-panel .qp-body{background:#111c2e}
+
+/* تصغير وضغط سجل الدرجات ليكون عمود الاسم على قد الاسم بالظبط وإظهار عدد أكبر من الطلاب */
+.grades-card{padding:8px 10px!important}
+.grades-card .controls-bar{padding:6px 8px!important;gap:6px!important;margin-bottom:6px!important}
+.grades-card .controls-bar select,.grades-card .controls-bar input{min-height:34px!important;padding:4px 8px!important;font-size:13px!important}
+.grades-card .controls-bar button{min-height:34px!important;padding:5px 9px!important;font-size:12px!important}
+.grades-card .grades-table-scroll{max-height:calc(100vh - 155px)!important}
+.grades-card .grades-table-scroll table{font-size:12.5px!important}
+.grades-card .grades-table-scroll th,.grades-card .grades-table-scroll td{padding:3px 5px!important;line-height:1.25!important}
+.grades-card .grades-table-scroll th.sticky-index,
+.grades-card .grades-table-scroll td.sticky-index{
+  min-width:36px!important;width:36px!important;padding:3px 2px!important;
+}
+.grades-card .grades-table-scroll th.sticky-col,
+.grades-card .grades-table-scroll td.sticky-col{
+  right:36px!important;
+  min-width:auto!important;
+  width:1%!important;
+  max-width:210px!important;
+  white-space:nowrap!important;
+  padding:3px 6px!important;
+  font-size:13px!important;
+}
+.grades-card .grades-table-scroll .score-input{
+  width:46px!important;min-width:44px!important;min-height:28px!important;
+  padding:2px 3px!important;font-size:12.5px!important;border-radius:5px!important;
+}
+.grades-card .grades-table-scroll .note-input{
+  min-width:74px!important;width:84px!important;min-height:28px!important;
+  padding:2px 5px!important;font-size:11.5px!important;
+}
+.grades-card .grades-table-scroll tbody button{
+  min-height:25px!important;padding:2px 6px!important;font-size:11px!important;border-radius:6px!important;
+}
+.grades-card .grades-table-scroll thead button{
+  min-height:23px!important;padding:2px 6px!important;font-size:10.5px!important;border-radius:6px!important;
+}
+.grades-card .grades-table-scroll .badge{padding:2px 6px!important;font-size:10.5px!important}
+@media(max-width:600px){
+  .grades-card .grades-table-scroll{max-height:72vh!important}
+  .grades-card .grades-table-scroll th.sticky-col,
+  .grades-card .grades-table-scroll td.sticky-col{max-width:165px!important}
+}
+</style>
 </head>
 <body>
 <div class="container"><div id="guestBannerTop" class="guest-banner" style="display:none;">وضع العرض فقط — التعديل متوقف.</div>
@@ -830,42 +897,69 @@ body.juice-dark .grades-card .grades-table-scroll tbody td.sticky-col{
 
   <!-- TAB 1 -->
   <div id="gradesTab" class="tab-content active">
-    <div class="card add-bar">
-      <div class="add-grid">
-        <div class="add-item">
-          <label>إضافة مجموعة</label>
-          <div class="form-row">
-            <input type="text" id="groupNameInput" class="flex-1" placeholder="اسم المجموعة">
-            <button type="button" onclick="addGroup()">+ إضافة</button>
+    <details class="card quick-panel" id="quickAddBar">
+      <summary><span>⚡ لوحة الإضافة السريعة <small style="font-weight:600;color:#64748b;">(إضافة صف • مجموعة • طالب • اختبار)</small></span></summary>
+      <div class="qp-body">
+        <div class="qp-grid">
+          <div class="qp-cell">
+            <label>🏫 إضافة صف</label>
+            <div class="qp-row">
+              <input type="text" id="qaGradeInput" placeholder="مثال: الصف الأول الثانوي" style="flex:1;min-width:110px;">
+              <button type="button" onclick="qaAddGrade()">+ صف</button>
+            </div>
+          </div>
+          <div class="qp-cell">
+            <label>👥 إضافة مجموعة</label>
+            <div class="qp-row">
+              <input type="text" id="groupNameInput" placeholder="اسم المجموعة" style="flex:1;min-width:95px;">
+              <select id="qaGroupGradeSel" style="width:auto;max-width:130px;" title="ربط المجموعة بصف"><option value="">— الصف —</option></select>
+              <button type="button" onclick="addGroup()">+ مجموعة</button>
+            </div>
+          </div>
+          <div class="qp-cell">
+            <label>👤 إضافة طالب</label>
+            <div class="qp-row">
+              <input type="text" id="studentNameInput" placeholder="اسم الطالب ثلاثي" style="flex:1;min-width:110px;">
+              <select id="studentGroupSelect" style="width:auto;max-width:130px;"></select>
+              <button type="button" onclick="addStudent()">+ طالب</button>
+            </div>
+          </div>
+          <div class="qp-cell">
+            <label>📝 إضافة اختبار / واجب</label>
+            <div class="qp-row">
+              <input type="text" id="examNameInput" placeholder="الاسم" style="flex:1;min-width:85px;">
+              <select id="examTypeInput" style="width:74px;">
+                <option value="exam">اختبار</option>
+                <option value="hw">واجب</option>
+              </select>
+              <input type="number" id="examMaxInput" value="20" min="1" style="width:56px;" title="الدرجة النهائية">
+              <button type="button" onclick="addExam()">+ اختبار</button>
+            </div>
           </div>
         </div>
-        <div class="add-item">
-          <label>إضافة اختبار / واجب</label>
-          <div class="form-row">
-            <input type="text" id="examNameInput" class="flex-1" placeholder="الاسم">
-            <select id="examTypeInput" style="width:100px;">
-              <option value="exam">اختبار</option>
-              <option value="hw">واجب</option>
-            </select>
-            <input type="number" id="examMaxInput" value="20" min="1" style="width:70px;" title="الدرجة النهائية">
-            <button type="button" onclick="addExam()">+ إضافة</button>
-          </div>
-        </div>
-        <div class="add-item">
-          <label>إضافة طالب</label>
-          <div class="form-row">
-            <input type="text" id="studentNameInput" class="flex-1" placeholder="اسم الطالب ثلاثي">
-            <select id="studentGroupSelect"></select>
-            <button type="button" onclick="addStudent()">+ إضافة</button>
-          </div>
-          <details style="margin-top:6px;">
-            <summary style="color:#0f766e;font-weight:700;cursor:pointer;font-size:13px;">لصق قائمة أسماء دفعة واحدة</summary>
-            <textarea id="bulkNamesText" placeholder="كل اسم في سطر..." style="margin-top:6px;"></textarea>
-            <button type="button" class="secondary" style="margin-top:6px;" onclick="addBulkStudents()">استيراد الأسماء</button>
-          </details>
+        <details style="margin-top:6px;">
+          <summary style="color:#0f766e;font-weight:700;cursor:pointer;font-size:12.5px;">📋 لصق قائمة أسماء دفعة واحدة</summary>
+          <textarea id="bulkNamesText" placeholder="كل اسم في سطر..." style="margin-top:6px;"></textarea>
+          <button type="button" class="secondary" style="margin-top:6px;" onclick="addBulkStudents()">استيراد الأسماء</button>
+        </details>
+      </div>
+    </details>
+
+    <details class="card quick-panel quick-transfer-bar" id="quickTransferBar">
+      <summary><span>🔀 لوحة النقل السريع <small style="font-weight:600;color:#64748b;">(نقل طالب من مجموعة إلى مجموعة)</small></span></summary>
+      <div class="qp-body">
+        <div class="qp-row" style="gap:8px;flex-wrap:wrap;align-items:center;">
+          <label style="font-size:12.5px;">من مجموعة:</label>
+          <select id="qtFromGroup" onchange="qtUpdateStudents()" style="width:auto;min-width:130px;"></select>
+          <label style="font-size:12.5px;">الطالب:</label>
+          <select id="qtStudent" style="width:auto;min-width:155px;flex:1;max-width:240px;"></select>
+          <label style="font-size:12.5px;">إلى مجموعة:</label>
+          <select id="qtToGroup" style="width:auto;min-width:130px;"></select>
+          <button type="button" class="secondary" onclick="qtMoveNow()">نقل ✓</button>
+          <button type="button" style="background:#475569;" onclick="openMoveStudents()" title="نقل عدة طلاب دفعة واحدة">نقل متعدد...</button>
         </div>
       </div>
-    </div>
+    </details>
     <div class="card grades-card">
       <div class="controls-bar">
         <div>
@@ -3658,8 +3752,87 @@ window.addGroup=function(){
   if(!name)return alert('اكتب اسم المجموعة');
   if(state.groups.indexOf(name)>=0)return alert('المجموعة موجودة');
   state.groups.push(name);
+  var grdSel=$('qaGroupGradeSel');
+  if(grdSel && grdSel.value){
+    try{
+      var cfg=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null')||{grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
+      if(!cfg.groupGrades)cfg.groupGrades={};
+      cfg.groupGrades[name]=grdSel.value;
+      localStorage.setItem('ikh_grades_cfg_v1',JSON.stringify(cfg));
+    }catch(e){}
+  }
   $('groupNameInput').value='';
   saveData();renderAll();
+};
+
+window.qaAddGrade=function(){
+  var inp=$('qaGradeInput');
+  var val=(inp&&inp.value||'').trim();
+  if(!val)return alert('اكتب اسم الصف أولاً');
+  var cfg={grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
+  try{
+    var s=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');
+    if(s&&Array.isArray(s.grades)&&s.grades.length){cfg.grades=s.grades;cfg.groupGrades=s.groupGrades||{};}
+  }catch(e){}
+  if(cfg.grades.indexOf(val)>=0)return alert('هذا الصف موجود بالفعل');
+  cfg.grades.push(val);
+  try{localStorage.setItem('ikh_grades_cfg_v1',JSON.stringify(cfg));}catch(e){}
+  inp.value='';
+  qaRefreshPanels();
+  if(typeof gmToast==='function')gmToast('✅ تم إضافة الصف: '+val,null,null,2500);
+};
+
+window.qaRefreshPanels=function(){
+  var gSel=$('qaGroupGradeSel');
+  if(gSel){
+    var curG=gSel.value;
+    var cfg={grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
+    try{
+      var s=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');
+      if(s&&Array.isArray(s.grades)&&s.grades.length)cfg.grades=s.grades;
+    }catch(e){}
+    gSel.innerHTML='<option value="">— الصف —</option>'+cfg.grades.map(function(g){return '<option value="'+escHtml(g)+'">'+escHtml(g)+'</option>';}).join('');
+    if(curG&&cfg.grades.indexOf(curG)>=0)gSel.value=curG;
+  }
+  var fSel=$('qtFromGroup'),tSel=$('qtToGroup');
+  if(fSel&&tSel){
+    var cf=fSel.value,ct=tSel.value;
+    var opts=state.groups.map(function(g){return '<option value="'+escHtml(g)+'">'+escHtml(g)+'</option>';}).join('');
+    fSel.innerHTML=opts||'<option value="">لا توجد مجموعات</option>';
+    tSel.innerHTML=opts||'<option value="">لا توجد مجموعات</option>';
+    if(cf&&state.groups.indexOf(cf)>=0)fSel.value=cf;
+    if(ct&&state.groups.indexOf(ct)>=0)tSel.value=ct;
+    else if(state.groups.length>1)tSel.value=state.groups[1];
+    qtUpdateStudents();
+  }
+};
+
+window.qtUpdateStudents=function(){
+  var fSel=$('qtFromGroup'),sSel=$('qtStudent');
+  if(!fSel||!sSel)return;
+  var grp=fSel.value;
+  var list=state.students.filter(function(s){return s.group===grp;}).sort(function(a,b){return a.name.localeCompare(b.name,'ar');});
+  if(!list.length){
+    sSel.innerHTML='<option value="">لا يوجد طلاب في هذه المجموعة</option>';
+  }else{
+    sSel.innerHTML=list.map(function(s){return '<option value="'+escHtml(s.id)+'">'+escHtml(s.name)+'</option>';}).join('');
+  }
+};
+
+window.qtMoveNow=function(){
+  var sid=($('qtStudent')&&$('qtStudent').value)||'';
+  var to=($('qtToGroup')&&$('qtToGroup').value)||'';
+  if(!sid)return alert('اختر طالباً للنقل أولاً');
+  if(!to)return alert('اختر المجموعة المستهدفة');
+  var st=state.students.find(function(s){return s.id===sid;});
+  if(!st)return;
+  if(st.group===to)return alert('الطالب موجود بالفعل في هذه المجموعة');
+  var oldG=st.group;
+  logChange('stu',st.id,st.name,'نقل مجموعة',oldG,to);
+  st.group=to;
+  saveData();
+  renderAll();
+  if(typeof gmToast==='function')gmToast('✅ تم نقل «'+st.name+'» إلى '+to,null,null,3000);
 };
 
 
@@ -4984,7 +5157,7 @@ function renderStudentsTable(){
 
 
 
-window.renderAll=function(){renderSelects();renderStatsOnly();renderStudentsTable();try{populateExtraSelects();}catch(e){};try{populateMissingExamFilter();}catch(e){};try{renderCompletionAndStagnant();}catch(e){};try{highlightSearchInTable();}catch(e){};};
+window.renderAll=function(){renderSelects();renderStatsOnly();renderStudentsTable();try{qaRefreshPanels();}catch(e){}try{populateExtraSelects();}catch(e){};try{populateMissingExamFilter();}catch(e){};try{renderCompletionAndStagnant();}catch(e){};try{highlightSearchInTable();}catch(e){};};
 
 window.openCert=function(sid){
   window._certSid=sid;
