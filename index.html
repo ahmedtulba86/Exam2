@@ -13449,6 +13449,7 @@ body:not(.juice-dark) .v26-kpi-strip {
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">' +
           '<select id="ikhExamSelect" style="flex:1;min-width:220px;padding:9px 12px;border:1.5px solid #cbd5e1;border-radius:9px;font-family:inherit;font-size:14px;"></select>' +
           '<button type="button" id="ikhLoadReportBtn" class="ikh-act-btn" style="background:#0f2557;">تحديث النتائج</button>' +
+          '<button type="button" id="ikhToggleWorkPhotosBtn" class="ikh-act-btn" style="background:#475569;">📷 تصوير ورقة الحل: مغلق</button>' +
         '</div>' +
         '<div class="ikh-actions-strip">' +
           '<button type="button" id="ikhCopyTopBtn" class="ikh-act-btn" style="background:#b45309;">📋 نسخ بوست الأوائل</button>' +
@@ -13471,6 +13472,8 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhCloseModal').onclick = function() { m.style.display = 'none'; };
     m.onclick = function(e) { if (e.target === m) m.style.display = 'none'; };
     document.getElementById('ikhLoadReportBtn').onclick = loadSelectedExamReport;
+    document.getElementById('ikhExamSelect').onchange = loadSelectedExamReport;
+    document.getElementById('ikhToggleWorkPhotosBtn').onclick = toggleExamWorkPhotos;
     document.getElementById('ikhTabDone').onclick = function() { window.__ikhRepTab = 'done'; renderIkhReportView(); };
     document.getElementById('ikhTabAbsent').onclick = function() { window.__ikhRepTab = 'absent'; renderIkhReportView(); };
     document.getElementById('ikhTabHard').onclick = function() { window.__ikhRepTab = 'hard'; renderIkhReportView(); };
@@ -13492,15 +13495,17 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhReportList').innerHTML = '';
     document.getElementById('ikhReportStatus').textContent = '';
 
-    fetch(window.SB_URL + '/rest/v1/exams?select=id,title&order=created_at.desc', { headers: window.sbHeaders() })
+    fetch(window.SB_URL + '/rest/v1/exams?select=id,title,require_work_photos&order=created_at.desc', { headers: window.sbHeaders() })
       .then(function(r) { return r.json(); })
       .then(function(rows) {
         if (!Array.isArray(rows) || !rows.length) {
           sel.innerHTML = '<option value="">لا توجد اختبارات منشورة بعد</option>';
           return;
         }
+        window.__ikhExamsMeta = {};
+        rows.forEach(function(e) { window.__ikhExamsMeta[String(e.id)] = !!e.require_work_photos; });
         sel.innerHTML = rows.map(function(e) {
-          return '<option value="' + e.id + '">' + esc(e.title) + '</option>';
+          return '<option value="' + e.id + '">' + esc(e.title) + (e.require_work_photos ? ' (📷 مطلوب ورقة الحل)' : '') + '</option>';
         }).join('');
         loadSelectedExamReport();
       })
@@ -13532,6 +13537,7 @@ body:not(.juice-dark) .v26-kpi-strip {
     var examId = sel.value;
     var examTitle = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'الاختبار';
     if (!examId) return;
+    updateWorkPhotosToggleUI(examId);
 
     var stEl = document.getElementById('ikhReportStatus');
     var listEl = document.getElementById('ikhReportList');
@@ -13539,7 +13545,7 @@ body:not(.juice-dark) .v26-kpi-strip {
     listEl.innerHTML = '';
 
     Promise.all([
-      fetch(window.SB_URL + '/rest/v1/attempts?exam_id=eq.' + examId + '&submitted_at=not.is.null&select=id,student_id,score,total,answers,q_order,submitted_at', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
+      fetch(window.SB_URL + '/rest/v1/attempts?exam_id=eq.' + examId + '&submitted_at=not.is.null&select=id,student_id,score,total,answers,q_order,submitted_at,work_photos', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
       fetch(window.SB_URL + '/rest/v1/exam_students?select=student_id,name,phone,group_name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
       fetch(window.SB_URL + '/rest/v1/questions?select=id,correct,topic_id,image_path,question_html', { headers: window.sbHeaders() }).then(function(r){ return r.json(); }),
       fetch(window.SB_URL + '/rest/v1/topics?select=id,name', { headers: window.sbHeaders() }).then(function(r){ return r.json(); })
@@ -13602,7 +13608,8 @@ body:not(.juice-dark) .v26-kpi-strip {
           score: a.score || 0,
           total: a.total || 0,
           pct: a.total ? Math.round((a.score || 0) * 100 / a.total) : 0,
-          weakest: weakest
+          weakest: weakest,
+          work_photos: Array.isArray(a.work_photos) ? a.work_photos : []
         };
       });
 
@@ -13752,9 +13759,21 @@ body:not(.juice-dark) .v26-kpi-strip {
             (r.group_name ? ' <span class="ikh-badge">مجموعة: ' + esc(r.group_name) + ' (' + grpRank + '/' + grpRows.length + ')</span>' : '') +
             (r.weakest ? '<div style="font-size:12px;color:#b91c1c;margin-top:3px;">أضعف باب: ' + esc(r.weakest) + '</div>' : '') +
           '</div>' +
-          '<a class="ikh-wa-btn" href="' + waUrl + '" target="_blank">📲 إرسال واتساب</a>' +
+          '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">' +
+            (r.work_photos && r.work_photos.length
+              ? '<button type="button" class="ikh-act-btn" style="background:#0f2557;padding:7px 12px;" data-view-wp="' + esc(r.student_id) + '">📄 أوراق الحل (' + r.work_photos.length + ')</button>'
+              : '') +
+            '<a class="ikh-wa-btn" href="' + waUrl + '" target="_blank">📲 إرسال واتساب</a>' +
+          '</div>' +
         '</div>';
       }).join('');
+      listEl.querySelectorAll('[data-view-wp]').forEach(function(b) {
+        b.onclick = function() {
+          var sid = b.getAttribute('data-view-wp');
+          var row = rows.find(function(x) { return String(x.student_id) === String(sid); });
+          if (row) openStudentWorkPhotosModal(row.name, d.examTitle, row.work_photos || []);
+        };
+      });
     } else if (tab === 'absent') {
       var abs = d.absentRows;
       stEl.textContent = abs.length ? ('عدد الطلاب الذين لم يمتحنوا بعد: ' + abs.length + ' طالب.') : '🎉 ممتاز! جميع الطلاب أدّوا هذا الاختبار.';
@@ -14025,6 +14044,73 @@ body:not(.juice-dark) .v26-kpi-strip {
         pod.style.display = 'block';
       }, sec * 1000 + 250);
     }, 60);
+  }
+
+
+  // ==================== 9. تفعيل/إلغاء تصوير ورقة الحل + عرض أوراق الطلاب ====================
+  function updateWorkPhotosToggleUI(examId) {
+    var btn = document.getElementById('ikhToggleWorkPhotosBtn');
+    if (!btn) return;
+    var on = !!(window.__ikhExamsMeta && window.__ikhExamsMeta[String(examId)]);
+    btn.textContent = on ? '📷 تصوير ورقة الحل: مفعّل ✓' : '📷 تصوير ورقة الحل: مغلق';
+    btn.style.background = on ? '#16a34a' : '#475569';
+  }
+
+  function toggleExamWorkPhotos() {
+    var sel = document.getElementById('ikhExamSelect');
+    var examId = sel && sel.value;
+    if (!examId) return;
+    var cur = !!(window.__ikhExamsMeta && window.__ikhExamsMeta[String(examId)]);
+    var nextVal = !cur;
+    var btn = document.getElementById('ikhToggleWorkPhotosBtn');
+    btn.disabled = true;
+    btn.textContent = 'جارٍ الحفظ...';
+    fetch(window.SB_URL + '/rest/v1/exams?id=eq.' + examId, {
+      method: 'PATCH',
+      headers: window.sbHeaders({ 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ require_work_photos: nextVal })
+    }).then(function(r) {
+      if (!r.ok) throw new Error('تأكد من تشغيل كود SQL الخاص بأوراق الحل في Supabase أولاً.');
+      if (!window.__ikhExamsMeta) window.__ikhExamsMeta = {};
+      window.__ikhExamsMeta[String(examId)] = nextVal;
+      updateWorkPhotosToggleUI(examId);
+      alert(nextVal
+        ? '✅ تم تفعيل «تصوير ورقة الحل» لهذا الاختبار! سيُطلب من الطالب تصوير ورقته قبل التسليم.'
+        : '✅ تم إلغاء «تصوير ورقة الحل» لهذا الاختبار.');
+    }).catch(function(err) {
+      alert('⚠️ ' + (err.message || err));
+      updateWorkPhotosToggleUI(examId);
+    }).finally(function() {
+      btn.disabled = false;
+    });
+  }
+
+  function openStudentWorkPhotosModal(studentName, examTitle, photos) {
+    var m = document.getElementById('ikhPhotosModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'ikhPhotosModal';
+      m.style.cssText = 'position:fixed;inset:0;z-index:100095;background:rgba(9,23,56,.85);display:none;align-items:flex-start;justify-content:center;padding:14px;overflow-y:auto;direction:rtl;';
+      m.innerHTML =
+        '<div style="background:#fff;color:#0f172a;width:100%;max-width:900px;border-radius:16px;padding:18px;margin:12px auto;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">' +
+            '<h3 id="ikhWpTitle" style="margin:0;color:#0f2557;">📄 أوراق حل الطالب</h3>' +
+            '<button type="button" id="ikhWpClose" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:700;cursor:pointer;">إغلاق ✕</button>' +
+          '</div>' +
+          '<div id="ikhWpBody" style="display:flex;flex-direction:column;gap:14px;"></div>' +
+        '</div>';
+      document.body.appendChild(m);
+      document.getElementById('ikhWpClose').onclick = function() { m.style.display = 'none'; };
+      m.onclick = function(e) { if (e.target === m) m.style.display = 'none'; };
+    }
+    document.getElementById('ikhWpTitle').textContent = '📄 أوراق حل: ' + studentName + ' — ' + examTitle;
+    document.getElementById('ikhWpBody').innerHTML = photos.map(function(src, i) {
+      return '<div style="border:1.5px solid #cbd5e1;border-radius:12px;padding:10px;background:#f8fafc;text-align:center;">' +
+        '<div style="font-weight:800;color:#0f2557;margin-bottom:8px;">صفحة #' + (i + 1) + '</div>' +
+        '<img src="' + src + '" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;" alt="ورقة الحل">' +
+      '</div>';
+    }).join('');
+    m.style.display = 'flex';
   }
 
   try { applyBrandName(); ensureIkhBar(); } catch(e) {}
