@@ -482,6 +482,7 @@
         <h2>أهلاً <span id="stNameHeader"></span> 👋</h2>
         <div class="sub">
           منصة اختباراتي • بوابة الطالب
+          <span id="stGradeBadge" class="badge hidden" style="margin-right:6px;background:#dbeafe;color:#0f2557;"></span>
           <span id="stGroupBadge" class="badge hidden" style="margin-right:6px;"></span>
         </div>
       </div>
@@ -523,14 +524,14 @@
   <!-- تبويب 2: اختباراتي القديمة -->
   <div id="paneOld" class="hidden">
     <div id="overallSummaryCard" class="card hidden" style="background:linear-gradient(135deg,#eff6ff,#f5f3ff);border-color:#c7d2fe;">
-      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">🏆 ملخص مستواك العام في الدفعة</div>
+      <div style="font-weight:800;color:var(--primary);margin-bottom:8px;">🏆 ملخص مستواك العام في صفك</div>
       <div class="rank-grid" style="margin-top:0;padding-top:0;border-top:none;">
         <div class="rank-box r-batch">
-          <div class="rlbl">ترتيبك العام في الدفعة</div>
+          <div class="rlbl">ترتيبك العام في الصف</div>
           <div class="rval" id="ovBatchRank">-</div>
         </div>
         <div class="rank-box r-level">
-          <div class="rlbl">مستواك بالنسبة للدفعة</div>
+          <div class="rlbl">مستواك بالنسبة للصف</div>
           <div class="rval" id="ovLevel">-</div>
         </div>
         <div class="rank-box r-exam">
@@ -884,6 +885,14 @@
     var d = state.portal || {};
     var st = d.student || {};
     $('stNameHeader').textContent = st.name || 'طالب';
+    if (st.grade_name) {
+      $('stGradeBadge').textContent = '🏫 ' + st.grade_name;
+      $('stGradeBadge').classList.remove('hidden');
+      if ($('btnHonorBatch')) $('btnHonorBatch').textContent = 'أوائل ' + st.grade_name;
+    } else {
+      $('stGradeBadge').classList.add('hidden');
+      if ($('btnHonorBatch')) $('btnHonorBatch').textContent = 'أوائل الدفعة';
+    }
     if (st.group_name) {
       $('stGroupBadge').textContent = 'مجموعة: ' + st.group_name;
       $('stGroupBadge').classList.remove('hidden');
@@ -1042,11 +1051,11 @@
             '<div class="rval">' + groupRankTxt + '</div>' +
           '</div>' +
           '<div class="rank-box r-batch">' +
-            '<div class="rlbl">ترتيبك في الدفعة</div>' +
+            '<div class="rlbl">ترتيبك في الصف</div>' +
             '<div class="rval">' + batchRankTxt + '</div>' +
           '</div>' +
           '<div class="rank-box r-level">' +
-            '<div class="rlbl">مستواك بالدفعة</div>' +
+            '<div class="rlbl">مستواك بالصف</div>' +
             '<div class="rval">' + escapeHtml(levelTxt) + '</div>' +
           '</div>' +
         '</div>' +
