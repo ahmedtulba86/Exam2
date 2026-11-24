@@ -7922,10 +7922,15 @@ window.qcStuSearchFilter=function(){
   if(!list.length){
     dr.innerHTML='<div style="padding:8px 10px;font-size:12.5px;color:#64748b;">لا يوجد طالب مطابق</div>';
   }else{
-    dr.innerHTML='<div style="padding:6px 10px;font-size:12px;color:#0f2557;background:#eff6ff;cursor:pointer;font-weight:700;border-bottom:1px solid #e2e8f0;" onclick="qcPickStu('','')">✕ الكل (بدون تحديد طالب)</div>'+
+    dr.innerHTML='<div data-pick-sid="" data-pick-name="" style="padding:6px 10px;font-size:12px;color:#0f2557;background:#eff6ff;cursor:pointer;font-weight:700;border-bottom:1px solid #e2e8f0;">✕ الكل (بدون تحديد طالب)</div>'+
       list.map(function(s){
-        return '<div style="padding:7px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9;" onclick="qcPickStu(''+esc(s.student_id)+'',''+esc(s.name).replace(/'/g,"\'")+'')"><b>'+esc(s.name)+'</b>'+(s.group_name?' <small style="color:#64748b">('+esc(s.group_name)+')</small>':'')+'</div>';
+        return '<div data-pick-sid="'+esc(s.student_id)+'" data-pick-name="'+esc(s.name)+'" style="padding:7px 10px;font-size:13px;cursor:pointer;border-bottom:1px solid #f1f5f9;"><b>'+esc(s.name)+'</b>'+(s.group_name?' <small style="color:#64748b">('+esc(s.group_name)+')</small>':'')+'</div>';
       }).join('');
+    dr.querySelectorAll('[data-pick-sid]').forEach(function(item){
+      item.onclick=function(){
+        qcPickStu(item.getAttribute('data-pick-sid'), item.getAttribute('data-pick-name'));
+      };
+    });
   }
   dr.style.display='block';
 };
@@ -7948,10 +7953,7 @@ window.qcPublish=function(){var z=Q.quizzes[+document.getElementById('qpQ').valu
   var wp=!!(document.getElementById('qpWp')&&document.getElementById('qpWp').checked);
   var revIso=rev?new Date(rev).toISOString():(c?new Date(c).toISOString():null);
   api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,review_at:revIso,allowed_students:al,target_grade:grade,target_group:grp,require_work_photos:wp},'return=representation').then(function(r){
-    var l=stBase()?examLink(r[0].id):'';if(l)try{navigator.clipboard.writeText(l);}catch(e){}alert('تم النشر بنجاح!'+(l?'
-ونُسخ رابط الاختبار:
-'+l:''));pubView();}).catch(function(e){alert('تعذر النشر: '+(e.message||e)+'
-(تأكد من تشغيل كود SQL الأخير في Supabase)');});};
+    var l=stBase()?examLink(r[0].id):'';if(l)try{navigator.clipboard.writeText(l);}catch(e){}alert('تم النشر بنجاح!'+(l?'\nونُسخ رابط الاختبار:\n'+l:''));pubView();}).catch(function(e){alert('تعذر النشر: '+(e.message||e)+'\n(تأكد من تشغيل كود SQL الأخير في Supabase)');});};
 window.qcLink=function(id){var l=examLink(id);if(!l)return;try{navigator.clipboard.writeText(l);}catch(e){}prompt('رابط الاختبار',l);};
 window.qcShare=function(id){var l=examLink(id);if(l)window.open('https://wa.me/?text='+encodeURIComponent('رابط الاختبار:\n'+l+'\nادخل برقم تليفونك والكود السري.'));};
 window.qcToggle=function(id,v){api('PATCH','exams?id=eq.'+id,{is_open:v},'return=minimal').then(pubView).catch(err);};
