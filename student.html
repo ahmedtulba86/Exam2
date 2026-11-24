@@ -396,6 +396,46 @@
     font-size: 24px;
     flex-shrink: 0;
   }
+
+  .work-photos-card {
+    border: 2px dashed #0f2557;
+    background: #f8fafc;
+  }
+  .wp-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .wp-thumb-item {
+    position: relative;
+    width: 108px;
+    height: 136px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #cbd5e1;
+    background: #fff;
+  }
+  .wp-thumb-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .wp-del-btn {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(220, 38, 38, .92);
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1;
+  }
 </style>
 </head>
 <body>
@@ -609,6 +649,25 @@
         <button type="button" id="btnNext" class="btn btn-primary">التالي ←</button>
       </div>
     </div>
+
+    <!-- قسم تصوير ورقة الحل (يظهر فقط للاختبارات المفعّل بها) -->
+    <div id="workPhotosCard" class="card work-photos-card hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+        <div>
+          <strong style="color:#0f2557;font-size:16px;">📷 تصوير ورقة الحل (مطلوب قبل التسليم)</strong>
+          <div class="muted" style="font-size:12.5px;">صوّر خطوات حلك في الورقة الخارجية (صفحة أو أكثر حتى 5 صفحات) ثم اضغط تسليم الاختبار.</div>
+        </div>
+        <span id="wpCountBadge" class="badge">0 / 5 صور</span>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button type="button" id="btnOpenCam" class="btn btn-primary btn-sm">📷 فتح الكاميرا للتصوير</button>
+        <button type="button" id="btnOpenGallery" class="btn btn-outline btn-sm">🖼️ اختيار صورة من الجهاز</button>
+      </div>
+      <input type="file" id="inpWorkCam" accept="image/*" capture="environment" style="display:none;">
+      <input type="file" id="inpWorkGal" accept="image/*" multiple style="display:none;">
+      <div id="wpStatus" class="muted" style="margin-top:6px;font-weight:700;color:#0f766e;"></div>
+      <div id="wpThumbs" class="wp-thumbs"></div>
+    </div>
   </div>
 </div>
 
@@ -682,7 +741,9 @@
     timerHandle: null,
     tabLeaves: 0,
     submitting: false,
-    saveTimer: null
+    saveTimer: null,
+    requireWorkPhotos: false,
+    workPhotos: []
   };
 
   var urlParams = new URLSearchParams(window.location.search);
@@ -1230,6 +1291,16 @@
         state.currentIndex = 0;
         state.tabLeaves = 0;
         state.submitting = false;
+        state.requireWorkPhotos = false;
+        state.workPhotos = [];
+        $('workPhotosCard').classList.add('hidden');
+        renderWorkPhotos();
+        sbRpc('get_exam_work_config', { p_exam: examId }).then(function(cfg) {
+          if (cfg && cfg.require_work_photos) {
+            state.requireWorkPhotos = true;
+            $('workPhotosCard').classList.remove('hidden');
+          }
+        }).catch(function() {});
 
         if (!state.questions.length) {
           if (doneCb) doneCb('هذا الاختبار لا يحتوي على أسئلة بعد.');
@@ -1284,6 +1355,7 @@
     $('timerPill').classList.add('hidden');
     $('btnSubmitTop').classList.add('hidden');
     $('btnExitPractice').classList.remove('hidden');
+    $('workPhotosCard').classList.add('hidden');
     $('saveState').textContent = 'وضع التدريب الفوري';
     showAlert('leaveWarn', '');
     showAlert('examErr', '');
@@ -1409,6 +1481,12 @@
 
   function submitExam(auto) {
     if (state.submitting || !state.attemptId) return;
+    if (!auto && state.requireWorkPhotos && (!state.workPhotos || state.workPhotos.length === 0)) {
+      showAlert('examErr', '📷 يرجى تصوير ورقة الحل (صورة واحدة على الأقل) قبل تسليم الاختبار.');
+      var card = $('workPhotosCard');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     if (!auto) {
       var unanswered = state.questions.filter(function(q) { return !state.answers[q.id]; }).length;
       var msg = unanswered > 0
@@ -1419,15 +1497,24 @@
     state.submitting = true;
     clearInterval(state.timerHandle);
     $('btnSubmitTop').disabled = true;
-    $('btnSubmitTop').textContent = 'جارٍ التسليم...';
+    $('btnSubmitTop').textContent = state.workPhotos.length ? 'جارٍ رفع الورق والتسليم...' : 'جارٍ التسليم...';
 
-    sbRpc('exam_submit', {
+    var uploadStep = (state.workPhotos && state.workPhotos.length)
+      ? sbRpc('exam_save_work_photos', {
+          p_attempt: state.attemptId,
+          p_phone: state.phone,
+          p_code: state.code,
+          p_photos: state.workPhotos
+        }).catch(function() {})
+      : Promise.resolve();
+
+    uploadStep.then(function() { return sbRpc('exam_submit', {
       p_attempt: state.attemptId,
       p_phone: state.phone,
       p_code: state.code,
       p_answers: state.answers,
       p_leaves: state.tabLeaves
-    }).then(function(res) {
+    }); }).then(function(res) {
       $('btnSubmitTop').disabled = false;
       $('btnSubmitTop').textContent = 'تسليم الاختبار';
       if (res && res.error) {
@@ -1641,6 +1728,83 @@
       });
     };
   }
+
+  // ==================== تصوير وضغط أوراق الحل ====================
+  function compressImageFile(file, maxW, quality) {
+    return new Promise(function(resolve, reject) {
+      var reader = new FileReader();
+      reader.onerror = function() { reject(new Error('تعذر قراءة الصورة')); };
+      reader.onload = function(ev) {
+        var img = new Image();
+        img.onerror = function() { reject(new Error('ملف غير صالح كصورة')); };
+        img.onload = function() {
+          var w = img.width, h = img.height;
+          if (w > maxW) {
+            h = Math.round(h * (maxW / w));
+            w = maxW;
+          }
+          var cv = document.createElement('canvas');
+          cv.width = w;
+          cv.height = h;
+          var ctx = cv.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(cv.toDataURL('image/jpeg', quality));
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function handleWorkFiles(fileList) {
+    if (!fileList || !fileList.length) return;
+    var files = Array.prototype.slice.call(fileList);
+    var st = $('wpStatus');
+    st.textContent = 'جارٍ تجهيز وضغط الصور...';
+    var chain = Promise.resolve();
+    files.forEach(function(f) {
+      chain = chain.then(function() {
+        if (state.workPhotos.length >= 5) return;
+        return compressImageFile(f, 1200, 0.65).then(function(dataUrl) {
+          state.workPhotos.push(dataUrl);
+          renderWorkPhotos();
+        });
+      });
+    });
+    chain.then(function() {
+      st.textContent = '✅ تم تجهيز ' + state.workPhotos.length + ' صورة بنجاح.';
+      showAlert('examErr', '');
+    }).catch(function(err) {
+      st.textContent = '⚠️ ' + (err.message || 'تعذر معالجة الصورة');
+    });
+  }
+
+  function renderWorkPhotos() {
+    var box = $('wpThumbs');
+    var badge = $('wpCountBadge');
+    if (badge) badge.textContent = state.workPhotos.length + ' / 5 صور';
+    if (!box) return;
+    box.innerHTML = state.workPhotos.map(function(src, idx) {
+      return '<div class="wp-thumb-item">' +
+        '<img src="' + src + '" alt="ورقة الحل ' + (idx + 1) + '">' +
+        '<button type="button" class="wp-del-btn" data-wp-del="' + idx + '" title="حذف">✕</button>' +
+      '</div>';
+    }).join('');
+    box.querySelectorAll('[data-wp-del]').forEach(function(btn) {
+      btn.onclick = function() {
+        var i = parseInt(btn.getAttribute('data-wp-del'), 10);
+        state.workPhotos.splice(i, 1);
+        renderWorkPhotos();
+      };
+    });
+  }
+
+  if ($('btnOpenCam')) $('btnOpenCam').onclick = function() { $('inpWorkCam').value = ''; $('inpWorkCam').click(); };
+  if ($('btnOpenGallery')) $('btnOpenGallery').onclick = function() { $('inpWorkGal').value = ''; $('inpWorkGal').click(); };
+  if ($('inpWorkCam')) $('inpWorkCam').onchange = function(e) { handleWorkFiles(e.target.files); };
+  if ($('inpWorkGal')) $('inpWorkGal').onchange = function(e) { handleWorkFiles(e.target.files); };
 })();
 </script>
 </body>
