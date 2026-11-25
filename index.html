@@ -13742,21 +13742,28 @@ body:not(.juice-dark) .v26-kpi-strip {
   }
 
   // ==================== 3. مزامنة مجموعات الطلاب ====================
+  function normNameKey(s) {
+    return String(s || '').trim().replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+  }
   function collectLocalStudentsWithGroups() {
     var mapById = {};
     var mapByPhone = {};
+    var mapByName = {};
     function ingest(arr) {
       if (!Array.isArray(arr)) return;
       arr.forEach(function(st) {
         if (!st || typeof st !== 'object') return;
         var grp = st.group || st.group_name || st.groupName || st.cohort || '';
         if (!grp) return;
-        if (st.id != null) mapById[String(st.id)] = String(grp).trim();
+        grp = String(grp).trim();
+        if (st.id != null) mapById[String(st.id)] = grp;
+        if (st.name) mapByName[normNameKey(st.name)] = grp;
         var ph = String(st.phone || st.studentPhone || st.whatsapp || st.parentPhone || '').replace(/\D/g, '');
-        if (ph.length >= 8) mapByPhone[ph.slice(-10)] = String(grp).trim();
+        if (ph.length >= 8) mapByPhone[ph.slice(-10)] = grp;
       });
     }
     try {
+      if (window.state && Array.isArray(window.state.students)) ingest(window.state.students);
       if (Array.isArray(window.students)) ingest(window.students);
       if (window.data && Array.isArray(window.data.students)) ingest(window.data.students);
       if (window.appData && Array.isArray(window.appData.students)) ingest(window.appData.students);
@@ -13771,7 +13778,7 @@ body:not(.juice-dark) .v26-kpi-strip {
         } catch(e){}
       }
     } catch(e){}
-    return { byId: mapById, byPhone: mapByPhone };
+    return { byId: mapById, byPhone: mapByPhone, byName: mapByName };
   }
 
   function getGradesConfig() {
@@ -13809,7 +13816,7 @@ body:not(.juice-dark) .v26-kpi-strip {
       if (!window.SB_URL || !window.sbHeaders) return resolve(0);
       var localMap = collectLocalStudentsWithGroups();
       var cfg = getGradesConfig();
-      fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,phone,group_name,grade_name', { headers: window.sbHeaders() })
+      fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,name,phone,group_name,grade_name', { headers: window.sbHeaders() })
         .then(function(r) { return r.ok ? r.json() : []; })
         .then(function(rows) {
           if (!Array.isArray(rows) || !rows.length) return resolve(0);
@@ -13819,6 +13826,9 @@ body:not(.juice-dark) .v26-kpi-strip {
             if (!grp && row.phone) {
               var ph = String(row.phone).replace(/\D/g, '').slice(-10);
               grp = (localMap.byPhone[ph] || '').trim();
+            }
+            if (!grp && row.name && localMap.byName) {
+              grp = (localMap.byName[normNameKey(row.name)] || '').trim();
             }
             if (!grp) grp = (row.group_name || '').trim();
             var grd = (grp && cfg.groupGrades[grp]) ? String(cfg.groupGrades[grp]).trim() : (row.grade_name || '').trim();
