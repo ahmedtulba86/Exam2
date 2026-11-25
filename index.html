@@ -794,6 +794,94 @@ body.juice-dark .quick-panel .qp-body{background:#111c2e}
   .grades-card .grades-table-scroll td.sticky-col{max-width:165px!important}
 }
 </style>
+
+<style id="myStudentsTabCSS">
+#myStudentsTab .ms-bar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;
+  background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px 14px;margin-bottom:14px;
+}
+#myStudentsTab .ms-field{display:flex;flex-direction:column;gap:4px;min-width:140px;flex:1}
+#myStudentsTab .ms-field label{font-size:12px;font-weight:800;color:#0f2557}
+#myStudentsTab .ms-field input,#myStudentsTab .ms-field select{min-height:38px;padding:6px 10px;font-size:13.5px}
+#myStudentsTab .ms-summary-strip{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;
+  margin-bottom:12px;font-size:13px;color:#475569;font-weight:700;
+}
+#myStudentsTab .ms-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:10px;
+}
+#myStudentsTab .ms-stu-tile{
+  background:#fff;border:1.5px solid #cbd5e1;border-right:4px solid #0f2557;
+  border-radius:12px;padding:10px 12px;cursor:pointer;text-align:right;
+  transition:transform .12s ease,box-shadow .15s ease,border-color .15s ease;
+  display:flex;flex-direction:column;justify-content:space-between;gap:6px;min-height:74px;
+}
+#myStudentsTab .ms-stu-tile:hover{
+  transform:translateY(-2px);box-shadow:0 8px 20px rgba(15,37,87,.12);border-color:#2563eb;background:#f8fbff;
+}
+#myStudentsTab .ms-stu-name{font-size:14px;font-weight:800;color:#0f172a;line-height:1.35}
+#myStudentsTab .ms-stu-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:11.5px;color:#64748b}
+#myStudentsTab .ms-pct-pill{padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}
+#myStudentsTab .ms-pct-hi{background:#dcfce7;color:#166534}
+#myStudentsTab .ms-pct-md{background:#fef9c3;color:#854d0e}
+#myStudentsTab .ms-pct-lo{background:#fee2e2;color:#991b1b}
+#myStudentsTab .ms-pct-na{background:#e2e8f0;color:#475569}
+
+/* Profile view */
+#myStudentsTab .ms-prof-head{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+  padding-bottom:12px;margin-bottom:14px;border-bottom:2px solid #e2e8f0;
+}
+#myStudentsTab .ms-kpi-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:14px;
+}
+#myStudentsTab .ms-kpi{
+  background:#f8fafc;border:1px solid #e2e8f0;border-right:4px solid #1e40af;
+  border-radius:11px;padding:10px 12px;
+}
+#myStudentsTab .ms-kpi .k-lbl{font-size:11.5px;color:#64748b;font-weight:700}
+#myStudentsTab .ms-kpi .k-val{font-size:18px;font-weight:800;color:#0f172a;margin-top:2px}
+#myStudentsTab .ms-kpi .k-sub{font-size:11px;color:#64748b;margin-top:2px}
+
+#myStudentsTab .ms-subtabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+#myStudentsTab .ms-subtab{
+  background:#e2e8f0;color:#334155;border:none;border-radius:10px;padding:8px 14px;
+  font-size:13.5px;font-weight:800;cursor:pointer;min-height:38px;
+}
+#myStudentsTab .ms-subtab.active{background:#0f2557;color:#fff}
+
+#myStudentsTab .ms-exam-row{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:8px;background:#fff;
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+#myStudentsTab .ms-exam-row:hover{border-color:#2563eb;background:#f8fbff}
+
+#myStudentsTab .ms-q-card{
+  border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:10px;background:#fff;
+}
+#myStudentsTab .ms-q-card.ok{border-right:5px solid #16a34a}
+#myStudentsTab .ms-q-card.bad{border-right:5px solid #dc2626}
+#myStudentsTab .ms-q-img{max-width:100%;max-height:280px;border-radius:8px;margin:8px 0;border:1px solid #e2e8f0;display:block}
+#myStudentsTab .ms-q-html{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px;margin:8px 0;font-size:14.5px;line-height:1.8;overflow-x:auto}
+#myStudentsTab .ms-ans-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-size:13px;font-weight:800}
+#myStudentsTab .ms-ans-ok{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:8px}
+#myStudentsTab .ms-ans-bad{background:#fee2e2;color:#b91c1c;padding:4px 10px;border-radius:8px}
+#myStudentsTab .ms-topic-bar{height:9px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-top:4px}
+#myStudentsTab .ms-topic-bar>i{display:block;height:100%;border-radius:99px}
+body.juice-dark #myStudentsTab .ms-bar,
+body.juice-dark #myStudentsTab .ms-stu-tile,
+body.juice-dark #myStudentsTab .ms-kpi,
+body.juice-dark #myStudentsTab .ms-exam-row,
+body.juice-dark #myStudentsTab .ms-q-card{background:#111c2e;border-color:#24344d;color:#e2e8f0}
+body.juice-dark #myStudentsTab .ms-stu-name,
+body.juice-dark #myStudentsTab .ms-kpi .k-val{color:#f1f5f9}
+@media(max-width:600px){
+  #myStudentsTab .ms-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  #myStudentsTab .ms-stu-tile{padding:8px 10px;min-height:66px}
+  #myStudentsTab .ms-stu-name{font-size:13px}
+}
+</style>
 </head>
 <body>
 <div class="container"><div id="guestBannerTop" class="guest-banner" style="display:none;">وضع العرض فقط — التعديل متوقف.</div>
@@ -878,6 +966,7 @@ body.juice-dark .quick-panel .qp-body{background:#111c2e}
     <div class="nav-brand" title="إخفاء القائمة" style="cursor:pointer;">اختباراتي <span style="font-size:13px;opacity:.6">✕ إخفاء</span></div>
     <div class="nav-label">الأساسي</div>
     <button type="button" class="tab-btn active" data-tab="gradesTab" onclick="switchTab('gradesTab',this)">سجل الدرجات</button>
+    <button type="button" class="tab-btn" data-tab="myStudentsTab" onclick="switchTab('myStudentsTab',this)">👨‍🎓 طلابي</button>
     <button type="button" class="tab-btn" data-tab="dashboardTab" onclick="switchTab('dashboardTab',this)">لوحة المؤشرات</button>
     <button type="button" class="tab-btn" data-tab="teacherAssistantTab" onclick="switchTab('teacherAssistantTab',this);teacherAssistantInit()">📊 التحليل الذكي المحلي</button>
   <button type="button" class="tab-btn" data-tab="payTab" onclick="switchTab('payTab',this)">المدفوعات</button>
@@ -1432,6 +1521,9 @@ body.juice-dark .quick-panel .qp-body{background:#111c2e}
 </div>
 
 
+<div id="myStudentsTab" class="tab-content">
+  <div id="msRoot"></div>
+</div>
 <div id="studentAccountsTab" class="tab-content">
   <div class="card">
     <h2 style="margin:0 0 6px;color:#1e40af">👤 نظام حسابات الطلاب — V24</h2>
@@ -2336,7 +2428,648 @@ window.captureRaceShot=function(){
     '<style>body{font-family:Tahoma,sans-serif;padding:16px;background:#14532d;color:#fff;} .lane{background:rgba(255,255,255,.1);margin:6px 0;padding:8px;border-radius:8px;}</style></head><body>'+
     '<h2>لقطة سباق الأوائل'+(school?' — '+school:'')+'</h2>'+
     '<p>'+label+'</p><div>'+lanes+'</div><p>'+comment+'</p>'+
-    '<script>setTimeout(function(){window.print();},400);<\/script></body></html>';
+    '<script>setTimeout(function(){window.print();},400);<\/script>
+<script id="myStudentsTabScript">
+(function(){
+  'use strict';
+  var MS = {
+    search: '',
+    grade: 'ALL',
+    group: 'ALL',
+    sort: 'name_asc',
+    activeSid: null,
+    activeSub: 'online', // online | gradebook | mistakes | topics
+    activeAttemptId: null,
+    attemptFilter: 'all', // all | wrong | correct
+    cloudCache: {}, // sid -> { loading, loaded, error, studentCloud, attempts, qMap, examNames, topicNames }
+    allExamStatsCache: null
+  };
+
+  function esc(s){
+    return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function normAr(s){
+    return String(s||'').toLowerCase()
+      .replace(/[\u064B-\u065F\u0670\u0640]/g,'')
+      .replace(/[أإآ]/g,'ا').replace(/ى/g,'ي').replace(/ة/g,'ه')
+      .replace(/\s+/g,' ').trim();
+  }
+  function normAns(a){
+    var s=String(a||'').trim().toUpperCase();
+    var m={'ا':'أ','إ':'أ','آ':'أ','A':'أ','B':'ب','C':'ج','D':'د'};
+    return m[s]||s;
+  }
+  function isAnsCorrect(stuAns, corAns){
+    if(!stuAns || !corAns) return false;
+    return normAns(stuAns) === normAns(corAns);
+  }
+  function resolveQImg(p){
+    if(!p) return '';
+    if(String(p).indexOf('wordq_html_id_')>=0) return '';
+    if(/^https?:\/\//i.test(p) || /^data:image\//i.test(p)) return p;
+    return (window.SB_URL||'') + '/storage/v1/object/public/question-images/' + String(p).replace(/^\/+/,'');
+  }
+  function getGradesCfg(){
+    if(typeof window.qcGetGradesCfg === 'function') return window.qcGetGradesCfg();
+    var st = window.state || {};
+    return {
+      grades: (Array.isArray(st.grades)&&st.grades.length)?st.grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],
+      groupGrades: st.groupGrades || {}
+    };
+  }
+  function getStudentGrade(s){
+    var cfg = getGradesCfg();
+    return (s && s.group && cfg.groupGrades && cfg.groupGrades[s.group]) ? cfg.groupGrades[s.group] : '';
+  }
+  function calcStuLocalStats(s){
+    var st = window.state || {exams:[],students:[],attendance:{}};
+    var total=0, maxT=0, taken=0, hi=null, lo=null, series=[];
+    var firstEx=null, lastEx=null;
+    (st.exams||[]).forEach(function(ex){
+      var v = s.scores ? s.scores[ex.id] : undefined;
+      if(v!==undefined && v!=='' && !isNaN(v)){
+        var num=parseFloat(v), mx=parseFloat(ex.max)>0?parseFloat(ex.max):20;
+        var pct=(num/mx)*100;
+        total+=num; maxT+=mx; taken++;
+        series.push({id:ex.id,name:ex.name,score:num,max:mx,pct:pct,date:ex.date||'',type:ex.type||'exam'});
+        if(hi===null || pct>hi) hi=pct;
+        if(lo===null || pct<lo) lo=pct;
+        if(!firstEx) firstEx={name:ex.name,score:num,max:mx,pct:pct,date:ex.date||''};
+        lastEx={name:ex.name,score:num,max:mx,pct:pct,date:ex.date||''};
+      }
+    });
+    var pct = maxT>0 ? (total/maxT)*100 : null;
+    var delta = null;
+    if(series.length>=2){
+      var rec = series.slice(-3);
+      delta = rec[rec.length-1].pct - rec[0].pct;
+    }
+    // Attendance
+    var p=0, a=0, l=0;
+    Object.keys(st.attendance||{}).forEach(function(d){
+      var v=(st.attendance[d]||{})[s.id];
+      if(v==='p') p++; else if(v==='a') a++; else if(v==='l') l++;
+    });
+    var attTotal=p+a+l, attPct=attTotal>0?Math.round(((p+l)/attTotal)*100):null;
+    return {
+      total:total, maxT:maxT, taken:taken, pct:pct, hi:hi, lo:lo,
+      series:series, delta:delta, firstEx:firstEx, lastEx:lastEx,
+      att:{p:p,a:a,l:l,n:attTotal,pct:attPct}
+    };
+  }
+  function pctClass(p){
+    if(p===null || isNaN(p)) return 'ms-pct-na';
+    if(p>=85) return 'ms-pct-hi';
+    if(p>=50) return 'ms-pct-md';
+    return 'ms-pct-lo';
+  }
+  function gradeLabel(p){
+    if(p===null || isNaN(p)) return 'بدون تقييم';
+    if(p>=90) return 'ممتاز 🌟';
+    if(p>=80) return 'جيد جداً 🔥';
+    if(p>=65) return 'جيد 👍';
+    if(p>=50) return 'مقبول';
+    return 'يحتاج متابعة ⚠️';
+  }
+  function fmtDate(iso){
+    if(!iso) return '—';
+    try{
+      var d=new Date(iso);
+      if(isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'});
+    }catch(e){return iso;}
+  }
+  function fmtDateTime(iso){
+    if(!iso) return '—';
+    try{
+      var d=new Date(iso);
+      if(isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('ar-EG',{year:'numeric',month:'short',day:'numeric'}) + ' • ' + d.toLocaleTimeString('ar-EG',{hour:'numeric',minute:'2-digit'});
+    }catch(e){return iso;}
+  }
+
+  function sbGet(path){
+    if(!window.SB_URL || !window.sbHeaders) return Promise.resolve([]);
+    return fetch(window.SB_URL + '/rest/v1/' + path, { headers: window.sbHeaders() })
+      .then(function(r){ return r.ok ? r.json() : []; })
+      .catch(function(){ return []; });
+  }
+
+  function loadStudentCloud(sid, force){
+    var c = MS.cloudCache[sid];
+    if(c && c.loaded && !force) return Promise.resolve(c);
+    if(c && c.loading) return Promise.resolve(c);
+    c = MS.cloudCache[sid] = { loading:true, loaded:false, error:'', studentCloud:null, attempts:[], qMap:{}, examNames:{}, topicNames:{} };
+    renderProfile();
+    var encSid = encodeURIComponent(sid);
+    return Promise.all([
+      sbGet('exam_students?select=id,student_id,name,phone,parent_phone,code,group_name,grade_name&student_id=eq.'+encSid+'&limit=1'),
+      sbGet('attempts?select=id,exam_id,score,total,answers,q_order,tab_leaves,started_at,submitted_at&student_id=eq.'+encSid+'&submitted_at=not.is.null&order=submitted_at.asc&limit=300')
+    ]).then(function(res){
+      c.studentCloud = (res[0] && res[0][0]) ? res[0][0] : null;
+      var attempts = Array.isArray(res[1]) ? res[1] : [];
+      c.attempts = attempts;
+      if(!attempts.length){
+        c.loading=false; c.loaded=true;
+        if(MS.activeSid===sid) renderProfile();
+        return c;
+      }
+      var eids=[], qids=[];
+      attempts.forEach(function(a){
+        if(a.exam_id && eids.indexOf(a.exam_id)<0) eids.push(a.exam_id);
+        (a.q_order||[]).forEach(function(qid){ if(qid && qids.indexOf(qid)<0) qids.push(qid); });
+      });
+      var qChunks=[];
+      for(var i=0;i<qids.length;i+=80){
+        qChunks.push(sbGet('questions?select=id,topic_id,correct,image_path,question_html,difficulty&id=in.('+qids.slice(i,i+80).join(',')+')'));
+      }
+      return Promise.all([
+        Promise.all(qChunks),
+        eids.length ? sbGet('exams?select=id,title&id=in.('+eids.join(',')+')') : Promise.resolve([]),
+        sbGet('topics?select=id,name&limit=1000')
+      ]).then(function(r2){
+        [].concat.apply([], r2[0]).forEach(function(q){ if(q&&q.id) c.qMap[q.id]=q; });
+        (r2[1]||[]).forEach(function(e){ if(e&&e.id) c.examNames[e.id]=e.title; });
+        (r2[2]||[]).forEach(function(t){ if(t&&t.id) c.topicNames[t.id]=t.name; });
+        c.loading=false; c.loaded=true;
+        if(MS.activeSid===sid) renderProfile();
+        return c;
+      });
+    }).catch(function(err){
+      c.loading=false; c.loaded=true; c.error=(err&&err.message)||'تعذر تحميل بيانات السحابة';
+      if(MS.activeSid===sid) renderProfile();
+      return c;
+    });
+  }
+
+  function renderDirectory(){
+    var root = document.getElementById('msRoot');
+    if(!root) return;
+    var st = window.state || {students:[],groups:[],exams:[]};
+    var cfg = getGradesCfg();
+    var grades = cfg.grades || [];
+    var groups = st.groups || [];
+
+    // Filter groups list if a grade is chosen
+    var availGroups = groups.filter(function(g){
+      if(MS.grade==='ALL') return true;
+      return (cfg.groupGrades && cfg.groupGrades[g] === MS.grade);
+    });
+    if(MS.group!=='ALL' && availGroups.indexOf(MS.group)<0) MS.group='ALL';
+
+    var qNorm = normAr(MS.search);
+    var items = (st.students||[]).map(function(s){
+      return { s:s, grade:getStudentGrade(s), stat:calcStuLocalStats(s) };
+    }).filter(function(it){
+      if(MS.grade!=='ALL' && it.grade!==MS.grade) return false;
+      if(MS.group!=='ALL' && it.s.group!==MS.group) return false;
+      if(qNorm && normAr(it.s.name+' '+it.s.group+' '+it.grade).indexOf(qNorm)<0) return false;
+      return true;
+    });
+
+    // Sort
+    items.sort(function(a,b){
+      var s = MS.sort;
+      if(s==='name_asc') return a.s.name.localeCompare(b.s.name,'ar');
+      if(s==='name_desc') return b.s.name.localeCompare(a.s.name,'ar');
+      if(s==='score_desc') return (b.stat.pct===null?-1:b.stat.pct) - (a.stat.pct===null?-1:a.stat.pct);
+      if(s==='score_asc') return (a.stat.pct===null?999:a.stat.pct) - (b.stat.pct===null?999:b.stat.pct);
+      if(s==='exams_desc') return b.stat.taken - a.stat.taken;
+      if(s==='trend_up') return (b.stat.delta===null?-999:b.stat.delta) - (a.stat.delta===null?-999:a.stat.delta);
+      if(s==='trend_down') return (a.stat.delta===null?999:a.stat.delta) - (b.stat.delta===null?999:b.stat.delta);
+      if(s==='att_desc') return (b.stat.att.pct===null?-1:b.stat.att.pct) - (a.stat.att.pct===null?-1:a.stat.att.pct);
+      return 0;
+    });
+
+    var scored = items.filter(function(it){return it.stat.pct!==null;});
+    var avgAll = scored.length ? (scored.reduce(function(a,x){return a+x.stat.pct;},0)/scored.length).toFixed(1)+'%' : '—';
+    var topCnt = scored.filter(function(x){return x.stat.pct>=85;}).length;
+    var lowCnt = scored.filter(function(x){return x.stat.pct<50;}).length;
+
+    var h = '<div class="card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">' +
+        '<div><h2 style="margin:0;color:#0f2557;">👨‍🎓 طلابي</h2><div style="font-size:12.5px;color:#64748b;">اضغط على اسم أي طالب لعرض تاريخه الكامل، اختباراته، أخطائه، وإحصائياته</div></div>' +
+      '</div>' +
+      '<div class="ms-bar">' +
+        '<div class="ms-field" style="flex:1.4;min-width:170px;">' +
+          '<label>🔍 الطالب</label>' +
+          '<input type="search" id="msSearchInp" value="'+esc(MS.search)+'" placeholder="ابحث باسم الطالب الثلاثي..." oninput="msSetFilter(\'search\',this.value)" autocomplete="off">' +
+        '</div>' +
+        '<div class="ms-field">' +
+          '<label>🏫 الصف</label>' +
+          '<select id="msGradeSel" onchange="msSetFilter(\'grade\',this.value)">' +
+            '<option value="ALL">كل الصفوف</option>' +
+            grades.map(function(g){return '<option value="'+esc(g)+'"'+(MS.grade===g?' selected':'')+'>'+esc(g)+'</option>';}).join('') +
+          '</select>' +
+        '</div>' +
+        '<div class="ms-field">' +
+          '<label>👥 المجموعة</label>' +
+          '<select id="msGroupSel" onchange="msSetFilter(\'group\',this.value)">' +
+            '<option value="ALL">كل المجموعات</option>' +
+            availGroups.map(function(g){return '<option value="'+esc(g)+'"'+(MS.group===g?' selected':'')+'>'+esc(g)+'</option>';}).join('') +
+          '</select>' +
+        '</div>' +
+        '<div class="ms-field">' +
+          '<label>↕️ الفرز</label>' +
+          '<select id="msSortSel" onchange="msSetFilter(\'sort\',this.value)">' +
+            '<option value="name_asc"'+(MS.sort==='name_asc'?' selected':'')+'>الاسم (أ ← ي)</option>' +
+            '<option value="name_desc"'+(MS.sort==='name_desc'?' selected':'')+'>الاسم (ي ← أ)</option>' +
+            '<option value="score_desc"'+(MS.sort==='score_desc'?' selected':'')+'>الأعلى درجات (من الأعلى للأقل)</option>' +
+            '<option value="score_asc"'+(MS.sort==='score_asc'?' selected':'')+'>الأقل درجات (من الأقل للأعلى)</option>' +
+            '<option value="exams_desc"'+(MS.sort==='exams_desc'?' selected':'')+'>الأكثر اختبارات</option>' +
+            '<option value="trend_up"'+(MS.sort==='trend_up'?' selected':'')+'>الأكثر تحسناً</option>' +
+            '<option value="trend_down"'+(MS.sort==='trend_down'?' selected':'')+'>الأكثر تراجعاً</option>' +
+            '<option value="att_desc"'+(MS.sort==='att_desc'?' selected':'')+'>الأعلى حضوراً</option>' +
+          '</select>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ms-summary-strip">' +
+        '<span>العدد: <b style="color:#0f2557;">'+items.length+'</b> طالب</span>' +
+        '<span>المتوسط العام: <b style="color:#0f766e;">'+avgAll+'</b></span>' +
+        '<span>متفوقون ≥85%: <b style="color:#16a34a;">'+topCnt+'</b></span>' +
+        '<span>يحتاجون متابعة &lt;50%: <b style="color:#dc2626;">'+lowCnt+'</b></span>' +
+      '</div>';
+
+    if(!items.length){
+      h += '<div style="text-align:center;padding:32px;color:#64748b;font-weight:700;">لا يوجد طلاب مطابقون للبحث أو الفلتر الحالي.</div>';
+    } else {
+      h += '<div class="ms-grid">' + items.map(function(it){
+        var p = it.stat.pct;
+        var pTxt = p!==null ? Math.round(p)+'%' : '—';
+        var bCol = p===null?'#94a3b8':(p>=85?'#16a34a':(p>=50?'#1e40af':'#dc2626'));
+        return '<div class="ms-stu-tile" style="border-right-color:'+bCol+';" onclick="msOpenStudent(\''+esc(it.s.id)+'\')">' +
+          '<div class="ms-stu-name">'+esc(it.s.name)+'</div>' +
+          '<div class="ms-stu-meta">' +
+            '<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(it.s.group||'')+(it.grade?' · '+esc(it.grade):'')+'</span>' +
+            '<span class="ms-pct-pill '+pctClass(p)+'">'+pTxt+'</span>' +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+    }
+    h += '</div>';
+    root.innerHTML = h;
+    // keep focus on search input if user was typing
+    if(MS._keepFocus){
+      var inp=document.getElementById('msSearchInp');
+      if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+      MS._keepFocus=false;
+    }
+  }
+
+  function buildStudentSparkline(points){
+    if(!points || points.length<2) return '<div style="color:#64748b;font-size:12.5px;padding:12px;text-align:center;">يلزم اختباران على الأقل لرسم منحنى التطور.</div>';
+    var W = Math.max(460, points.length * 74), H = 195, pad = 34;
+    var yScale = (H - 2*pad) / 100;
+    var xStep = (W - 2*pad) / Math.max(1, points.length - 1);
+    var svg = '<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" style="max-width:100%;display:block;margin:0 auto;">';
+    [0,25,50,75,100].forEach(function(v){
+      var y = H - pad - v*yScale;
+      svg += '<line x1="'+pad+'" y1="'+y+'" x2="'+(W-12)+'" y2="'+y+'" stroke="#e2e8f0" stroke-width="1"/>';
+      svg += '<text x="'+(pad-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#64748b">'+v+'%</text>';
+    });
+    var path = '';
+    points.forEach(function(pt, i){
+      var x = pad + i*xStep, y = H - pad - Math.max(0,Math.min(100,pt.pct))*yScale;
+      path += (i?' L ':'M ') + x + ' ' + y;
+    });
+    svg += '<path d="'+path+'" fill="none" stroke="#1e40af" stroke-width="2.8"/>';
+    points.forEach(function(pt, i){
+      var x = pad + i*xStep, y = H - pad - Math.max(0,Math.min(100,pt.pct))*yScale;
+      var col = pt.pct>=85?'#16a34a':(pt.pct>=50?'#1e40af':'#dc2626');
+      svg += '<circle cx="'+x+'" cy="'+y+'" r="5" fill="'+col+'"><title>'+esc(pt.label)+': '+pt.pct.toFixed(0)+'%</title></circle>';
+      svg += '<text x="'+x+'" y="'+(y-9)+'" text-anchor="middle" font-size="10.5" font-weight="800" fill="'+col+'">'+Math.round(pt.pct)+'%</text>';
+      var shortLbl = pt.label.length>12 ? pt.label.slice(0,11)+'…' : pt.label;
+      svg += '<text x="'+x+'" y="'+(H-pad+15)+'" text-anchor="middle" font-size="9.5" fill="#475569">'+esc(shortLbl)+'</text>';
+    });
+    svg += '</svg>';
+    return svg;
+  }
+
+  function renderProfile(){
+    var root = document.getElementById('msRoot');
+    if(!root) return;
+    var st = window.state || {students:[],exams:[]};
+    var s = (st.students||[]).find(function(x){return x.id===MS.activeSid;});
+    if(!s){ MS.activeSid=null; renderDirectory(); return; }
+
+    var grade = getStudentGrade(s);
+    var loc = calcStuLocalStats(s);
+    var c = MS.cloudCache[s.id] || {loading:false,loaded:false,attempts:[],qMap:{},examNames:{},topicNames:{}};
+    var attempts = c.attempts || [];
+
+    // Compute rank in group & in grade
+    var grpPeers = (st.students||[]).filter(function(x){return x.group===s.group;}).map(function(x){return {id:x.id,p:calcStuLocalStats(x).pct};}).filter(function(x){return x.p!==null;}).sort(function(a,b){return b.p-a.p;});
+    var grpRank = grpPeers.findIndex(function(x){return x.id===s.id;}) + 1;
+    var grpAvg = grpPeers.length ? (grpPeers.reduce(function(a,x){return a+x.p;},0)/grpPeers.length) : null;
+
+    var grdPeers = grade ? (st.students||[]).filter(function(x){return getStudentGrade(x)===grade;}).map(function(x){return {id:x.id,p:calcStuLocalStats(x).pct};}).filter(function(x){return x.p!==null;}).sort(function(a,b){return b.p-a.p;}) : [];
+    var grdRank = grdPeers.findIndex(function(x){return x.id===s.id;}) + 1;
+
+    // Combine online attempts stats
+    var onlineFirst = attempts.length ? attempts[0] : null;
+    var onlineLast = attempts.length ? attempts[attempts.length-1] : null;
+    var onlinePcts = attempts.map(function(a){return (a.total>0)?(a.score/a.total*100):0;});
+    var onlineAvg = onlinePcts.length ? (onlinePcts.reduce(function(a,b){return a+b;},0)/onlinePcts.length) : null;
+
+    // First & Last exam overall (prefer online with real timestamp if available, fallback to local)
+    var firstTxt = onlineFirst
+      ? (esc(c.examNames[onlineFirst.exam_id]||'اختبار إلكتروني') + '<div class="k-sub">'+fmtDate(onlineFirst.submitted_at)+' • '+onlineFirst.score+'/'+onlineFirst.total+'</div>')
+      : (loc.firstEx ? (esc(loc.firstEx.name) + '<div class="k-sub">'+loc.firstEx.score+'/'+loc.firstEx.max+(loc.firstEx.date?' • '+loc.firstEx.date:'')+'</div>') : '—');
+    var lastTxt = onlineLast
+      ? (esc(c.examNames[onlineLast.exam_id]||'اختبار إلكتروني') + '<div class="k-sub">'+fmtDate(onlineLast.submitted_at)+' • '+onlineLast.score+'/'+onlineLast.total+'</div>')
+      : (loc.lastEx ? (esc(loc.lastEx.name) + '<div class="k-sub">'+loc.lastEx.score+'/'+loc.lastEx.max+(loc.lastEx.date?' • '+loc.lastEx.date:'')+'</div>') : '—');
+
+    // Analyze mistakes & topics from cloud attempts
+    var allMistakes = [];
+    var topicMap = {};
+    attempts.forEach(function(a){
+      var ans = a.answers || {};
+      var exTitle = c.examNames[a.exam_id] || 'اختبار إلكتروني';
+      (a.q_order||[]).forEach(function(qid, qi){
+        var q = c.qMap[qid];
+        if(!q) return;
+        var tName = (q.topic_id && c.topicNames[q.topic_id]) ? c.topicNames[q.topic_id] : 'أبواب عامة';
+        if(!topicMap[tName]) topicMap[tName] = {name:tName, ok:0, bad:0, total:0};
+        topicMap[tName].total++;
+        var sAns = ans[qid];
+        var ok = isAnsCorrect(sAns, q.correct);
+        if(ok) topicMap[tName].ok++;
+        else {
+          topicMap[tName].bad++;
+          allMistakes.push({
+            attemptId: a.id, examTitle: exTitle, submittedAt: a.submitted_at,
+            qNum: qi+1, q: q, topicName: tName, stuAns: sAns
+          });
+        }
+      });
+    });
+    var topicList = Object.keys(topicMap).map(function(k){
+      var t=topicMap[k]; t.okPct = t.total?Math.round((t.ok/t.total)*100):0; return t;
+    }).sort(function(a,b){return a.okPct - b.okPct;});
+
+    // Trend points for SVG chart (online attempts if >=2, else local gradebook series)
+    var chartPts = attempts.length>=2
+      ? attempts.map(function(a){return {label:c.examNames[a.exam_id]||'اختبار', pct:a.total>0?(a.score/a.total*100):0};})
+      : loc.series.map(function(x){return {label:x.name, pct:x.pct};});
+
+    var overallPct = loc.pct!==null ? loc.pct : onlineAvg;
+    var deltaVal = loc.delta;
+    if(deltaVal===null && onlinePcts.length>=2){
+      var r3 = onlinePcts.slice(-3);
+      deltaVal = r3[r3.length-1] - r3[0];
+    }
+    var trendTxt = deltaVal===null ? '—' : (deltaVal>3 ? ('📈 تحسن +'+deltaVal.toFixed(0)+'%') : (deltaVal<-3 ? ('📉 تراجع '+deltaVal.toFixed(0)+'%') : '➡️ مستقر'));
+    var trendCol = deltaVal===null ? '#64748b' : (deltaVal>3 ? '#16a34a' : (deltaVal<-3 ? '#dc2626' : '#0f766e'));
+
+    var phoneInfo = (c.studentCloud && c.studentCloud.phone) ? ('📱 '+esc(c.studentCloud.phone)+' • 🔑 كود: <b>'+esc(c.studentCloud.code||'—')+'</b>') : '';
+
+    var h = '<div class="card">' +
+      '<div class="ms-prof-head">' +
+        '<div>' +
+          '<button type="button" class="secondary" style="min-height:36px;padding:6px 12px;font-size:13px;margin-bottom:8px;" onclick="msBackToList()">→ العودة لقائمة طلابي</button>' +
+          '<h2 style="margin:0;color:#0f2557;">👤 '+esc(s.name)+'</h2>' +
+          '<div style="font-size:13px;color:#475569;margin-top:4px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
+            (grade ? '<span class="badge" style="background:#dbeafe;color:#0f2557;">🏫 '+esc(grade)+'</span>' : '') +
+            '<span class="badge" style="background:#e0f2fe;color:#0369a1;">👥 '+esc(s.group||'بدون مجموعة')+'</span>' +
+            (phoneInfo ? '<span style="font-size:12.5px;color:#334155;">'+phoneInfo+'</span>' : '') +
+            (s.note ? '<span style="font-size:12.5px;color:#b45309;">📌 '+esc(s.note)+'</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+          '<button type="button" style="background:#0f766e;min-height:36px;padding:6px 11px;font-size:12.5px;" onclick="msRefreshCloud()">🔄 تحديث السحابة</button>' +
+          '<button type="button" style="background:#b45309;min-height:36px;padding:6px 11px;font-size:12.5px;" onclick="window.openCertDesigner&&openCertDesigner([\''+esc(s.id)+'\'])">🎓 شهادة</button>' +
+          '<button type="button" style="background:#7c3aed;min-height:36px;padding:6px 11px;font-size:12.5px;" onclick="window.openMonthlyReport&&openMonthlyReport([\''+esc(s.id)+'\'])">📊 تقرير شهري</button>' +
+          '<button type="button" style="background:#16a34a;min-height:36px;padding:6px 11px;font-size:12.5px;" onclick="window.sendReport&&sendReport(\''+esc(s.id)+'\')">💬 واتساب</button>' +
+          '<button type="button" style="background:#475569;min-height:36px;padding:6px 11px;font-size:12.5px;" onclick="msPrintProfile()">🖨️ طباعة الملف</button>' +
+        '</div>' +
+      '</div>' +
+
+      // KPIs Grid
+      '<div class="ms-kpi-grid">' +
+        '<div class="ms-kpi" style="border-right-color:#1e40af;"><div class="k-lbl">المستوى والمتوسط العام</div><div class="k-val">'+(overallPct!==null?overallPct.toFixed(1)+'%':'—')+'</div><div class="k-sub">'+gradeLabel(overallPct)+(grpAvg!==null?' · متوسط المجموعة '+grpAvg.toFixed(0)+'%':'')+'</div></div>' +
+        '<div class="ms-kpi" style="border-right-color:#0f766e;"><div class="k-lbl">الترتيب</div><div class="k-val">'+(grpRank?(grpRank+' / '+grpPeers.length):'—')+'</div><div class="k-sub">بالمجموعة'+(grdRank?' · بالصف: '+grdRank+'/'+grdPeers.length:'')+'</div></div>' +
+        '<div class="ms-kpi" style="border-right-color:'+trendCol+';"><div class="k-lbl">مؤشر التقدم</div><div class="k-val" style="font-size:15px;color:'+trendCol+';">'+trendTxt+'</div><div class="k-sub">أعلى: '+(loc.hi!==null?loc.hi.toFixed(0)+'%':'—')+' · أقل: '+(loc.lo!==null?loc.lo.toFixed(0)+'%':'—')+'</div></div>' +
+        '<div class="ms-kpi" style="border-right-color:#7c3aed;"><div class="k-lbl">الاختبارات والأخطاء</div><div class="k-val">'+attempts.length+' إلكتروني · '+loc.taken+' مرصود</div><div class="k-sub">إجمالي أخطائه الإلكترونية: <b style="color:#dc2626;">'+allMistakes.length+'</b></div></div>' +
+        '<div class="ms-kpi" style="border-right-color:#0284c7;"><div class="k-lbl">أول امتحان خده</div><div class="k-val" style="font-size:13.5px;">'+firstTxt+'</div></div>' +
+        '<div class="ms-kpi" style="border-right-color:#d97706;"><div class="k-lbl">آخر امتحان خده</div><div class="k-val" style="font-size:13.5px;">'+lastTxt+'</div></div>' +
+        '<div class="ms-kpi" style="border-right-color:#16a34a;"><div class="k-lbl">الحضور والغياب</div><div class="k-val">'+(loc.att.pct!==null?loc.att.pct+'%':'—')+'</div><div class="k-sub">حضور '+loc.att.p+' · تأخير '+loc.att.l+' · غياب '+loc.att.a+'</div></div>' +
+      '</div>' +
+
+      // Mini Trend Chart
+      '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:10px 12px;margin-bottom:14px;">' +
+        '<div style="font-weight:800;color:#0f2557;font-size:13.5px;margin-bottom:6px;">📈 منحنى تطور درجات الطالب</div>' +
+        buildStudentSparkline(chartPts) +
+      '</div>' +
+
+      // Sub-tabs inside profile
+      '<div class="ms-subtabs">' +
+        '<button type="button" class="ms-subtab'+(MS.activeSub==='online'?' active':'')+'" onclick="msSetSub(\'online\')">📝 الاختبارات الإلكترونية ('+attempts.length+')</button>' +
+        '<button type="button" class="ms-subtab'+(MS.activeSub==='gradebook'?' active':'')+'" onclick="msSetSub(\'gradebook\')">📒 سجل الدرجات ('+loc.series.length+')</button>' +
+        '<button type="button" class="ms-subtab'+(MS.activeSub==='mistakes'?' active':'')+'" onclick="msSetSub(\'mistakes\')">❌ كل أخطائه ('+allMistakes.length+')</button>' +
+        '<button type="button" class="ms-subtab'+(MS.activeSub==='topics'?' active':'')+'" onclick="msSetSub(\'topics\')">📊 نقاط القوة والضعف ('+topicList.length+')</button>' +
+      '</div>';
+
+    if(c.loading){
+      h += '<div style="padding:18px;text-align:center;color:#0f766e;font-weight:700;">⏳ جارٍ تحميل سجل اختبارات الطالب وتفاصيل إجاباته من السحابة...</div>';
+    } else if(c.error){
+      h += '<div class="alert alert-err" style="display:block;">⚠️ '+esc(c.error)+'</div>';
+    }
+
+    // Sub-tab Content
+    if(MS.activeSub === 'online'){
+      if(MS.activeAttemptId){
+        var att = attempts.find(function(x){return x.id===MS.activeAttemptId;});
+        if(att){
+          h += renderAttemptDetails(att, c);
+        } else {
+          MS.activeAttemptId = null;
+        }
+      }
+      if(!MS.activeAttemptId){
+        if(!attempts.length && !c.loading){
+          h += '<div style="padding:20px;text-align:center;color:#64748b;">لم يقم هذا الطالب بحل أي اختبار إلكتروني على السحابة بعد.</div>';
+        } else {
+          h += attempts.slice().reverse().map(function(a){
+            var pct = a.total>0 ? Math.round((a.score/a.total)*100) : 0;
+            var durMin = (a.started_at && a.submitted_at) ? Math.max(1, Math.round((new Date(a.submitted_at)-new Date(a.started_at))/60000)) : null;
+            var wrongCnt = Math.max(0, (a.total||0) - (a.score||0));
+            return '<div class="ms-exam-row" onclick="msOpenAttempt(\''+esc(a.id)+'\')">' +
+              '<div>' +
+                '<div style="font-weight:800;color:#0f2557;font-size:15px;">📝 '+esc(c.examNames[a.exam_id]||'اختبار إلكتروني')+'</div>' +
+                '<div style="font-size:12px;color:#64748b;margin-top:3px;">📅 '+fmtDateTime(a.submitted_at)+(durMin?' • ⏱ '+durMin+' دقيقة':'')+(a.tab_leaves?' • ⚠ خروج: '+a.tab_leaves:'')+'</div>' +
+              '</div>' +
+              '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' +
+                '<span class="ms-pct-pill '+pctClass(pct)+'" style="font-size:13px;padding:4px 10px;">'+a.score+' / '+a.total+' ('+pct+'%)</span>' +
+                '<span style="font-size:12px;color:#dc2626;font-weight:700;">أخطاء: '+wrongCnt+'</span>' +
+                '<button type="button" style="min-height:32px;padding:4px 10px;font-size:12px;">عرض التفاصيل ▾</button>' +
+              '</div>' +
+            '</div>';
+          }).join('');
+        }
+      }
+    } else if(MS.activeSub === 'gradebook'){
+      if(!loc.series.length){
+        h += '<div style="padding:20px;text-align:center;color:#64748b;">لا توجد درجات مرصودة لهذا الطالب في سجل الدرجات بعد.</div>';
+      } else {
+        h += '<div class="table-wrapper"><table><thead><tr><th>#</th><th>التقييم</th><th>النوع</th><th>الدرجة</th><th>النسبة %</th><th>التاريخ</th></tr></thead><tbody>' +
+          loc.series.map(function(x,i){
+            return '<tr><td>'+(i+1)+'</td><td style="text-align:right;font-weight:700;">'+esc(x.name)+'</td><td>'+(x.type==='hw'?'واجب':'اختبار')+'</td><td><b>'+x.score+'</b> / '+x.max+'</td><td><span class="ms-pct-pill '+pctClass(x.pct)+'">'+x.pct.toFixed(1)+'%</span></td><td>'+(x.date||'—')+'</td></tr>';
+          }).join('') +
+        '</tbody></table></div>';
+      }
+    } else if(MS.activeSub === 'mistakes'){
+      if(!allMistakes.length){
+        h += '<div style="padding:22px;text-align:center;color:#166534;font-weight:800;">🎉 لا توجد أي أخطاء مسجلة لهذا الطالب في الاختبارات الإلكترونية!</div>';
+      } else {
+        h += allMistakes.slice().reverse().map(function(m, idx){
+          var imgU = resolveQImg(m.q.image_path);
+          return '<div class="ms-q-card bad">' +
+            '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:12.5px;color:#475569;margin-bottom:6px;">' +
+              '<b>#'+(idx+1)+' • '+esc(m.examTitle)+' (سؤال '+m.qNum+')</b>' +
+              '<span class="badge" style="background:#fef3c7;color:#92400e;">📚 '+esc(m.topicName)+'</span>' +
+            '</div>' +
+            (m.q.question_html ? '<div class="ms-q-html">'+m.q.question_html+'</div>' : '') +
+            (imgU ? '<img class="ms-q-img" src="'+esc(imgU)+'" loading="lazy" alt="سؤال">' : '') +
+            '<div class="ms-ans-strip">' +
+              '<span class="ms-ans-bad">إجابة الطالب: '+esc(m.stuAns ? normAns(m.stuAns) : 'لم يُجب')+'</span>' +
+              '<span class="ms-ans-ok">الإجابة الصحيحة: '+esc(normAns(m.q.correct))+'</span>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+    } else if(MS.activeSub === 'topics'){
+      if(!topicList.length){
+        h += '<div style="padding:20px;text-align:center;color:#64748b;">لا توجد بيانات أبواب كافية (تُحسب من الاختبارات الإلكترونية).</div>';
+      } else {
+        h += topicList.map(function(t){
+          var col = t.okPct>=80?'#16a34a':(t.okPct>=55?'#d97706':'#dc2626');
+          return '<div style="padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:8px;background:#fff;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:13.5px;">' +
+              '<span>📚 '+esc(t.name)+'</span>' +
+              '<span style="color:'+col+';">إتقان '+t.okPct+'% (صح '+t.ok+' · غلط '+t.bad+' من '+t.total+')</span>' +
+            '</div>' +
+            '<div class="ms-topic-bar"><i style="width:'+t.okPct+'%;background:'+col+';"></i></div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    h += '</div>';
+    root.innerHTML = h;
+  }
+
+  function renderAttemptDetails(att, c){
+    var ans = att.answers || {};
+    var qOrder = att.q_order || [];
+    var exTitle = c.examNames[att.exam_id] || 'اختبار إلكتروني';
+    var pct = att.total>0 ? Math.round((att.score/att.total)*100) : 0;
+    var okCnt=0, badCnt=0, skipCnt=0;
+    var rows = qOrder.map(function(qid, idx){
+      var q = c.qMap[qid] || {id:qid};
+      var sAns = ans[qid];
+      var ok = isAnsCorrect(sAns, q.correct);
+      if(!sAns) skipCnt++;
+      if(ok) okCnt++; else badCnt++;
+      return {idx:idx+1, q:q, sAns:sAns, ok:ok, topic:(q.topic_id&&c.topicNames[q.topic_id])?c.topicNames[q.topic_id]:''};
+    });
+
+    var filtered = rows.filter(function(r){
+      if(MS.attemptFilter==='wrong') return !r.ok;
+      if(MS.attemptFilter==='correct') return r.ok;
+      return true;
+    });
+
+    var h = '<div style="background:#f8fafc;border:2px solid #bfdbfe;border-radius:14px;padding:14px;margin-bottom:12px;">' +
+      '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">' +
+        '<div>' +
+          '<button type="button" class="secondary" style="min-height:34px;padding:5px 12px;font-size:12.5px;margin-bottom:6px;" onclick="msCloseAttempt()">→ العودة لكل اختبارات الطالب</button>' +
+          '<h3 style="margin:0;color:#0f2557;">📝 تفاصيل: '+esc(exTitle)+'</h3>' +
+          '<div style="font-size:12.5px;color:#475569;margin-top:3px;">📅 '+fmtDateTime(att.submitted_at)+' • الدرجة: <b>'+att.score+' / '+att.total+' ('+pct+'%)</b>'+(att.tab_leaves?' • خروج من الصفحة: '+att.tab_leaves:'')+'</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+          '<button type="button" class="ms-subtab'+(MS.attemptFilter==='all'?' active':'')+'" onclick="msSetAttFilter(\'all\')">الكل ('+rows.length+')</button>' +
+          '<button type="button" class="ms-subtab'+(MS.attemptFilter==='wrong'?' active':'')+'" onclick="msSetAttFilter(\'wrong\')">الأخطاء فقط ❌ ('+badCnt+')</button>' +
+          '<button type="button" class="ms-subtab'+(MS.attemptFilter==='correct'?' active':'')+'" onclick="msSetAttFilter(\'correct\')">الصحيحة ✅ ('+okCnt+')</button>' +
+        '</div>' +
+      '</div>';
+
+    if(!filtered.length){
+      h += '<div style="padding:18px;text-align:center;color:#166534;font-weight:700;">لا توجد أسئلة في هذا التصنيف.</div>';
+    } else {
+      h += filtered.map(function(r){
+        var imgU = resolveQImg(r.q.image_path);
+        return '<div class="ms-q-card '+(r.ok?'ok':'bad')+'">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:6px;">' +
+            '<strong>سؤال #'+r.idx+(r.topic?' — '+esc(r.topic):'')+'</strong>' +
+            '<span class="badge '+(r.ok?'badge-high':'badge-low')+'">'+(r.ok?'✓ إجابة صحيحة':'✕ إجابة خاطئة')+'</span>' +
+          '</div>' +
+          (r.q.question_html ? '<div class="ms-q-html">'+r.q.question_html+'</div>' : '') +
+          (imgU ? '<img class="ms-q-img" src="'+esc(imgU)+'" loading="lazy" alt="سؤال">' : '') +
+          '<div class="ms-ans-strip">' +
+            '<span class="'+(r.ok?'ms-ans-ok':'ms-ans-bad')+'">إجابة الطالب: '+esc(r.sAns ? normAns(r.sAns) : 'لم يُجب')+'</span>' +
+            '<span class="ms-ans-ok">الإجابة الصحيحة: '+esc(r.q.correct ? normAns(r.q.correct) : 'غير محددة')+'</span>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+    h += '</div>';
+    return h;
+  }
+
+  window.msOpenTab = function(){
+    if(MS.activeSid) renderProfile();
+    else renderDirectory();
+  };
+  window.msSetFilter = function(key, val){
+    if(key==='search'){ MS.search=val; MS._keepFocus=true; }
+    if(key==='grade'){ MS.grade=val; MS.group='ALL'; }
+    if(key==='group'){ MS.group=val; }
+    if(key==='sort'){ MS.sort=val; }
+    renderDirectory();
+  };
+  window.msOpenStudent = function(sid){
+    MS.activeSid = sid;
+    MS.activeSub = 'online';
+    MS.activeAttemptId = null;
+    MS.attemptFilter = 'all';
+    renderProfile();
+    loadStudentCloud(sid, false);
+    window.scrollTo(0,0);
+  };
+  window.msBackToList = function(){
+    MS.activeSid = null;
+    MS.activeAttemptId = null;
+    renderDirectory();
+  };
+  window.msSetSub = function(sub){
+    MS.activeSub = sub;
+    MS.activeAttemptId = null;
+    renderProfile();
+  };
+  window.msOpenAttempt = function(attId){
+    MS.activeAttemptId = attId;
+    MS.attemptFilter = 'all';
+    renderProfile();
+  };
+  window.msCloseAttempt = function(){
+    MS.activeAttemptId = null;
+    renderProfile();
+  };
+  window.msSetAttFilter = function(f){
+    MS.attemptFilter = f;
+    renderProfile();
+  };
+  window.msRefreshCloud = function(){
+    if(MS.activeSid) loadStudentCloud(MS.activeSid, true);
+  };
+  window.msPrintProfile = function(){
+    window.print();
+  };
+})();
+</script>
+</body></html>';
   w.document.write(doc);
   w.document.close();
 };
@@ -3743,6 +4476,7 @@ window.switchTab=function(tabId,btn){
   else{var b=document.querySelector('.tab-btn[data-tab="'+tabId+'"]');if(b)b.classList.add('active');}
   try{
     if(tabId==='gradesTab')renderAll();
+    if(tabId==='myStudentsTab'){try{window.msOpenTab&&msOpenTab();}catch(e){console.error(e);}}
     if(tabId==='dashboardTab')renderDashboard();
     if(tabId==='payTab')renderPayments();
     if(tabId==='attTab')renderAtt();
