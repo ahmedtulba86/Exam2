@@ -724,6 +724,17 @@
   var SB_URL = 'https://vsiewjrdzrahyhyxhgtm.supabase.co';
   var SB_KEY = 'sb_publishable_BgYjzslIj-SmDnhzWV6ssA_gyPacwTW';
 
+  function getDeviceId() {
+    var k = 'exam2_device_uid_v1';
+    var id = '';
+    try { id = localStorage.getItem(k) || ''; } catch (e) {}
+    if (!id) {
+      id = 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+      try { localStorage.setItem(k, id); } catch (e) {}
+    }
+    return id;
+  }
+
   var state = {
     phone: '',
     code: '',
@@ -1309,7 +1320,7 @@
 
   // ==================== وضع أداء الاختبار الحقيقي ====================
   function startRealExam(examId, doneCb) {
-    sbRpc('exam_start', { p_exam: examId, p_phone: state.phone, p_code: state.code })
+    sbRpc('exam_start', { p_exam: examId, p_phone: state.phone, p_code: state.code, p_device: getDeviceId() })
       .then(function(res) {
         if (!res || res.error) {
           if (doneCb) doneCb((res && res.error) || 'تعذر فتح الاختبار');
@@ -1482,8 +1493,15 @@
         p_attempt: state.attemptId,
         p_phone: state.phone,
         p_code: state.code,
-        p_answers: state.answers
-      }).then(function() {
+        p_answers: state.answers,
+        p_device: getDeviceId()
+      }).then(function(res) {
+        if (res && res.error) {
+          $('saveState').textContent = '⚠️ ' + res.error;
+          $('saveState').style.color = '#dc2626';
+          showAlert('examErr', res.error);
+          return;
+        }
         $('saveState').textContent = '✓ محفوظ تلقائياً';
         $('saveState').style.color = '#16a34a';
       }).catch(function() {

@@ -1556,6 +1556,16 @@ function normalizeState(raw){
   state.payMonths=Array.isArray(raw.payMonths)?raw.payMonths.filter(function(m){return /^\d{4}-\d{2}$/.test(m);}):[];
   state.attendance=(raw.attendance&&typeof raw.attendance==='object')?raw.attendance:{};
   state.payFee=(typeof raw.payFee==='number'&&raw.payFee>=0)?raw.payFee:0;
+  state.grades=(Array.isArray(raw.grades)&&raw.grades.length)?raw.grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'];
+  state.groupGrades=(raw.groupGrades&&typeof raw.groupGrades==='object'&&!Array.isArray(raw.groupGrades))?raw.groupGrades:{};
+  try{
+    var locG=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');
+    if(locG&&typeof locG==='object'){
+      if(!raw.grades&&Array.isArray(locG.grades)&&locG.grades.length)state.grades=locG.grades;
+      if((!raw.groupGrades||!Object.keys(raw.groupGrades).length)&&locG.groupGrades&&Object.keys(locG.groupGrades).length)state.groupGrades=locG.groupGrades;
+    }
+    localStorage.setItem('ikh_grades_cfg_v1',JSON.stringify({grades:state.grades,groupGrades:state.groupGrades}));
+  }catch(e){}
 }
 
 /* ===== IndexedDB تخزين موسّع ===== */
@@ -3758,7 +3768,7 @@ window.addGroup=function(){
       var cfg=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null')||{grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
       if(!cfg.groupGrades)cfg.groupGrades={};
       cfg.groupGrades[name]=grdSel.value;
-      localStorage.setItem('ikh_grades_cfg_v1',JSON.stringify(cfg));
+      state.groupGrades=Object.assign({},cfg.groupGrades);localStorage.setItem('ikh_grades_cfg_v1',JSON.stringify(cfg));
     }catch(e){}
   }
   $('groupNameInput').value='';
@@ -3832,7 +3842,8 @@ window.qtMoveNow=function(){
   st.group=to;
   saveData();
   renderAll();
-  if(typeof gmToast==='function')gmToast('✅ تم نقل «'+st.name+'» إلى '+to,null,null,3000);
+  if(window.ikhAutoSyncGradesSilent)window.ikhAutoSyncGradesSilent();
+  if(typeof gmToast==='function')gmToast('✅ تم نقل «'+st.name+'» إلى '+to+' ومزامنة السحابة',null,null,3000);
 };
 
 
@@ -8047,7 +8058,15 @@ window.qcCopyBase=function(){var u=stBase();if(!u)return alert('احفظ الر�
 window.qcSaveUrl=function(){var v=document.getElementById('qpUrl').value.trim();try{localStorage.setItem('qc_student_url',v);}catch(e){}alert('تم الحفظ');};
 window.qcGetGradesCfg=function(){
   var def={grades:['الصف الأول الثانوي','الصف الثاني الثانوي','الصف الثالث الثانوي'],groupGrades:{}};
-  try{var s=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');if(s&&Array.isArray(s.grades)&&s.grades.length){def.grades=s.grades;def.groupGrades=s.groupGrades||{};}}catch(e){}
+  try{
+    if(window.state&&Array.isArray(window.state.grades)&&window.state.grades.length){
+      def.grades=window.state.grades.slice();
+      def.groupGrades=Object.assign({},window.state.groupGrades||{});
+      return def;
+    }
+    var s=JSON.parse(localStorage.getItem('ikh_grades_cfg_v1')||'null');
+    if(s&&Array.isArray(s.grades)&&s.grades.length){def.grades=s.grades;def.groupGrades=s.groupGrades||{};}
+  }catch(e){}
   return def;
 };
 window.qcInitPublishSelectors=function(){
@@ -8126,8 +8145,10 @@ window.qcPublish=function(){var z=Q.quizzes[+document.getElementById('qpQ').valu
   var al=stuId?[stuId]:null;
   var wp=!!(document.getElementById('qpWp')&&document.getElementById('qpWp').checked);
   var revIso=rev?new Date(rev).toISOString():(c?new Date(c).toISOString():null);
-  api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,review_at:revIso,allowed_students:al,target_grade:grade,target_group:grp,require_work_photos:wp},'return=representation').then(function(r){
+  var doPub=function(){api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,review_at:revIso,allowed_students:al,target_grade:grade,target_group:grp,require_work_photos:wp},'return=representation').then(function(r){
     var l=stBase()?examLink(r[0].id):'';if(l)try{navigator.clipboard.writeText(l);}catch(e){}alert('تم النشر بنجاح!'+(l?'\nونُسخ رابط الاختبار:\n'+l:''));pubView();}).catch(function(e){alert('تعذر النشر: '+(e.message||e)+'\n(تأكد من تشغيل كود SQL الأخير في Supabase)');});};
+  if(window.ikhAutoSyncGradesSilent){window.ikhAutoSyncGradesSilent().then(doPub);}else{doPub();}
+};
 window.qcLink=function(id){var l=examLink(id);if(!l)return;try{navigator.clipboard.writeText(l);}catch(e){}prompt('رابط الاختبار',l);};
 window.qcShare=function(id){var l=examLink(id);if(l)window.open('https://wa.me/?text='+encodeURIComponent('رابط الاختبار:\n'+l+'\nادخل برقم تليفونك والكود السري.'));};
 window.qcToggle=function(id,v){api('PATCH','exams?id=eq.'+id,{is_open:v},'return=minimal').then(pubView).catch(err);};
@@ -13550,6 +13571,7 @@ body:not(.juice-dark) .v26-kpi-strip {
       '<button type="button" id="ikhBtnAbsent" style="background:#ea580c;color:#fff;">⚠️ الغائبين</button>' +
       '<button type="button" id="ikhBtnAnn" style="background:#fef3c7;color:#92400e;">📢 إعلان للطلاب</button>' +
       '<button type="button" id="ikhBtnGrades" style="background:#fde68a;color:#78350f;">🏫 إدارة الصفوف</button>' +
+      '<button type="button" id="ikhBtnDupCheck" style="background:#fee2e2;color:#991b1b;">🔍 فحص تكرار الأكواد</button>' +
       '<button type="button" id="ikhBtnSync" style="background:#e0f2fe;color:#0f2557;">🔄 مزامنة المجموعات والصفوف</button>';
 
     if (anchor && anchor.parentNode) {
@@ -13573,6 +13595,7 @@ body:not(.juice-dark) .v26-kpi-strip {
     document.getElementById('ikhBtnAbsent').onclick = function() { window.__ikhRepTab = 'absent'; openWaReportsModal(); };
     document.getElementById('ikhBtnAnn').onclick = openAnnounceModal;
     document.getElementById('ikhBtnGrades').onclick = openGradesManagerModal;
+    document.getElementById('ikhBtnDupCheck').onclick = checkDuplicateStudentAccounts;
     document.getElementById('ikhBtnSync').onclick = syncStudentGroupsToSupabase;
   }
 
@@ -13615,6 +13638,11 @@ body:not(.juice-dark) .v26-kpi-strip {
       groupGrades: {}
     };
     try {
+      if (window.state && Array.isArray(window.state.grades) && window.state.grades.length) {
+        def.grades = window.state.grades.slice();
+        def.groupGrades = Object.assign({}, window.state.groupGrades || {});
+        return def;
+      }
       var saved = JSON.parse(localStorage.getItem('ikh_grades_cfg_v1') || 'null');
       if (saved && Array.isArray(saved.grades) && saved.grades.length) {
         def.grades = saved.grades;
@@ -13625,8 +13653,49 @@ body:not(.juice-dark) .v26-kpi-strip {
   }
 
   function saveGradesConfig(cfg) {
-    try { localStorage.setItem('ikh_grades_cfg_v1', JSON.stringify(cfg)); } catch(e) {}
+    try {
+      if (window.state) {
+        window.state.grades = Array.isArray(cfg.grades) ? cfg.grades.slice() : [];
+        window.state.groupGrades = Object.assign({}, cfg.groupGrades || {});
+        if (window.__app && window.__app.save) window.__app.save();
+      }
+      localStorage.setItem('ikh_grades_cfg_v1', JSON.stringify(cfg));
+    } catch(e) {}
   }
+  window.ikhAutoSyncGradesSilent = function() {
+    return new Promise(function(resolve) {
+      if (!window.SB_URL || !window.sbHeaders) return resolve(0);
+      var localMap = collectLocalStudentsWithGroups();
+      var cfg = getGradesConfig();
+      fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,phone,group_name,grade_name', { headers: window.sbHeaders() })
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .then(function(rows) {
+          if (!Array.isArray(rows) || !rows.length) return resolve(0);
+          var updates = [];
+          rows.forEach(function(row) {
+            var grp = (localMap.byId[String(row.student_id)] || '').trim();
+            if (!grp && row.phone) {
+              var ph = String(row.phone).replace(/\D/g, '').slice(-10);
+              grp = (localMap.byPhone[ph] || '').trim();
+            }
+            if (!grp) grp = (row.group_name || '').trim();
+            var grd = (grp && cfg.groupGrades[grp]) ? String(cfg.groupGrades[grp]).trim() : (row.grade_name || '').trim();
+            if (grp !== (row.group_name || '') || grd !== (row.grade_name || '')) {
+              updates.push({ id: row.id, group_name: grp, grade_name: grd });
+            }
+          });
+          if (!updates.length) return resolve(0);
+          return Promise.all(updates.map(function(u) {
+            return fetch(window.SB_URL + '/rest/v1/exam_students?id=eq.' + u.id, {
+              method: 'PATCH',
+              headers: window.sbHeaders({ 'Prefer': 'return=minimal' }),
+              body: JSON.stringify({ group_name: u.group_name, grade_name: u.grade_name })
+            });
+          })).then(function() { resolve(updates.length); });
+        })
+        .catch(function() { resolve(0); });
+    });
+  };
 
   function collectAllLocalGroups() {
     var set = {};
@@ -13736,6 +13805,46 @@ body:not(.juice-dark) .v26-kpi-strip {
         '<select data-ikh-grp-sel="' + esc(gName) + '" style="min-width:200px;padding:7px 10px;border:1.5px solid #94a3b8;border-radius:8px;font-family:inherit;font-size:13.5px;font-weight:700;">' + opts + '</select>' +
       '</div>';
     }).join('');
+  }
+
+  function checkDuplicateStudentAccounts() {
+    if (!window.SB_URL || !window.sbHeaders) return alert('يرجى تسجيل دخول المعلم أولاً.');
+    fetch(window.SB_URL + '/rest/v1/exam_students?select=id,student_id,name,phone,code,group_name,grade_name', { headers: window.sbHeaders() })
+      .then(function(r) { return r.json(); })
+      .then(function(rows) {
+        if (!Array.isArray(rows) || !rows.length) return alert('لا يوجد طلاب مسجلون في السحابة بعد.');
+        var byCred = {}, bySid = {}, dups = [];
+        rows.forEach(function(r) {
+          var ph = String(r.phone || '').replace(/\D/g, '').slice(-10);
+          var cd = String(r.code || '').trim().toLowerCase();
+          var key = ph + '|' + cd;
+          if (ph && cd) {
+            if (!byCred[key]) byCred[key] = [];
+            byCred[key].push(r);
+          }
+          var sid = String(r.student_id || '');
+          if (sid) {
+            if (!bySid[sid]) bySid[sid] = [];
+            bySid[sid].push(r);
+          }
+        });
+        Object.keys(byCred).forEach(function(k) {
+          if (byCred[k].length > 1) {
+            dups.push('⚠️ نفس (الهاتف + الكود) مكرر لـ ' + byCred[k].length + ' طلاب:\n' + byCred[k].map(function(x) { return '  • ' + x.name + ' (' + (x.group_name || 'بدون مجموعة') + ') — ' + x.phone + ' / ' + x.code; }).join('\n'));
+          }
+        });
+        Object.keys(bySid).forEach(function(k) {
+          if (bySid[k].length > 1) {
+            dups.push('⚠️ نفس المعرّف (student_id) مكرر:\n' + bySid[k].map(function(x) { return '  • ' + x.name + ' (' + x.phone + ')'; }).join('\n'));
+          }
+        });
+        if (!dups.length) {
+          alert('✅ ممتاز! لا يوجد أي تكرار في أرقام الهواتف والأكواد بين الطلاب (' + rows.length + ' طالب).');
+        } else {
+          alert('تم العثور على تكرارات تسبب تداخل الحل بين الطلاب:\n\n' + dups.join('\n\n') + '\n\nيرجى تغيير الكود لأحد الطلاب المتكررين من تبويب «حسابات الطلاب» ثم المزامنة.');
+        }
+      })
+      .catch(function(e) { alert('تعذر الفحص: ' + (e.message || e)); });
   }
 
   function syncStudentGroupsToSupabase(doneCb) {
