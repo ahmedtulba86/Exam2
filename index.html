@@ -7675,7 +7675,8 @@ window.switchTab=function(id,btn){if(OLD[id]&&!_inner){_sw('qcTab',qcBtn());qcOp
 function body(){return document.getElementById('qcBody');}
 
 function loadTopics(){Q.cur=null;body().innerHTML='جارٍ التحميل...';
-  Promise.all([api('GET','topics?select=*&order=position.asc'),api('GET','topic_stats?select=*')]).then(function(a){
+  function fetchTopicStatsDirect(){var out=[];function pg(off){return api('GET','questions?select=topic_id,correct,difficulty&limit=1000&offset='+off).then(function(r){r=r||[];out=out.concat(r);return r.length===1000?pg(off+1000):out;});}return pg(0).then(function(rows){var m={};(rows||[]).forEach(function(q){if(!q||!q.topic_id)return;var s=m[q.topic_id]||(m[q.topic_id]={topic_id:q.topic_id,total:0,answered:0,easy:0,medium:0,hard:0});s.total++;if(hasValidAns(q)){s.answered++;if(q.difficulty==='easy')s.easy++;else if(q.difficulty==='medium')s.medium++;else if(q.difficulty==='hard')s.hard++;}});return Object.keys(m).map(function(k){return m[k];});});}
+  Promise.all([api('GET','topics?select=*&order=position.asc'),fetchTopicStatsDirect()]).then(function(a){
     Q.topics=a[0]||[];Q.stats={};(a[1]||[]).forEach(function(s){Q.stats[s.topic_id]=s;});drawTopics();}).catch(err);}
 Q.tsel=Q.tsel||{};
 function tpSelIds(){return Q.topics.filter(function(t){return Q.tsel[t.id];}).map(function(t){return t.id;});}
@@ -8786,7 +8787,7 @@ function qqTick(){
 window.qqStop=function(){if(!QQ.id)return;api('PATCH','exams?id=eq.'+QQ.id,{is_open:false},'return=minimal').then(function(){qqTick();alert('تم إغلاق الاختبار. النتائج تفضل ظاهرة، وتقدر تفتح «النشر والنتائج» للتفاصيل.');}).catch(err);};
 
 function genView(){Q.cur=null;body().innerHTML='جارٍ التحميل...';
-  Promise.all([api('GET','topics?select=*&order=position.asc'),api('GET','topic_stats?select=*'),api('GET','quizzes?select=id,title,question_ids,created_at&order=created_at.desc&limit=20')]).then(function(a){
+  Promise.all([api('GET','topics?select=*&order=position.asc'),fetchTopicStatsDirect(),api('GET','quizzes?select=id,title,question_ids,created_at&order=created_at.desc&limit=20')]).then(function(a){
     Q.topics=a[0]||[];Q.stats={};(a[1]||[]).forEach(function(s){Q.stats[s.topic_id]=s;});Q.sel={};Q.counts={};Q.draft=null;
     var h='<div class="card"><strong>توليد اختبار</strong><div class="form-row"><input id="qgTitle" class="flex-1" placeholder="اسم الاختبار"></div>'+
     '<div class="form-row"><label>من فكرة</label><input type="number" id="qgFrom" min="1" value="1" style="width:70px"><label>إلى</label><input type="number" id="qgTo" min="1" value="'+Q.topics.length+'" style="width:70px"><button class="secondary" onclick="qgRange()">تحديد النطاق</button></div>'+
@@ -8804,7 +8805,7 @@ window.qgCnt=function(id,v){Q.counts[id]=Math.max(0,+v||0);if(Q.counts[id]>0)Q.s
 window.qgRange=function(){var f=+document.getElementById('qgFrom').value,t=+document.getElementById('qgTo').value;Q.sel={};Q.topics.forEach(function(x,i){if(i+1>=f&&i+1<=t)Q.sel[x.id]=true;});qgTopics();};
 function qgAvail(){var lv=document.getElementById('qgLv').value,n=0,k=0;Q.topics.forEach(function(t){if(Q.sel[t.id]){k++;var s=Q.stats[t.id]||{};n+=+(lv?s[lv]:s.answered)||0;}});document.getElementById('qgAvail').textContent=k+' فكرة محددة · المتاح: '+n+' سؤال';}
 window.qgAvail=qgAvail;
-function pick(ids,lv,n){return api('POST','rpc/pick_questions',{p_topics:ids,p_level:lv||null,p_n:n}).then(function(arr){return (arr||[]).filter(hasValidAns);});}
+function pick(ids,lv,n){if(!ids||!ids.length||!n)return Promise.resolve([]);var ch=[];for(var i=0;i<ids.length;i+=40)ch.push(api('GET','questions?select=*&topic_id=in.('+ids.slice(i,i+40).join(',')+')'+(lv?'&difficulty=eq.'+encodeURIComponent(lv):'')+'&limit=1000'));return Promise.all(ch).then(function(parts){var arr=[].concat.apply([],parts).filter(hasValidAns);for(var j=arr.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1)),tmp=arr[j];arr[j]=arr[r];arr[r]=tmp;}return arr.slice(0,n);});}
 function spec(tids,k,dist,lvl){if(!dist)return pick(tids,lvl,k);
   var L=['easy','medium','hard'],tot=dist.easy+dist.medium+dist.hard,c={},rem=k;
   var fr={};L.forEach(function(l){var x=k*dist[l]/tot;c[l]=Math.floor(x);fr[l]=x-c[l];rem-=c[l];});
