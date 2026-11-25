@@ -7674,8 +7674,8 @@ window.qcView=function(v){Q.view=v;monStop();[1,2,3,4,5,6,7,8,9,10,11,12,13,14,1
 window.switchTab=function(id,btn){if(OLD[id]&&!_inner){_sw('qcTab',qcBtn());qcOpen();qcView(OLD[id]);return;}_sw(id,btn);};
 function body(){return document.getElementById('qcBody');}
 
+function fetchTopicStatsDirect(){var out=[];function pg(off){return api('GET','questions?select=topic_id,correct,difficulty&limit=1000&offset='+off).then(function(r){r=r||[];out=out.concat(r);return r.length===1000?pg(off+1000):out;});}return pg(0).then(function(rows){var m={};(rows||[]).forEach(function(q){if(!q||!q.topic_id)return;var s=m[q.topic_id]||(m[q.topic_id]={topic_id:q.topic_id,total:0,answered:0,easy:0,medium:0,hard:0});s.total++;if(hasValidAns(q)){s.answered++;if(q.difficulty==='easy')s.easy++;else if(q.difficulty==='medium')s.medium++;else if(q.difficulty==='hard')s.hard++;}});return Object.keys(m).map(function(k){return m[k];});});}
 function loadTopics(){Q.cur=null;body().innerHTML='جارٍ التحميل...';
-  function fetchTopicStatsDirect(){var out=[];function pg(off){return api('GET','questions?select=topic_id,correct,difficulty&limit=1000&offset='+off).then(function(r){r=r||[];out=out.concat(r);return r.length===1000?pg(off+1000):out;});}return pg(0).then(function(rows){var m={};(rows||[]).forEach(function(q){if(!q||!q.topic_id)return;var s=m[q.topic_id]||(m[q.topic_id]={topic_id:q.topic_id,total:0,answered:0,easy:0,medium:0,hard:0});s.total++;if(hasValidAns(q)){s.answered++;if(q.difficulty==='easy')s.easy++;else if(q.difficulty==='medium')s.medium++;else if(q.difficulty==='hard')s.hard++;}});return Object.keys(m).map(function(k){return m[k];});});}
   Promise.all([api('GET','topics?select=*&order=position.asc'),fetchTopicStatsDirect()]).then(function(a){
     Q.topics=a[0]||[];Q.stats={};(a[1]||[]).forEach(function(s){Q.stats[s.topic_id]=s;});drawTopics();}).catch(err);}
 Q.tsel=Q.tsel||{};
