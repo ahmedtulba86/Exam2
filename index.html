@@ -8288,7 +8288,8 @@ window.sxStu=function(id){var o=document.getElementById('sxP');o.innerHTML='جا
 Q.basket=Q.basket||{};Q.counts={};Q.rep={};
 function nBasket(){return Object.keys(Q.basket).filter(function(k){return Q.basket[k];}).length;}
 window.qcBask=function(id,v){Q.basket[id]=v;var e=document.getElementById('qcBc');if(e)e.textContent=nBasket();};
-function fetchByIds(ids){var ch=[];for(var i=0;i<ids.length;i+=80)ch.push(api('GET','questions?select=*&id=in.('+ids.slice(i,i+80).join(',')+')'));return Promise.all(ch).then(function(r){return [].concat.apply([],r).filter(function(q){return q.correct;});});}
+function hasValidAns(q){var c=String((q&&q.correct)||'').trim().toLowerCase();return ['a','b','c','d','أ','ا','إ','آ','ب','ج','د'].indexOf(c)>=0;}
+function fetchByIds(ids){var ch=[];for(var i=0;i<ids.length;i+=80)ch.push(api('GET','questions?select=*&id=in.('+ids.slice(i,i+80).join(',')+')'));return Promise.all(ch).then(function(r){return [].concat.apply([],r).filter(hasValidAns);});}
 
 /* ===== تبويب العلاج: أخطاء الطالب واختبار علاجي ===== */
 var R={stu:[],cur:null,draft:null};
@@ -8710,7 +8711,7 @@ window.qgCnt=function(id,v){Q.counts[id]=Math.max(0,+v||0);if(Q.counts[id]>0)Q.s
 window.qgRange=function(){var f=+document.getElementById('qgFrom').value,t=+document.getElementById('qgTo').value;Q.sel={};Q.topics.forEach(function(x,i){if(i+1>=f&&i+1<=t)Q.sel[x.id]=true;});qgTopics();};
 function qgAvail(){var lv=document.getElementById('qgLv').value,n=0,k=0;Q.topics.forEach(function(t){if(Q.sel[t.id]){k++;var s=Q.stats[t.id]||{};n+=+(lv?s[lv]:s.answered)||0;}});document.getElementById('qgAvail').textContent=k+' فكرة محددة · المتاح: '+n+' سؤال';}
 window.qgAvail=qgAvail;
-function pick(ids,lv,n){return api('POST','rpc/pick_questions',{p_topics:ids,p_level:lv||null,p_n:n});}
+function pick(ids,lv,n){return api('POST','rpc/pick_questions',{p_topics:ids,p_level:lv||null,p_n:n}).then(function(arr){return (arr||[]).filter(hasValidAns);});}
 function spec(tids,k,dist,lvl){if(!dist)return pick(tids,lvl,k);
   var L=['easy','medium','hard'],tot=dist.easy+dist.medium+dist.hard,c={},rem=k;
   var fr={};L.forEach(function(l){var x=k*dist[l]/tot;c[l]=Math.floor(x);fr[l]=x-c[l];rem-=c[l];});
@@ -8739,7 +8740,7 @@ window.qgRm=function(i){Q.draft.qs.splice(i,1);drawDraft();};
 window.qgRep=function(i){var q=Q.draft.qs[i];pickD(q.difficulty||null,Q.draft.qs.length+8).then(function(r){var c=(r||[]).find(function(x){return !inD(x.id);});if(!c)return alert('لا توجد بدائل متاحة');Q.draft.qs[i]=c;drawDraft();}).catch(err);};
 window.qgAdd=function(){pickD(null,Q.draft.qs.length+8).then(function(r){var c=(r||[]).find(function(x){return !inD(x.id);});if(!c)return alert('لا توجد أسئلة إضافية متاحة');Q.draft.qs.push(c);drawDraft();}).catch(err);};
 window.qgAddB=function(){var ids=Object.keys(Q.basket).filter(function(k){return Q.basket[k];});if(!ids.length)return alert('السلة فارغة');fetchByIds(ids).then(function(qs){var n=0;qs.forEach(function(q){if(!inD(q.id)){Q.draft.qs.push(q);n++;}});alert('أُضيف '+n+' سؤال');drawDraft();}).catch(err);};
-window.qgSave=function(){var d=Q.draft;if(!d||!d.qs.length)return alert('الاختبار فارغ');var t=prompt('اسم الاختبار',d.title);if(t===null)return;t=t.trim()||d.title;
+window.qgSave=function(){var d=Q.draft;if(!d||!d.qs.length)return alert('الاختبار فارغ');var validQs=d.qs.filter(hasValidAns);if(!validQs.length)return alert('لا يمكن حفظ الاختبار لأن جميع الأسئلة بلا إجابة صحيحة محددة!');if(validQs.length<d.qs.length){alert('تم استبعاد '+(d.qs.length-validQs.length)+' سؤال لعدم وجود إجابة صحيحة محددة لها.');d.qs=validQs;drawDraft();}var t=prompt('اسم الاختبار',d.title);if(t===null)return;t=t.trim()||d.title;
   api('POST','quizzes',{title:t,question_ids:d.qs.map(function(q){return q.id;}),settings:{topics:d.topics}},'return=minimal').then(function(){alert('تم حفظ الاختبار. انشره من «النشر والنتائج».');genView();}).catch(err);};
 function qgPrev(title,qs){document.getElementById('qgOut').innerHTML='<div class="card"><b>'+esc(title)+'</b> · '+qs.length+' سؤال'+qs.map(function(q,i){return '<div class="question-box">سؤال '+(i+1)+' — الإجابة: <b>'+ARC(q.correct)+'</b><img class="q-img-preview" loading="lazy" src="'+imgUrl(q.image_path)+'"></div>';}).join('')+'</div>';window.scrollTo(0,document.getElementById('qgOut').offsetTop);}
 window.qgShow=function(id){api('GET','quizzes?select=*&id=eq.'+id).then(function(r){var z=r[0];return api('GET','questions?select=*&id=in.('+z.question_ids.join(',')+')').then(function(qs){var m={};qs.forEach(function(q){m[q.id]=q;});qgPrev(z.title,z.question_ids.map(function(i){return m[i];}).filter(Boolean));});}).catch(err);};
