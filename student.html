@@ -940,21 +940,22 @@
       }
     }
 
-    var stGrade = String(st.grade_name || '').trim();
-    var stGroup = String(st.group_name || '').trim();
+    function normAr(s) {
+      return String(s || '').trim().replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+    }
+    var stGrade = normAr(st.grade_name);
+    var stGroup = normAr(st.group_name);
     var rawNew = Array.isArray(d.new_exams) ? d.new_exams : [];
     var newExams = rawNew.filter(function(ex) {
-      var tg = String(ex.target_grade || '').trim();
-      var tgr = String(ex.target_group || '').trim();
-      if (tgr && stGroup && tgr !== stGroup) return false;
-      if (tgr && !stGroup) return false;
-      if (tg && stGrade && tg !== stGrade) return false;
-      if (tg && !stGrade) return false;
+      var tg = normAr(ex.target_grade);
+      var tgr = normAr(ex.target_group);
+      if (tgr && (!stGroup || tgr !== stGroup)) return false;
+      if (tg && (!stGrade || tg !== stGrade)) return false;
       return true;
     });
     var rawOld = Array.isArray(d.old_exams) ? d.old_exams : [];
     var oldExams = rawOld.filter(function(ex) {
-      var tg = String(ex.target_grade || '').trim();
+      var tg = normAr(ex.target_grade);
       if (tg && stGrade && tg !== stGrade) return false;
       return true;
     });
@@ -1006,7 +1007,14 @@
   function renderNewExams(exams) {
     var box = $('newExamsBox');
     if (!exams.length) {
-      box.innerHTML = '<div class="center muted" style="padding:26px 10px;">لا توجد اختبارات جديدة مفتوحة حالياً.</div>';
+      var stInfo = (state.portal && state.portal.student) || {};
+      var warn = (!stInfo.grade_name || !stInfo.group_name)
+        ? '<div style="margin-top:8px;font-size:12.5px;color:#b45309;font-weight:700;">⚠️ ملاحظة: حسابك حالياً ' +
+          (!stInfo.group_name ? 'غير مربوط بمجموعة' : 'مجموعته (' + escapeHtml(stInfo.group_name) + ')') +
+          (!stInfo.grade_name ? ' وغير مربوط بصف دراسي' : '') +
+          ' — إذا نشر المعلم اختباراً لصف محدد، يرجى ربط مجموعتك بالصف من لوحة المعلم.</div>'
+        : '';
+      box.innerHTML = '<div class="center muted" style="padding:26px 10px;">لا توجد اختبارات جديدة مفتوحة حالياً.' + warn + '</div>';
       return;
     }
     box.innerHTML = exams.map(function(ex) {
