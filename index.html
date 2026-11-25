@@ -1576,7 +1576,7 @@ var STORAGE_KEY='platform2_master_db_v1';
 var LEGACY_KEYS=[];
 var state={
   studentAccounts:{},
-  teacherPhone:'',schoolName:'',schoolLogo:'',changeLog:[],groupTargets:{},appPin:'',guestMode:false,themeColor:'#1e40af',autoBackupEnabled:true,lastAutoBackup:0,quizMaxAttempts:1,riskThreshold:50,activityLog:[],termSnapshots:[],sensitivePin:'',payments:{},payMonths:[],payFee:0,
+  teacherPhone:'',schoolName:'',schoolLogo:'',portalScope:'grade',changeLog:[],groupTargets:{},appPin:'',guestMode:false,themeColor:'#1e40af',autoBackupEnabled:true,lastAutoBackup:0,quizMaxAttempts:1,riskThreshold:50,activityLog:[],termSnapshots:[],sensitivePin:'',payments:{},payMonths:[],payFee:0,
   groups:['المجموعة الأولى','المجموعة الثانية'],
   exams:[
     {id:'ex1',name:'اختبار 1',type:'exam',max:20},
@@ -1644,6 +1644,7 @@ function normalizeState(raw){
   state.challenges=Array.isArray(raw.challenges)?raw.challenges.filter(function(c){return c&&typeof c.id==='string'&&typeof c.to==='string';}).slice(0,30):[];
   state.msgTpl=(raw.msgTpl&&typeof raw.msgTpl==='object'&&!Array.isArray(raw.msgTpl))?raw.msgTpl:{};state.rewards=Array.isArray(raw.rewards)?raw.rewards:[];state.redeemed=(raw.redeemed&&typeof raw.redeemed==='object'&&!Array.isArray(raw.redeemed))?raw.redeemed:{};state.gmSeen=(raw.gmSeen&&typeof raw.gmSeen==='object'&&!Array.isArray(raw.gmSeen))?raw.gmSeen:{};
   state.sensitivePin=typeof raw.sensitivePin==='string'?raw.sensitivePin:'';
+  state.portalScope=(raw.portalScope&&['grade','group','self','all'].indexOf(raw.portalScope)>=0)?raw.portalScope:'grade';
   state.payments=(raw.payments&&typeof raw.payments==='object')?raw.payments:{};
   state.payMonths=Array.isArray(raw.payMonths)?raw.payMonths.filter(function(m){return /^\d{4}-\d{2}$/.test(m);}):[];
   state.attendance=(raw.attendance&&typeof raw.attendance==='object')?raw.attendance:{};
@@ -2309,10 +2310,39 @@ window.openAppSettings=function(){
   $('quizMaxAttemptsInput').value=state.quizMaxAttempts||1;
   if($('riskThresholdInput'))$('riskThresholdInput').value=state.riskThreshold||50;
   if($('sensitivePinInput'))$('sensitivePinInput').value=state.sensitivePin||'';
+  if($('portalScopeSelect'))$('portalScopeSelect').value=state.portalScope||'grade';
+  if($('portalScopeStatus'))$('portalScopeStatus').textContent='';
   applyThemeColor(state.themeColor||'#1e40af');
   $('appSettingsModal').style.display='flex';
 };
 window.closeAppSettings=function(){$('appSettingsModal').style.display='none';};
+window.savePortalScope=function(){
+  var sel=$('portalScopeSelect'), st=$('portalScopeStatus');
+  var val=(sel&&sel.value)||'grade';
+  if(['grade','group','self','all'].indexOf(val)<0) val='grade';
+  state.portalScope=val;
+  saveData();
+  if(st) st.textContent='جارٍ الحفظ والمزامنة مع بوابة الطالب...';
+  var syncDone=function(){
+    if(window.SB_URL && window.sbHeaders){
+      fetch(window.SB_URL+'/rest/v1/announcements?on_conflict=id',{
+        method:'POST',
+        headers:window.sbHeaders({'Prefer':'resolution=merge-duplicates,return=minimal'}),
+        body:JSON.stringify({id:2,message:JSON.stringify({portal_scope:val}),is_active:false,updated_at:new Date().toISOString()})
+      }).then(function(r){
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        if(st) st.textContent='✅ تم الحفظ والمزامنة! سيُطبّق فوراً في بوابة الطالب.';
+      }).catch(function(){
+        if(st) st.textContent='✅ تم الحفظ محلياً (تأكد من تسجيل الدخول للمزامنة السحابية).';
+      });
+    } else if(st){
+      st.textContent='✅ تم الحفظ.';
+    }
+  };
+  if(window.ikhAutoSyncGradesSilent){ window.ikhAutoSyncGradesSilent().then(syncDone, syncDone); }
+  else syncDone();
+};
+
 
 window.saveAppPin=function(){
   var p=($('settingsPinInput').value||'').replace(/\D/g,'');
@@ -7274,6 +7304,20 @@ setTimeout(installControls,1200);
       <h3 style="margin:0;color:#1e40af;">إعدادات المنصة</h3>
       <button type="button" class="secondary" onclick="closeAppSettings()">إغلاق</button>
     </div>
+    <div class="card" style="margin-bottom:10px;border:1.5px solid #93c5fd;background:#eff6ff;">
+      <strong style="color:#1e3a8a;">🎓 التحكم في بوابة الطالب (إيه اللي يظهر للطالب؟)</strong>
+      <div style="font-size:12px;color:#475569;margin:4px 0 8px;">اختر نطاق عرض الترتيب ولوحة الشرف في بوابة الطالب لمنع مقارنة صف بصف آخر:</div>
+      <div class="form-row">
+        <select id="portalScopeSelect" style="flex:1;min-width:190px;">
+          <option value="grade">🏫 صفّه فقط (أولى مع أولى، تانية مع تانية...)</option>
+          <option value="group">👥 مجموعته فقط (ترتيب وأوائل مجموعته بس)</option>
+          <option value="self">🔒 درجاته هو فقط (بدون ترتيب أو لوحة شرف)</option>
+          <option value="all">🌐 كل الصفوف (الكل معاً)</option>
+        </select>
+        <button type="button" onclick="savePortalScope()">حفظ وتطبيق</button>
+      </div>
+      <div id="portalScopeStatus" style="font-size:12px;color:#0f766e;margin-top:6px;"></div>
+    </div>
     <div class="card" style="margin-bottom:10px;">
       <strong>الرقم السري (PIN)</strong>
       <div style="font-size:12px;color:#64748b;margin:4px 0 8px;">اتركيه فارغاً لإلغاء الحماية<br><span style="color:#b45309;">تنبيه: الـ PIN يمنع الفضول العادي فقط وليس تشفيراً؛ البيانات نفسها مخزنة في المتصفح وفي النسخ الاحتياطية، فلا تعتمد عليه لحماية بيانات حساسة.</span></div>
@@ -8237,6 +8281,9 @@ window.qcPublish=function(){var z=Q.quizzes[+document.getElementById('qpQ').valu
   var grp=(document.getElementById('qpGroup')&&document.getElementById('qpGroup').value)||'';
   var stuId=(document.getElementById('qpStuId')&&document.getElementById('qpStuId').value)||'';
   var al=stuId?[stuId]:null;
+  if(!grade && !grp && !stuId){
+    if(!confirm('تنبيه: لم تحدد صفاً دراسياً أو مجموعة!\nسيظهر هذا الاختبار لجميع الصفوف (أولى وثانية وثالثة).\n\nاضغط «إلغاء» لتحديد الصف أو المجموعة أولاً، أو «موافق» للنشر للجميع.')) return;
+  }
   var wp=!!(document.getElementById('qpWp')&&document.getElementById('qpWp').checked);
   var revIso=rev?new Date(rev).toISOString():(c?new Date(c).toISOString():null);
   var doPub=function(){api('POST','exams',{quiz_id:z.id,title:z.title,question_ids:z.question_ids,duration_min:+document.getElementById('qpD').value||30,max_attempts:+document.getElementById('qpA').value||1,show_result:document.getElementById('qpS').checked,opens_at:o?new Date(o).toISOString():null,closes_at:c?new Date(c).toISOString():null,review_at:revIso,allowed_students:al,target_grade:grade,target_group:grp,require_work_photos:wp},'return=representation').then(function(r){

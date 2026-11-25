@@ -871,13 +871,29 @@
 
   function loadPortal(doneCb) {
     showAlert('portalErr', '');
-    sbRpc('student_portal_data', { p_phone: state.phone, p_code: state.code })
-      .then(function(res) {
+    var scopeReq = fetch(SB_URL + '/rest/v1/announcements?id=eq.2&select=message', {
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+    }).then(function(r) { return r.ok ? r.json() : []; }).then(function(rows) {
+      if (Array.isArray(rows) && rows[0] && rows[0].message) {
+        var parsed = JSON.parse(rows[0].message);
+        if (parsed && parsed.portal_scope) return parsed.portal_scope;
+      }
+      return null;
+    }).catch(function() { return null; });
+
+    Promise.all([
+      sbRpc('student_portal_data', { p_phone: state.phone, p_code: state.code }),
+      scopeReq
+    ]).then(function(pair) {
+        var res = pair[0], cloudScope = pair[1];
         if (!res || res.error) {
           var msg = (res && res.error) || 'رقم الهاتف أو الكود غير صحيح';
           if (doneCb) doneCb(msg); else showAlert('portalErr', msg);
           return;
         }
+        var sc = (res.portal_scope || cloudScope || 'grade');
+        if (['grade', 'group', 'self', 'all'].indexOf(sc) < 0) sc = 'grade';
+        state.portalScope = sc;
         state.portal = res;
         renderPortal();
         showView('viewPortal');
@@ -924,8 +940,24 @@
       }
     }
 
-    var newExams = Array.isArray(d.new_exams) ? d.new_exams : [];
-    var oldExams = Array.isArray(d.old_exams) ? d.old_exams : [];
+    var stGrade = String(st.grade_name || '').trim();
+    var stGroup = String(st.group_name || '').trim();
+    var rawNew = Array.isArray(d.new_exams) ? d.new_exams : [];
+    var newExams = rawNew.filter(function(ex) {
+      var tg = String(ex.target_grade || '').trim();
+      var tgr = String(ex.target_group || '').trim();
+      if (tgr && stGroup && tgr !== stGroup) return false;
+      if (tgr && !stGroup) return false;
+      if (tg && stGrade && tg !== stGrade) return false;
+      if (tg && !stGrade) return false;
+      return true;
+    });
+    var rawOld = Array.isArray(d.old_exams) ? d.old_exams : [];
+    var oldExams = rawOld.filter(function(ex) {
+      var tg = String(ex.target_grade || '').trim();
+      if (tg && stGrade && tg !== stGrade) return false;
+      return true;
+    });
     var mistakes = Array.isArray(d.mistakes) ? d.mistakes : [];
     var topicStats = Array.isArray(d.topic_stats) ? d.topic_stats : [];
     var videos = Array.isArray(d.videos) ? d.videos : [];
@@ -996,6 +1028,8 @@
             '<h3>' + escapeHtml(ex.title) + '</h3>' +
             '<div class="exam-meta">' +
               (hasActive ? '<span class="badge badge-warn">قيد التنفيذ</span>' : '<span class="badge">متاح الآن</span>') +
+              (ex.target_grade ? '<span class="badge" style="background:#dbeafe;color:#1e3a8a;">🏫 ' + escapeHtml(ex.target_grade) + '</span>' : '') +
+              (ex.target_group ? '<span class="badge" style="background:#ccfbf1;color:#115e59;">👥 ' + escapeHtml(ex.target_group) + '</span>' : '') +
               '<span>⏱ المدة: ' + (ex.duration_min || 30) + ' دقيقة</span>' +
               '<span>🔄 المحاولات: ' + used + ' / ' + maxA + '</span>' +
             '</div>' +
@@ -1022,14 +1056,47 @@
 
   // 2. اختباراتي القديمة + الترتيب في الاختبار والمجموعة والدفعة
   function renderOldExams(oldExams, overall) {
-    if (overall && overall.total_students > 0 && overall.rank) {
-      $('overallSummaryCard').classList.remove('hidden');
-      $('ovBatchRank').textContent = overall.rank + ' من ' + overall.total_students;
-      $('ovLevel').textContent = overall.level || '-';
-      $('ovAvg').textContent = (overall.avg_pct != null ? overall.avg_pct + '%' : '-');
+    var scope = state.portalScope || 'grade';
+    var st = (state.portal && state.portal.student) || {};
+    var myId = st.student_id != null ? String(st.student_id) : '';
+    var scoredOld = oldExams.filter(function(x) { return x.show_result && x.pct != null; });
+    var calcAvg = scoredOld.length
+      ? Math.round(scoredOld.reduce(function(a, b) { return a + Number(b.pct || 0); }, 0) / scoredOld.length)
+      : (overall && overall.avg_pct != null ? overall.avg_pct : null);
+
+    var ovCard = $('overallSummaryCard');
+    var ovTitle = ovCard ? ovCard.querySelector('div') : null;
+    var ovBatchBox = $('ovBatchRank') ? $('ovBatchRank').closest('.rank-box') : null;
+    var ovBatchLbl = ovBatchBox ? ovBatchBox.querySelector('.rlbl') : null;
+    var ovLevelBox = $('ovLevel') ? $('ovLevel').closest('.rank-box') : null;
+
+    if (oldExams.length > 0 || (overall && overall.total_students > 0 && overall.rank)) {
+      ovCard.classList.remove('hidden');
+      $('ovAvg').textContent = (calcAvg != null ? calcAvg + '%' : '-');
       $('ovCount').textContent = oldExams.length;
+
+      if (scope === 'self') {
+        if (ovTitle) ovTitle.textContent = '📊 ملخص درجاتك';
+        if (ovBatchBox) ovBatchBox.style.display = 'none';
+        if (ovLevelBox) ovLevelBox.style.display = 'none';
+      } else if (scope === 'group') {
+        if (ovTitle) ovTitle.textContent = '🏆 ملخص مستواك في مجموعتك' + (st.group_name ? ' (' + st.group_name + ')' : '');
+        if (ovBatchBox) ovBatchBox.style.display = '';
+        if (ovBatchLbl) ovBatchLbl.textContent = 'ترتيبك في مجموعتك';
+        var gList = (state.portal && Array.isArray(state.portal.leaderboard_group)) ? state.portal.leaderboard_group : [];
+        var meRow = gList.find(function(x) { return myId && String(x.student_id) === myId; });
+        $('ovBatchRank').textContent = (meRow && meRow.rank) ? (meRow.rank + ' من ' + gList.length) : 'غير متاح';
+        if (ovLevelBox) ovLevelBox.style.display = 'none';
+      } else {
+        if (ovTitle) ovTitle.textContent = '🏆 ملخص مستواك العام في ' + (st.grade_name || 'صفك');
+        if (ovBatchBox) ovBatchBox.style.display = '';
+        if (ovBatchLbl) ovBatchLbl.textContent = scope === 'all' ? 'ترتيبك العام' : 'ترتيبك العام في الصف';
+        $('ovBatchRank').textContent = (overall && overall.rank && overall.total_students) ? (overall.rank + ' من ' + overall.total_students) : '-';
+        if (ovLevelBox) ovLevelBox.style.display = '';
+        $('ovLevel').textContent = (overall && overall.level) || '-';
+      }
     } else {
-      $('overallSummaryCard').classList.add('hidden');
+      ovCard.classList.add('hidden');
     }
 
     var box = $('oldExamsBox');
@@ -1075,6 +1142,7 @@
           '</div>' +
           reviewBtn +
         '</div>' +
+        (scope === 'self' ? '' :
         '<div class="rank-grid">' +
           '<div class="rank-box r-exam">' +
             '<div class="rlbl">ترتيبك في هذا الاختبار</div>' +
@@ -1084,15 +1152,16 @@
             '<div class="rlbl">ترتيبك في مجموعتك' + (ex.group_name ? ' (' + escapeHtml(ex.group_name) + ')' : '') + '</div>' +
             '<div class="rval">' + groupRankTxt + '</div>' +
           '</div>' +
+          (scope === 'group' ? '' :
           '<div class="rank-box r-batch">' +
-            '<div class="rlbl">ترتيبك في الصف</div>' +
+            '<div class="rlbl">' + (scope === 'all' ? 'ترتيبك العام' : 'ترتيبك في الصف') + '</div>' +
             '<div class="rval">' + batchRankTxt + '</div>' +
           '</div>' +
           '<div class="rank-box r-level">' +
             '<div class="rlbl">مستواك بالصف</div>' +
             '<div class="rval">' + escapeHtml(levelTxt) + '</div>' +
-          '</div>' +
-        '</div>' +
+          '</div>') +
+        '</div>') +
       '</div>';
     }).join('');
 
@@ -1142,15 +1211,38 @@
   
   // لوحة الشرف (أوائل الدفعة وأوائل المجموعة)
   function renderHonorRoll(batchList, groupList, currentSt) {
-    var hasAny = (Array.isArray(batchList) && batchList.length > 0) || (Array.isArray(groupList) && groupList.length > 0);
-    if (!hasAny) {
+    var scope = state.portalScope || 'grade';
+    if (scope === 'self') {
+      $('honorCard').classList.add('hidden');
+      return;
+    }
+    var stGrade = String((currentSt && currentSt.grade_name) || '').trim();
+    var filteredBatch = Array.isArray(batchList) ? batchList.slice() : [];
+    if (scope === 'grade' && stGrade) {
+      var hasGradeField = filteredBatch.some(function(x) { return x && x.grade_name; });
+      if (hasGradeField) {
+        filteredBatch = filteredBatch.filter(function(x) { return String(x.grade_name || '').trim() === stGrade; });
+        filteredBatch.forEach(function(x, i) { x.rank = i + 1; });
+      }
+    }
+    batchList = filteredBatch;
+
+    if (scope === 'group') {
+      batchList = [];
+      state.honorMode = 'group';
+    }
+
+    var hasBatch = Array.isArray(batchList) && batchList.length > 0;
+    var hasGroup = Array.isArray(groupList) && groupList.length > 0;
+    if (!hasBatch && !hasGroup) {
       $('honorCard').classList.add('hidden');
       return;
     }
     $('honorCard').classList.remove('hidden');
-    var hasGroup = Array.isArray(groupList) && groupList.length > 0;
+    $('btnHonorBatch').classList.toggle('hidden', !hasBatch || scope === 'group');
     $('btnHonorGroup').classList.toggle('hidden', !hasGroup);
     if (!hasGroup && state.honorMode === 'group') state.honorMode = 'batch';
+    if (!hasBatch && state.honorMode === 'batch') state.honorMode = 'group';
 
     $('btnHonorBatch').classList.toggle('active', state.honorMode === 'batch');
     $('btnHonorGroup').classList.toggle('active', state.honorMode === 'group');
